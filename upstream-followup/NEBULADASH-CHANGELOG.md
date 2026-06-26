@@ -24,7 +24,7 @@
 
 ### release: prepare v2.8.0-nebula.3
 
-- 提交：当前工作区
+- 提交：`ca42aedc`
 - 类型：版本发布 / GitHub Release
 - 目的：发布包含路由器端 A/B 更新器、风险弹窗、CRLF 兼容和 query-token fallback 的正式版本，让前端“更新 NebulaDash”按钮能从 NebulaDash latest Release 拉到当前构建。
 
