@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Verify tag matches package version
+        shell: bash
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          test "${GITHUB_REF_NAME}" = "v${package_version}"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit tracked public files
+        shell: bash
+        run: |
+          forbidden="$(
+            git ls-files |
+              grep -E '(^|/)(\.env($|\.)|\.npmrc$|\.omx/|node_modules/|dist/|\.pnpm-store/)|\.(zip|tar\.gz|bak|tmp|pem|key|p12|pfx)$' ||
+              true
+          )"
+
+          if [ -n "${forbidden}" ]; then
+            echo "Forbidden tracked files:"
+            echo "${forbidden}"
+            exit 1
+          fi
+
+      - name: Verify source
+        run: |
+          pnpm exec eslint .
+          pnpm test
+          pnpm type-check
+
+      - name: Build release archives
+        shell: bash
+        run: |
+          build_archive() {
+            local command="$1"
+            local archive="$2"
+            rm -rf dist
+            pnpm run "${command}"
+            (
+              cd dist
+              zip -qr "../${archive}" .
+            )
+          }
+
+          build_archive build dist.zip
+          build_archive build:no-fonts dist-no-fonts.zip
+          build_archive build:cdn-fonts dist-cdn-fonts.zip
+          build_archive build:firasans-only dist-firasans-only.zip
+          build_archive build:misans-only dist-misans-only.zip
+          build_archive build:pingfang-only dist-pingfang-only.zip
+          build_archive build:sarasa-only dist-sarasa-only.zip
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist*.zip
