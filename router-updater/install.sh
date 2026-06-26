@@ -6,10 +6,21 @@ CGI_PATH="${CGI_PATH:-/www/cgi-bin/nebuladash-updater}"
 TARGET_LINK="${TARGET_LINK:-/www/nebuladash}"
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 
+strip_crlf_file() {
+  file="$1"
+  if [ -f "$file" ]; then
+    tmp="$file.tmp"
+    tr -d '\r' < "$file" > "$tmp"
+    mv "$tmp" "$file"
+  fi
+}
+
 mkdir -p "$RUNTIME_DIR" "$RUNTIME_DIR/work" "$RUNTIME_DIR/logs" "$(dirname "$CGI_PATH")"
 cp "$SCRIPT_DIR/updater.sh" "$RUNTIME_DIR/updater.sh"
+strip_crlf_file "$RUNTIME_DIR/updater.sh"
 chmod +x "$RUNTIME_DIR/updater.sh"
 cp "$SCRIPT_DIR/nebuladash-updater.cgi" "$CGI_PATH"
+strip_crlf_file "$CGI_PATH"
 chmod +x "$CGI_PATH"
 
 if [ ! -f "$RUNTIME_DIR/config" ]; then
@@ -33,6 +44,8 @@ EOF
 else
   echo "Existing config kept: $RUNTIME_DIR/config"
 fi
+
+strip_crlf_file "$RUNTIME_DIR/config"
 
 echo "NebulaDash updater installed."
 echo "Endpoint: /cgi-bin/nebuladash-updater"

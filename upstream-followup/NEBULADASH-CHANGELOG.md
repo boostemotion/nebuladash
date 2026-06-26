@@ -22,6 +22,42 @@
 
 ## 2026-06-26
 
+### fix: harden router updater token parsing against CRLF
+
+- 提交：`8f0221b0`
+- 类型：路由器更新器 / 安装兼容性
+- 目的：修复 OpenWrt 上 CGI 已命中但始终返回 `Unauthorized updater request` 的问题，避免脚本或配置文件带 CRLF 时 token 肉眼一致但字符串比较失败。
+
+涉及文件：
+
+- `router-updater/install.sh`
+- `router-updater/nebuladash-updater.cgi`
+- `src/helper/routerUpdaterScripts.spec.ts`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 安装器复制 `updater.sh` 和 CGI 后会清理 CRLF，再设置可执行权限。
+- 安装器会清理新建或既有 `/usr/share/nebuladash-updater/config` 的 CRLF。
+- CGI 校验 `X-NebulaDash-Token` 时会去掉请求头和配置 token 中的 `\r`，兼容已生成的异常配置。
+- 新增脚本级回归测试，约束 `router-updater/` 发布脚本保持 LF，并要求 installer 保留安装后 CRLF 清理逻辑。
+
+验证：
+
+- `pnpm test src/helper/routerUpdaterScripts.spec.ts`：先失败于 installer 缺少 CRLF 清理逻辑，实现后 52/52 pass
+- `pnpm test`：52/52 pass
+- `pnpm type-check`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+- `git diff --check`：pass，仅提示 Windows 工作区换行转换
+- `_deploy/router-updater.zip` 内容检查：`install.sh`、`updater.sh`、`nebuladash-updater.cgi`、`config.example` 均不含 `\r`
+- 已重新生成 `_deploy/nebuladash-dist-current.zip` 和 `_deploy/router-updater.zip`
+
+后续注意：
+
+- 用户已部署的旧安装可先执行 `sed -i 's/\r$//' /usr/share/nebuladash-updater/config /usr/share/nebuladash-updater/updater.sh /www/cgi-bin/nebuladash-updater` 临时恢复。
+- 新部署包需要重新上传并执行 `router-updater/install.sh`，让安装器把运行目录脚本和配置重新规范化。
+
 ### feat: warn before risky router updater installs
 
 - 提交：当前工作区

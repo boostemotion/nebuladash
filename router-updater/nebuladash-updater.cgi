@@ -6,6 +6,10 @@ UPDATER="${NEBULADASH_UPDATER_BIN:-/usr/share/nebuladash-updater/updater.sh}"
 
 printf 'Content-Type: application/json\r\n\r\n'
 
+strip_cr() {
+  printf '%s' "$1" | tr -d '\r'
+}
+
 if [ ! -f "$CONFIG" ]; then
   printf '{"ok":false,"status":"error","message":"Missing updater config"}\n'
   exit 1
@@ -15,9 +19,10 @@ fi
 . "$CONFIG"
 
 ACTION="$(printf '%s' "${QUERY_STRING:-}" | sed -n 's/^.*action=\([^&]*\).*$/\1/p')"
-TOKEN="${HTTP_X_NEBULADASH_TOKEN:-}"
+TOKEN="$(strip_cr "${HTTP_X_NEBULADASH_TOKEN:-}")"
+EXPECTED_TOKEN="$(strip_cr "${NEBULADASH_TOKEN:-}")"
 
-if [ "$TOKEN" != "$NEBULADASH_TOKEN" ]; then
+if [ "$TOKEN" != "$EXPECTED_TOKEN" ]; then
   printf '{"ok":false,"status":"error","message":"Unauthorized updater request"}\n'
   exit 1
 fi
