@@ -22,6 +22,37 @@
 
 ## 2026-06-26
 
+### docs: downgrade rollback test and uptime follow-up
+
+- 提交：当前工作区
+- 类型：路线调整 / 上游审计
+- 目的：根据实际使用判断，将路由器更新器 rollback 破坏性实测从近期优先级降级；同时确认上游 `bed57f21` 后端 uptime 展示依赖 sing-box native startedAt，不适合当前 OpenClash / Mihomo 主线空移植。
+
+涉及文件：
+
+- `upstream-followup/UPSTREAM-FEATURES.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- rollback 实测从“下一步优先项”调整为低优先级验证项；已有 A/B 分区和 SSH 手动修复路径，实际使用频率低，后续改更新器核心逻辑时再做破坏性实测。
+- `bed57f21` 不再列为可直接跟进项；上游实现依赖 sing-box native gRPC `GetStartedAt` 和 `assembly/version.ts`，当前 OpenClash / Mihomo 没有通用 startedAt 来源。
+- 下一步建议改为优先做真实 OpenClash / Mihomo Provider 超时、缓存和后端切换回归；不依赖路由器时再评估多后端标题、连接状态延迟统计或代理图标映射小范围适配。
+
+验证：
+
+- `git show --stat --patch --minimal bed57f21`：确认上游 uptime 实现依赖 `src/assembly/version.ts`、`BackendUptime.vue` 和 sing-box native `getStartedAt`
+- `Select-String -Path 'upstream-followup\*.md' -Pattern 'rollback|uptime|运行时间|后端 uptime|后端运行时间|下一步|优先' -Context 2,3`：确认需更新的路线文本
+- `pnpm exec prettier --check upstream-followup\UPSTREAM-FEATURES.md upstream-followup\AI-HANDOFF.md upstream-followup\NEBULADASH-ITERATION-PLAN.md upstream-followup\NEBULADASH-CHANGELOG.md`：通过
+- `git diff --check`：通过，仅提示 Windows 工作区下 Git 可能在下次触碰文件时转换 CRLF
+
+后续注意：
+
+- 不要为了显示 uptime 引入空数据 UI；除非后续确认 Mihomo / OpenClash 有可靠启动时间字段，或决定接入 sing-box native。
+- rollback 能力仍保留在更新器和前端中，只是当前不优先做破坏性实机验证。
+
 ### docs: mark upstream select style fixes as landed
 
 - 提交：`d6cf5e9e`

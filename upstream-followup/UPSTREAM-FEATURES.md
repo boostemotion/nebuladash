@@ -22,11 +22,13 @@
 
 ### 可选择跟进
 
-- `bed57f21`：后端 uptime 展示
 - `314afebb`：连接状态延迟统计
 
 ### 需要适配再跟进
 
+- `bed57f21`：后端 uptime 展示。上游实现依赖 sing-box native gRPC
+  `GetStartedAt` 和 `assembly/version.ts`，当前 OpenClash / Mihomo 主线没有通用 startedAt 来源；
+  不做空 UI 移植，除非后续明确接入 sing-box native 或发现 Mihomo 可用的启动时间字段。
 - `357a9d52`：代理图标映射增强，仅影响 sing-box assembly，若迁移需与本地 `iconReflectList` 和 Mihomo 代理页融合
 - `30825bd6`：连接快照接口，依赖上游 `assembly/connections/*` 分层，不能整文件覆盖
 - `7fa7c5b3` / `87182973`：日志订阅和日志等级处理分层，涉及 `store/logs.ts` 和 assembly 层，需单独评估
@@ -125,12 +127,14 @@
 ### P1
 
 - 真实 OpenClash / Mihomo Provider 超时、缓存和后端切换回归
-- 路由器更新器 rollback 实测
-- 后端 uptime / 多后端标题等非视觉核心信息展示，按需评估
+- 多后端标题等非视觉核心信息展示，按需评估
 
 ### P2
 
+- 路由器更新器 rollback 实测。已有 A/B 与手动修复路径，实际使用频率低，后续改更新器核心逻辑时再做破坏性实测。
 - 代理图标映射增强，需与本地 `iconReflectList` 融合
+- 后端 uptime 展示，需先确认 OpenClash / Mihomo 是否存在可靠启动时间来源；上游 `bed57f21`
+  只适用于 sing-box native startedAt。
 
 ### P3
 
