@@ -24,7 +24,7 @@
 
 ### fix: support router updater query-token fallback
 
-- 提交：当前工作区
+- 提交：`47aae275`
 - 类型：路由器更新器 / CGI 兼容性
 - 目的：修复 OpenWrt uhttpd 通过 HTTP 调用 CGI 时不向脚本传递 `X-NebulaDash-Token` 自定义请求头，导致脚本直跑正常但 `wget`/前端始终 `Unauthorized updater request` 的问题。
 
