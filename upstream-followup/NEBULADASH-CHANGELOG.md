@@ -24,7 +24,7 @@
 
 ### ci: publish router updater archive in releases
 
-- 提交：当前工作区
+- 提交：`36e21a8f`
 - 类型：发布流程 / 路由器更新器
 - 目的：把 `router-updater.zip` 纳入 GitHub Release 产物，避免用户每次依赖本地 `_deploy/router-updater.zip` 手工传递安装器。
 
