@@ -72,6 +72,8 @@ const zh: LANG_MESSAGE = {
   providerStatusFresh: '已更新',
   providerStatusTimeout: '代理商接口超时',
   providerStatusError: '代理商加载失败',
+  providerLoadTimeoutTip: '代理商接口超时，已保留可用缓存',
+  providerLoadErrorTip: '代理商加载失败，已保留可用缓存',
   upgradeUI: '更新面板',
   upgradeUIDisabledTip: '后端 UI 下载地址未指向 NebulaDash，已禁止更新面板。请配置为：',
   reloadConfigs: '重载配置',

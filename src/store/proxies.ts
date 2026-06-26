@@ -22,6 +22,7 @@ import {
   getCachedProviderLoadStatus,
   getProviderFailureStatus,
   getProxyCacheKey,
+  shouldNotifyProviderFailure,
   type ProviderCacheMeta,
   type ProviderLoadStatus,
 } from '@/helper/proxyCache'
@@ -144,8 +145,10 @@ export const getIPv6ByName = (proxyName: string) => {
 }
 
 const PROVIDER_CACHE_FRESH_DURATION = 30 * 60 * 1000
+const PROVIDER_FAILURE_NOTIFICATION_DEDUPE = 60 * 1000
 let fetchGeneration = 0
 let lastProxyData: { proxies: Record<string, Proxy> } | null = null
+let lastProxyProviderFailureNotifiedAt = 0
 let proxyLoadingPromise: Promise<void> | null = null
 let proxyProviderLoadingPromise: Promise<void> | null = null
 
@@ -243,6 +246,7 @@ watch(
     isProxyLoading.value = false
     proxyProviderLoadStatus.value = 'idle'
     lastProxyData = null
+    lastProxyProviderFailureNotifiedAt = 0
     proxyMap.value = {}
     proxyGroupList.value = []
     proxyProviederList.value = []
@@ -330,6 +334,7 @@ export const fetchProxyProviders = async (force = false) => {
         durationMs: Math.round(performance.now() - requestStartedAt),
         status: 'fresh',
       }
+      lastProxyProviderFailureNotifiedAt = 0
       proxyProviderLoadStatus.value = 'fresh'
       applyProxyData(lastProxyData, providers)
     })
@@ -344,6 +349,24 @@ export const fetchProxyProviders = async (force = false) => {
           status: failureStatus,
         }
         proxyProviderLoadStatus.value = failureStatus
+
+        const now = Date.now()
+
+        if (
+          shouldNotifyProviderFailure({
+            lastNotifiedAt: lastProxyProviderFailureNotifiedAt,
+            now,
+            dedupeMs: PROVIDER_FAILURE_NOTIFICATION_DEDUPE,
+          })
+        ) {
+          lastProxyProviderFailureNotifiedAt = now
+          showNotification({
+            content:
+              failureStatus === 'timeout' ? 'providerLoadTimeoutTip' : 'providerLoadErrorTip',
+            key: `proxy-provider-load-${requestBackendUuid}`,
+            type: 'alert-error',
+          })
+        }
       }
     })
     .finally(() => {

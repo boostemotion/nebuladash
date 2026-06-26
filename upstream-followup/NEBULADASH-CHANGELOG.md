@@ -22,6 +22,47 @@
 
 ## 2026-06-26
 
+### feat: dedupe provider failure notifications
+
+- 提交：当前工作区
+- 类型：Provider 失败提示降噪
+- 目的：在 `/providers/proxies` 超时或失败时给出可读提示，同时避免慢接口连续失败时反复刷通知。
+
+涉及文件：
+
+- `src/helper/proxyCache.ts`
+- `src/helper/proxyCache.spec.ts`
+- `src/store/proxies.ts`
+- `src/i18n/en.ts`
+- `src/i18n/zh.ts`
+- `src/i18n/zh-tw.ts`
+- `src/i18n/ru.ts`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 新增 Provider 失败通知去重判断，60 秒内只提示一次。
+- `/providers/proxies` 超时或失败时显示本地化错误通知。
+- 失败提示不清空已有 Provider 缓存，仍保留旧缓存展示和状态标记。
+- 成功加载 Provider 或切换后端后重置失败通知去重窗口。
+
+验证：
+
+- `pnpm test src/helper/proxyCache.spec.ts`：先失败于缺少 `shouldNotifyProviderFailure`，实现后 37/37 pass
+- `pnpm test`：37/37 pass
+- `pnpm type-check`：pass
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md src/helper/proxyCache.ts src/helper/proxyCache.spec.ts src/store/proxies.ts src/i18n/en.ts src/i18n/zh.ts src/i18n/zh-tw.ts src/i18n/ru.ts`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+- `git diff --check`：pass，仅有 CRLF 提示
+
+后续注意：
+
+- 本次未做真实 OpenClash / Mihomo 路由器测试，后续路由器空闲后仍需验证 Provider 超时通知、缓存展示和重试体验。
+- 后续若调整 Provider 重试策略，应继续保留通知限流，避免慢接口连续失败时刷屏。
+
 ### feat: mark stale provider cache state
 
 - 提交：当前工作区

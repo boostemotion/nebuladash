@@ -72,6 +72,8 @@ const ru: LANG_MESSAGE = {
   providerStatusFresh: 'Обновлено',
   providerStatusTimeout: 'Таймаут провайдера',
   providerStatusError: 'Ошибка провайдера',
+  providerLoadTimeoutTip: 'Запрос провайдера прокси истек по времени. Кэш сохранен.',
+  providerLoadErrorTip: 'Не удалось загрузить провайдеры прокси. Кэш сохранен.',
   upgradeUI: 'Обновить панель',
   upgradeUIDisabledTip:
     'Обновление панели отключено, пока URL загрузки внешнего UI не указывает на NebulaDash: ',

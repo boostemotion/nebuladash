@@ -49,3 +49,15 @@ export const getCachedProviderLoadStatus = ({
 
   return now - fetchedAt < freshDurationMs ? 'cached' : 'stale'
 }
+
+export const shouldNotifyProviderFailure = ({
+  lastNotifiedAt,
+  now,
+  dedupeMs,
+}: {
+  lastNotifiedAt: number
+  now: number
+  dedupeMs: number
+}) => {
+  return lastNotifiedAt <= 0 || now - lastNotifiedAt >= dedupeMs
+}

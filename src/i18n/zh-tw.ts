@@ -72,6 +72,8 @@ const zhTW: LANG_MESSAGE = {
   providerStatusFresh: '已更新',
   providerStatusTimeout: '代理商介面逾時',
   providerStatusError: '代理商載入失敗',
+  providerLoadTimeoutTip: '代理商介面逾時，已保留可用快取',
+  providerLoadErrorTip: '代理商載入失敗，已保留可用快取',
   upgradeUI: '更新面板',
   upgradeUIDisabledTip: '後端 UI 下載地址未指向 NebulaDash，已禁止更新面板。請配置為：',
   reloadConfigs: '重載配置',

@@ -70,6 +70,8 @@ const en = {
   providerStatusFresh: 'Fresh',
   providerStatusTimeout: 'Provider timeout',
   providerStatusError: 'Provider error',
+  providerLoadTimeoutTip: 'Proxy provider request timed out. Cached data is kept.',
+  providerLoadErrorTip: 'Failed to load proxy providers. Cached data is kept.',
   upgradeUI: 'Upgrade dashboard',
   upgradeUIDisabledTip:
     'Dashboard upgrade is disabled until the backend external UI download URL points to NebulaDash: ',
