@@ -85,6 +85,12 @@ const en = {
   routerUpdaterTokenMissing: 'Set the updater token before running this action',
   routerUpdaterSuccess: 'NebulaDash updater action completed',
   routerUpdaterFailed: 'NebulaDash updater action failed',
+  routerUpdaterSameVersionConfirm:
+    'The latest NebulaDash release ({version}) matches the current version. Continue and overwrite this install?',
+  routerUpdaterDowngradeConfirm:
+    'The latest NebulaDash release ({remote}) is older than the current version ({current}). Continue and downgrade?',
+  routerUpdaterUnknownVersionConfirm:
+    'Could not confirm the latest NebulaDash release version. Continue update anyway?',
   reloadConfigs: 'Reload configs',
   updateConfigs: 'Update configs',
   updateConfigsSuccess: 'Configs updated successfully',

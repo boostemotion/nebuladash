@@ -87,6 +87,12 @@ const ru: LANG_MESSAGE = {
   routerUpdaterTokenMissing: 'Укажите токен обновления перед выполнением действия',
   routerUpdaterSuccess: 'Действие обновления NebulaDash завершено',
   routerUpdaterFailed: 'Действие обновления NebulaDash не выполнено',
+  routerUpdaterSameVersionConfirm:
+    'Последний релиз NebulaDash ({version}) совпадает с текущей версией. Продолжить и перезаписать установку?',
+  routerUpdaterDowngradeConfirm:
+    'Последний релиз NebulaDash ({remote}) старее текущей версии ({current}). Продолжить и откатиться?',
+  routerUpdaterUnknownVersionConfirm:
+    'Не удалось подтвердить версию последнего релиза NebulaDash. Все равно продолжить обновление?',
   reloadConfigs: 'Перезагрузить конфигурации',
   updateConfigs: 'Обновить конфигурации',
   updateConfigsSuccess: 'Конфигурации успешно обновлены',

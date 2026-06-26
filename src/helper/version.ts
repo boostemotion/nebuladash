@@ -61,21 +61,29 @@ const comparePrereleaseIdentifier = (left: string, right: string) => {
 }
 
 export const isNewerReleaseVersion = (releaseTag: string, currentVersion: string) => {
+  return compareReleaseVersion(releaseTag, currentVersion) === 1
+}
+
+export const compareReleaseVersion = (releaseTag: string, currentVersion: string) => {
   const release = parseVersion(releaseTag)
   const current = parseVersion(currentVersion)
 
   if (!release || !current) {
-    return false
+    return null
   }
 
   for (let index = 0; index < release.core.length; index++) {
     if (release.core[index] !== current.core[index]) {
-      return release.core[index] > current.core[index]
+      return release.core[index] > current.core[index] ? 1 : -1
     }
   }
 
   if (release.prerelease.length === 0 || current.prerelease.length === 0) {
-    return release.prerelease.length === 0 && current.prerelease.length > 0
+    if (release.prerelease.length === current.prerelease.length) {
+      return 0
+    }
+
+    return release.prerelease.length === 0 ? 1 : -1
   }
 
   const maxLength = Math.max(release.prerelease.length, current.prerelease.length)
@@ -85,15 +93,15 @@ export const isNewerReleaseVersion = (releaseTag: string, currentVersion: string
     const currentIdentifier = current.prerelease[index]
 
     if (releaseIdentifier === undefined || currentIdentifier === undefined) {
-      return releaseIdentifier !== undefined
+      return releaseIdentifier !== undefined ? 1 : -1
     }
 
     const comparison = comparePrereleaseIdentifier(releaseIdentifier, currentIdentifier)
 
     if (comparison !== 0) {
-      return comparison > 0
+      return comparison > 0 ? 1 : -1
     }
   }
 
-  return false
+  return 0
 }

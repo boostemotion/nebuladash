@@ -86,6 +86,11 @@ const zh: LANG_MESSAGE = {
   routerUpdaterTokenMissing: '请先填写更新器密钥',
   routerUpdaterSuccess: 'NebulaDash 更新器操作完成',
   routerUpdaterFailed: 'NebulaDash 更新器操作失败',
+  routerUpdaterSameVersionConfirm:
+    '最新 NebulaDash Release（{version}）与当前版本相同。是否继续覆盖安装？',
+  routerUpdaterDowngradeConfirm:
+    '最新 NebulaDash Release（{remote}）低于当前版本（{current}）。继续会回退到旧版本，是否继续？',
+  routerUpdaterUnknownVersionConfirm: '无法确认最新 NebulaDash Release 版本。是否仍然继续更新？',
   reloadConfigs: '重载配置',
   updateConfigs: '更新配置',
   updateConfigsSuccess: '配置更新成功',

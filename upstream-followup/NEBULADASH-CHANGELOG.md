@@ -22,6 +22,46 @@
 
 ## 2026-06-26
 
+### feat: warn before risky router updater installs
+
+- 提交：当前工作区
+- 类型：更新器风险提示 / 版本治理
+- 目的：允许用户继续安装同版本或旧版本，但在前端触发路由器更新前明确提示风险，避免误以为 latest 一定比当前构建新。
+
+涉及文件：
+
+- `src/helper/version.ts`
+- `src/helper/version.spec.ts`
+- `src/components/settings/ZashboardSettings.vue`
+- `src/i18n/en.ts`
+- `src/i18n/zh.ts`
+- `src/i18n/zh-tw.ts`
+- `src/i18n/ru.ts`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 新增 `compareReleaseVersion()`，可区分远端 Release 相对当前版本的新版本、同版本、旧版本和无法解析。
+- 点击路由器更新器的“更新 NebulaDash”前会先查询 NebulaDash latest Release。
+- 远端版本更新时直接继续。
+- 远端版本相同、远端版本更旧或版本检查失败时，弹出确认提示；用户确认后仍可继续安装。
+- 路由器脚本不硬拒绝旧版本，保留用户主动回退或覆盖安装能力。
+
+验证：
+
+- `pnpm test src/helper/version.spec.ts`：先失败于缺少 `compareReleaseVersion`，实现后 50/50 pass
+- `pnpm test`：50/50 pass
+- `pnpm type-check`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+- `pnpm exec prettier --check upstream-followup/NEBULADASH-CHANGELOG.md src/helper/version.ts src/helper/version.spec.ts src/components/settings/ZashboardSettings.vue src/i18n/en.ts src/i18n/zh.ts src/i18n/zh-tw.ts src/i18n/ru.ts`：pass
+- `git diff --check`：pass，仅提示 Windows 工作区换行转换
+
+后续注意：
+
+- 当前使用浏览器原生 `window.confirm()`，后续如需更统一的视觉体验，可替换为项目内 modal，但必须保留同版本、旧版本和未知版本三类风险提示。
+- 版本检查依赖 GitHub Release API；如果路由器或浏览器无法访问 GitHub API，会进入“无法确认版本”的确认路径。
+
 ### feat: add router-side AB updater
 
 - 提交：`96410915`、`3c8be8e4`、`dafbae80`、`f19cf352`、`a7433367`、`2070a6d1`，验证记录为当前工作区

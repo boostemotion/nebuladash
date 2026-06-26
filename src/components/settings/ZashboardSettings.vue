@@ -304,6 +304,8 @@ import {
   NEBULADASH_RELEASE_DOWNLOAD_URL,
 } from '@/helper/uiUpdateSource'
 import { exportSettings, isPWA } from '@/helper/utils'
+import { compareReleaseVersion, fetchLatestReleaseTag } from '@/helper/version'
+import { i18n } from '@/i18n'
 import { configs } from '@/store/config'
 import {
   autoTheme,
@@ -422,6 +424,41 @@ const assertRouterUpdaterToken = () => {
   return true
 }
 
+const confirmRouterUpdaterVersionRisk = async () => {
+  try {
+    const latestReleaseTag = await fetchLatestReleaseTag()
+    const comparison =
+      latestReleaseTag === null
+        ? null
+        : compareReleaseVersion(latestReleaseTag, dashboardVersion.value)
+
+    if (comparison === 1) {
+      return true
+    }
+
+    if (comparison === 0) {
+      return window.confirm(
+        i18n.global.t('routerUpdaterSameVersionConfirm', {
+          version: latestReleaseTag,
+        }),
+      )
+    }
+
+    if (comparison === -1) {
+      return window.confirm(
+        i18n.global.t('routerUpdaterDowngradeConfirm', {
+          current: dashboardVersion.value,
+          remote: latestReleaseTag,
+        }),
+      )
+    }
+  } catch {
+    // Fall through to the unknown-version confirmation below.
+  }
+
+  return window.confirm(i18n.global.t('routerUpdaterUnknownVersionConfirm'))
+}
+
 const checkRouterUpdater = async () => {
   if (!assertRouterUpdaterToken()) return
 
@@ -443,6 +480,7 @@ const checkRouterUpdater = async () => {
 
 const updateNebulaDashViaRouter = async () => {
   if (!assertRouterUpdaterToken()) return
+  if (!(await confirmRouterUpdaterVersionRisk())) return
 
   routerUpdaterBusy.value = true
   try {

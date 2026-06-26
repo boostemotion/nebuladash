@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  compareReleaseVersion,
   fetchLatestReleaseTag,
   getLatestReleaseApiUrl,
   isNewerReleaseVersion,
@@ -19,6 +20,13 @@ test('detects newer NebulaDash prereleases', () => {
   assert.equal(isNewerReleaseVersion('v2.8.0-nebula.2', '2.8.0-nebula.1'), true)
   assert.equal(isNewerReleaseVersion('v2.8.0-nebula.1', '2.8.0-nebula.1'), false)
   assert.equal(isNewerReleaseVersion('v2.8.0-nebula.0', '2.8.0-nebula.1'), false)
+})
+
+test('compares release tags against the current version', () => {
+  assert.equal(compareReleaseVersion('v2.8.0-nebula.3', '2.8.0-nebula.2'), 1)
+  assert.equal(compareReleaseVersion('v2.8.0-nebula.2', '2.8.0-nebula.2'), 0)
+  assert.equal(compareReleaseVersion('v2.8.0-nebula.1', '2.8.0-nebula.2'), -1)
+  assert.equal(compareReleaseVersion('latest', '2.8.0-nebula.2'), null)
 })
 
 test('detects newer stable base versions', () => {
