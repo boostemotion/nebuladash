@@ -67,6 +67,7 @@ GitHub Actions 会自动生成 Release，并上传：
 - `dist-misans-only.zip`
 - `dist-pingfang-only.zip`
 - `dist-sarasa-only.zip`
+- `router-updater.zip`
 
 Release 工作流只使用 GitHub 自动提供的 `GITHUB_TOKEN`，不需要个人 PAT。
 
@@ -74,6 +75,7 @@ tag 推送后要等待 GitHub Actions 的 Release workflow 完成，并确认：
 
 - Release 页面存在目标 tag。
 - `dist.zip` 已上传。
+- `router-updater.zip` 已上传。
 - `https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip` 跳转到目标 tag。
 
 ## OpenClash 更新配置
@@ -94,6 +96,12 @@ OpenClash / Mihomo 的 `/upgrade/ui` 接口执行下载。
 ## NebulaDash 自管理更新器
 
 如果不想依赖 OpenClash LuCI 内置面板按钮，可使用 `router-updater/` 中的可选更新器。
+
+Release 会同时上传 `router-updater.zip`，可通过以下地址下载最新安装包：
+
+```text
+https://github.com/boostemotion/nebuladash/releases/latest/download/router-updater.zip
+```
 
 发布产物仍来自同一个 NebulaDash Release：
 

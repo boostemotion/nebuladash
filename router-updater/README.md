@@ -26,7 +26,11 @@ point because OpenWrt serves CGI from `/www/cgi-bin`.
 
 ## Install
 
-Copy `router-updater.zip` to the router, extract it, and run:
+Download or copy `router-updater.zip` to the router, extract it, and run:
+
+```text
+https://github.com/boostemotion/nebuladash/releases/latest/download/router-updater.zip
+```
 
 ```sh
 rm -rf /tmp/nebuladash/router-updater

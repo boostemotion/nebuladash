@@ -22,6 +22,44 @@
 
 ## 2026-06-26
 
+### ci: publish router updater archive in releases
+
+- 提交：当前工作区
+- 类型：发布流程 / 路由器更新器
+- 目的：把 `router-updater.zip` 纳入 GitHub Release 产物，避免用户每次依赖本地 `_deploy/router-updater.zip` 手工传递安装器。
+
+涉及文件：
+
+- `.github/workflows/release.yml`
+- `src/helper/releaseWorkflow.spec.ts`
+- `README.md`
+- `PUBLICATION.md`
+- `router-updater/README.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- Release workflow 会在构建 `dist*.zip` 的同时打包 `router-updater/` 为 `router-updater.zip`。
+- GitHub Release 上传资产从 `dist*.zip` 扩展为 `dist*.zip` 和 `router-updater.zip`。
+- README 和发布说明增加 `router-updater.zip` 的 latest 下载地址。
+- 新增 workflow 回归测试，防止后续改 Release 配置时丢失路由器安装包。
+
+验证：
+
+- `pnpm test src/helper/releaseWorkflow.spec.ts`：先失败于 workflow 未打包/上传 `router-updater.zip`
+- `pnpm test src/helper/releaseWorkflow.spec.ts`：通过，实际运行全部 `src/**/*.spec.ts`，56 个测试全部通过
+- `pnpm test`：通过，56 个测试全部通过
+- `pnpm type-check`：通过
+- `pnpm lint`：通过
+- `pnpm build`：通过
+- `pnpm exec prettier --check .github/workflows/release.yml README.md PUBLICATION.md router-updater/README.md upstream-followup/NEBULADASH-CHANGELOG.md src/helper/releaseWorkflow.spec.ts`：通过
+- `git diff --check`：通过，仅提示 Windows 工作区下 Git 可能在下次触碰文件时转换 CRLF
+- 本地模拟 `router-updater.zip` 结构：通过，包含 `router-updater/config.example`、`install.sh`、`nebuladash-updater.cgi`、`README.md`、`updater.sh`，脚本文件无 CRLF
+
+后续注意：
+
+- 该改动会影响后续 tag 触发的 Release；已经发布的 `v2.8.0-nebula.3` 需要额外手动补上传该资产。
+
 ### docs: remove completed router updater implementation plan
 
 - 提交：`00e9dd32`
