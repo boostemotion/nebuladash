@@ -24,7 +24,7 @@
 
 ### docs: remove completed router updater implementation plan
 
-- 提交：当前工作区
+- 提交：`00e9dd32`
 - 类型：文档整理 / 过期文件清理
 - 目的：删除已完成并发布的路由器更新器实施计划，避免后续 AI 或新对话误把历史计划当作待执行任务。
 
