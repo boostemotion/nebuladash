@@ -24,7 +24,7 @@
 
 ### docs: mark upstream select style fixes as landed
 
-- 提交：当前工作区
+- 提交：`d6cf5e9e`
 - 类型：上游审计 / 文档维护
 - 目的：记录上游 `83dda306` 和 `6f65c3bf` 对应的 select / setting label 样式修复已在本地落地，避免后续重复把它们当作待办项。
 
