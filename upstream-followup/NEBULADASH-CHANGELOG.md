@@ -22,6 +22,43 @@
 
 ## 2026-06-26
 
+### fix: support router updater query-token fallback
+
+- 提交：当前工作区
+- 类型：路由器更新器 / CGI 兼容性
+- 目的：修复 OpenWrt uhttpd 通过 HTTP 调用 CGI 时不向脚本传递 `X-NebulaDash-Token` 自定义请求头，导致脚本直跑正常但 `wget`/前端始终 `Unauthorized updater request` 的问题。
+
+涉及文件：
+
+- `router-updater/nebuladash-updater.cgi`
+- `src/helper/routerUpdater.ts`
+- `src/helper/routerUpdater.spec.ts`
+- `src/helper/routerUpdaterScripts.spec.ts`
+- `src/api/routerUpdater.ts`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 前端调用路由器更新器时同时发送 `X-NebulaDash-Token` header 和 `token` query 参数。
+- CGI 优先读取 header；当 header 缺失时，回退读取 `QUERY_STRING` 中的 `token`。
+- 保留原 header 认证路径，兼容会转发自定义 header 的 CGI 环境。
+- 该 query token fallback 面向 installer 默认生成的 hex token；不要手动改成包含空格、`&`、`=` 等 URL 特殊字符的 token。
+
+验证：
+
+- `pnpm test src/helper/routerUpdater.spec.ts src/helper/routerUpdaterScripts.spec.ts`：先失败于 URL 不带 token 和 CGI 缺少 fallback，实现后 54/54 pass
+- `pnpm test`：54/54 pass
+- `pnpm type-check`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+- `_deploy/router-updater.zip` 内容检查：CGI 包含 `QUERY_TOKEN` fallback，`install.sh`、`updater.sh`、`nebuladash-updater.cgi`、`config.example` 均不含 `\r`
+- 已重新生成 `_deploy/nebuladash-dist-current.zip` 和 `_deploy/router-updater.zip`
+
+后续注意：
+
+- 新部署包需要重新上传并执行 `router-updater/install.sh`，再用 `http://127.0.0.1/cgi-bin/nebuladash-updater?action=status&token=<token>` 验证 HTTP 路径。
+- 前端更新器地址仍保持 `/cgi-bin/nebuladash-updater`，不要手动把 token 写进设置页的 endpoint；前端会自动追加。
+
 ### fix: harden router updater token parsing against CRLF
 
 - 提交：`a445829c`

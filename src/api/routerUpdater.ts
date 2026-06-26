@@ -6,7 +6,7 @@ import {
 } from '@/helper/routerUpdater'
 
 const callRouterUpdater = async (endpoint: string, token: string, action: RouterUpdaterAction) => {
-  const response = await fetch(buildRouterUpdaterUrl(endpoint, action), {
+  const response = await fetch(buildRouterUpdaterUrl(endpoint, action, token), {
     method: action === 'status' ? 'GET' : 'POST',
     headers: buildRouterUpdaterHeaders(token),
   })

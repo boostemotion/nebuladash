@@ -14,6 +14,17 @@ test('builds updater action URLs without duplicating slashes', () => {
   )
 })
 
+test('can pass the updater token through the URL for CGI environments that drop headers', () => {
+  assert.equal(
+    buildRouterUpdaterUrl(
+      'http://192.168.6.1/cgi-bin/nebuladash-updater/',
+      'status',
+      'secret-token',
+    ),
+    'http://192.168.6.1/cgi-bin/nebuladash-updater?action=status&token=secret-token',
+  )
+})
+
 test('sends the updater token in a fixed header', () => {
   assert.deepEqual(buildRouterUpdaterHeaders('secret-token'), {
     'X-NebulaDash-Token': 'secret-token',

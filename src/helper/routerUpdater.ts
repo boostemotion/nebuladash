@@ -12,9 +12,16 @@ export type RouterUpdaterResponse = {
 
 const VALID_STATUSES: RouterUpdaterStatus[] = ['idle', 'updating', 'ok', 'error']
 
-export const buildRouterUpdaterUrl = (endpoint: string, action: RouterUpdaterAction) => {
+export const buildRouterUpdaterUrl = (
+  endpoint: string,
+  action: RouterUpdaterAction,
+  token?: string,
+) => {
   const url = new URL(endpoint.replace(/\/+$/, ''))
   url.searchParams.set('action', action)
+  if (token) {
+    url.searchParams.set('token', token)
+  }
   return url.toString()
 }
 

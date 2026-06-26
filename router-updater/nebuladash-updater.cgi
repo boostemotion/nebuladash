@@ -19,7 +19,9 @@ fi
 . "$CONFIG"
 
 ACTION="$(printf '%s' "${QUERY_STRING:-}" | sed -n 's/^.*action=\([^&]*\).*$/\1/p')"
-TOKEN="$(strip_cr "${HTTP_X_NEBULADASH_TOKEN:-}")"
+QUERY_TOKEN="$(printf '%s' "${QUERY_STRING:-}" | sed -n 's/^.*token=\([^&]*\).*$/\1/p')"
+TOKEN="${HTTP_X_NEBULADASH_TOKEN:-$QUERY_TOKEN}"
+TOKEN="$(strip_cr "$TOKEN")"
 EXPECTED_TOKEN="$(strip_cr "${NEBULADASH_TOKEN:-}")"
 
 if [ "$TOKEN" != "$EXPECTED_TOKEN" ]; then
