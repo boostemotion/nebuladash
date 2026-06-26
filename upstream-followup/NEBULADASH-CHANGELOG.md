@@ -24,7 +24,7 @@
 
 ### docs: refresh public README
 
-- 提交：待提交
+- 提交：`a04a355e`
 - 类型：公开文档整理
 - 目的：把根目录 README 从简单下载说明更新为面向公开仓库的项目首页，明确 NebulaDash 定位、核心二改、OpenClash 更新配置、开发命令和上游同步入口。
 
