@@ -55,10 +55,13 @@
 - `pnpm exec prettier --check .github/workflows/release.yml README.md PUBLICATION.md router-updater/README.md upstream-followup/NEBULADASH-CHANGELOG.md src/helper/releaseWorkflow.spec.ts`：通过
 - `git diff --check`：通过，仅提示 Windows 工作区下 Git 可能在下次触碰文件时转换 CRLF
 - 本地模拟 `router-updater.zip` 结构：通过，包含 `router-updater/config.example`、`install.sh`、`nebuladash-updater.cgi`、`README.md`、`updater.sh`，脚本文件无 CRLF
+- `gh release upload v2.8.0-nebula.3 _deploy/router-updater.zip --repo boostemotion/nebuladash --clobber`：通过，已补上传当前 Release 资产
+- `gh release view v2.8.0-nebula.3 --repo boostemotion/nebuladash --json tagName,assets`：通过，资产列表包含 `router-updater.zip`
+- `curl.exe -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/router-updater.zip`：通过，跳转到 `v2.8.0-nebula.3/router-updater.zip` 并返回 `200 OK`
 
 后续注意：
 
-- 该改动会影响后续 tag 触发的 Release；已经发布的 `v2.8.0-nebula.3` 需要额外手动补上传该资产。
+- 后续 tag 触发 Release 时会自动上传 `router-updater.zip`；已经发布的 `v2.8.0-nebula.3` 已手动补上传该资产。
 
 ### docs: remove completed router updater implementation plan
 
