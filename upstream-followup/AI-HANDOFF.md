@@ -7,12 +7,17 @@
 - 当前包版本：`2.8.0-nebula.3`
 - 上游代码基线：Zashboard `2.8.0`
 - 已对照的官方版本：Zashboard `3.11.0`（2026-06-24）
+- 已复查的 upstream main：`9150a53e`（2026-06-26 fetch 后无新增）
 - 已新增并发布可选路由器端自管理更新器：`router-updater/`
 - `v2.8.0-nebula.3` Release 已发布，`latest/download/dist.zip` 已确认指向该版本
+- `router-updater.zip` 已补上传到 `v2.8.0-nebula.3` Release，latest 下载链路已验证
+- 路由器实机已确认可通过 NebulaDash 前端按钮触发更新
 - 远程约定：
   - `origin`：`boostemotion/nebuladash`，只推送 NebulaDash
   - `upstream`：`Zephyruso/zashboard`，只拉取官方更新
 - 当前维护策略：不追版本号，不全量 rebase，按价值选择性移植上游能力
+- 当前 `main` 与 `upstream/main` 无可用 merge-base；不要直接 `git rebase upstream/main` 或
+  `git merge upstream/main`
 
 ## 接手时先做
 
@@ -48,6 +53,9 @@
 - `47aae275`：兼容 uHTTPd 不转发自定义 header，前端和 CGI 支持 query token fallback。
 - `ca42aedc`：版本推进到 `2.8.0-nebula.3`。
 - `4edf421a`：记录 `v2.8.0-nebula.3` 发布日志哈希。
+- `36e21a8f`：GitHub Release workflow 自动上传 `router-updater.zip`。
+- `efc62d9d`：当前 `v2.8.0-nebula.3` Release 已补上传 `router-updater.zip` 并验证 latest 链接。
+- `fc86d6a1`：记录路由器实机前端按钮更新成功。
 
 ## 下一步优先级
 

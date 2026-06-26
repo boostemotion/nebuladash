@@ -22,6 +22,39 @@
 
 ## 2026-06-26
 
+### docs: refresh upstream difference audit
+
+- 提交：当前工作区
+- 类型：上游审计 / 文档维护
+- 目的：执行上游差异审计，确认 `upstream/main` 当前仍停在 `9150a53e`，并把“不直接 rebase/merge upstream、按单个补丁选择性移植”的同步策略写入交接文档。
+
+涉及文件：
+
+- `upstream-followup/UPSTREAM-FEATURES.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 记录 2026-06-26 再次 `git fetch upstream --tags` 后，`upstream/main` 无新增提交，仍为 `9150a53e`。
+- 记录当前 NebulaDash `main` 与 `upstream/main` 无可用 merge-base，后续不能直接 `git rebase upstream/main` 或 `git merge upstream/main`。
+- 将 `v3.11.0..upstream/main` 的 11 个提交按“可选择跟进 / 需要适配 / 暂不跟进”补充 commit id。
+- 明确搜索模式切换和界面插件类能力当前不跟进，保持之前决策。
+
+验证：
+
+- `git fetch upstream --tags`：通过
+- `git log --oneline v3.11.0..upstream/main`：确认 11 个提交
+- `git merge-base HEAD upstream/main`：无结果，已按无共同祖先记录同步约束
+- `pnpm exec prettier --check upstream-followup\AI-HANDOFF.md upstream-followup\NEBULADASH-ITERATION-PLAN.md upstream-followup\UPSTREAM-FEATURES.md upstream-followup\NEBULADASH-CHANGELOG.md`：通过
+- `git diff --check`：通过，仅提示 Windows 工作区下 Git 可能在下次触碰文件时转换 CRLF
+
+后续注意：
+
+- 真正移植上游时应从小分支开始，优先选择设置样式小修、后端 uptime、多后端标题等低风险补丁。
+- 代理页、搜索、Provider 缓存、更新源、发布链路和 `router-updater/` 禁止整文件覆盖。
+
 ### ops: verify router updater from NebulaDash UI
 
 - 提交：`fc86d6a1`

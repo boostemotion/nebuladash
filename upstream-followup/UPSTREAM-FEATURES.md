@@ -6,6 +6,7 @@
 - 当前 NebulaDash 包版本：`2.8.0-nebula.3`
 - 上游最新发布：`3.11.0`
 - 已拉取的 `upstream/main`：`9150a53e`
+- 最近审计：2026-06-26，`git fetch upstream --tags` 后确认无新增 upstream commit
 
 ## `v3.11.0` 之后的上游变更
 
@@ -13,22 +14,22 @@
 
 ### 可选择跟进
 
-- 设置项 label/select 宽度修复
-- select 默认外观修复
-- 后端 uptime 展示
-- 连接状态延迟统计
+- `83dda306`：设置项 label/select 宽度修复
+- `6f65c3bf`：select 默认外观修复
+- `bed57f21`：后端 uptime 展示
+- `314afebb`：连接状态延迟统计
 
 ### 需要适配再跟进
 
-- 代理图标映射增强
-- 连接快照接口
-- 连接处理和日志订阅分层
+- `357a9d52`：代理图标映射增强，仅影响 sing-box assembly，若迁移需与本地 `iconReflectList` 和 Mihomo 代理页融合
+- `30825bd6`：连接快照接口，依赖上游 `assembly/connections/*` 分层，不能整文件覆盖
+- `7fa7c5b3` / `87182973`：日志订阅和日志等级处理分层，涉及 `store/logs.ts` 和 assembly 层，需单独评估
 
 ### 暂不跟进
 
-- sing-box Native gRPC 流共享
-- sing-box 连接关闭判断
-- 统一日志流累积器
+- `f3e22af2`：sing-box Native gRPC 流共享
+- `9150a53e`：sing-box 连接关闭判断
+- USB/IP、Tailscale、终端、工具页等 3.x 工具链能力
 
 ## 上游功能取舍
 
@@ -103,6 +104,15 @@
 - 必须大范围改动才可落地的重构
 - 已由用户插件覆盖的界面体验类能力
 - 需要新增模式开关但当前智能搜索已满足使用的搜索功能
+
+## 同步方式结论
+
+- 当前 NebulaDash `main` 与 `upstream/main` 没有可用 merge-base，不能把 `git rebase upstream/main`
+  或 `git merge upstream/main` 作为默认同步方式。
+- 上游差异应以 tag 和单个 commit 为边界审计：先看 `v2.8.0...v3.11.0`，再看
+  `v3.11.0..upstream/main`。
+- 可移植内容优先手工补丁或小范围 cherry-pick；代理页、设置页、搜索、Provider、更新源和发布链路禁止整文件覆盖。
+- 因用户已明确搜索模式和界面插件类能力目前够用，审计时默认把这两类放入“不跟进/仅记录”。
 
 ## 当前建议优先级
 
