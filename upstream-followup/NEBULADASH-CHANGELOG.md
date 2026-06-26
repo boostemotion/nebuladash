@@ -22,6 +22,37 @@
 
 ## 2026-06-26
 
+### release: prepare v2.8.0-nebula.3
+
+- 提交：当前工作区
+- 类型：版本发布 / GitHub Release
+- 目的：发布包含路由器端 A/B 更新器、风险弹窗、CRLF 兼容和 query-token fallback 的正式版本，让前端“更新 NebulaDash”按钮能从 NebulaDash latest Release 拉到当前构建。
+
+涉及文件：
+
+- `package.json`
+- `README.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 版本号从 `2.8.0-nebula.2` 提升到 `2.8.0-nebula.3`。
+- 预期发布 tag 为 `v2.8.0-nebula.3`。
+- GitHub Release workflow 将重新构建并上传 `dist.zip` 等发布包。
+
+验证：
+
+- `RELEASE_TAG=v2.8.0-nebula.3 pnpm release:check`：pass，预期 tag 为 `v2.8.0-nebula.3`
+- `pnpm test`：54/54 pass
+- `pnpm type-check`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+
+后续注意：
+
+- tag 推送后需要等待 GitHub Actions 完成 Release。
+- Release 完成前不要在路由器上点击“更新 NebulaDash”，否则 latest 仍可能是旧版本。
+
 ### fix: support router updater query-token fallback
 
 - 提交：`47aae275`
