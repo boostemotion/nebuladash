@@ -68,6 +68,7 @@ const zhTW: LANG_MESSAGE = {
   noExpire: '不限時',
   updated: '更新於',
   providerStatusCached: '快取資料',
+  providerStatusStale: '舊快取',
   providerStatusFresh: '已更新',
   providerStatusTimeout: '代理商介面逾時',
   providerStatusError: '代理商載入失敗',

@@ -66,6 +66,7 @@ const en = {
   noExpire: 'No expiry',
   updated: 'Updated',
   providerStatusCached: 'Cached',
+  providerStatusStale: 'Old cache',
   providerStatusFresh: 'Fresh',
   providerStatusTimeout: 'Provider timeout',
   providerStatusError: 'Provider error',

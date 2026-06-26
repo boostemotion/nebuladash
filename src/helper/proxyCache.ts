@@ -1,6 +1,13 @@
 export type ProxyCacheKind = 'data' | 'providers' | 'provider-meta'
 
-export type ProviderLoadStatus = 'idle' | 'loading' | 'cached' | 'fresh' | 'timeout' | 'error'
+export type ProviderLoadStatus =
+  | 'idle'
+  | 'loading'
+  | 'cached'
+  | 'stale'
+  | 'fresh'
+  | 'timeout'
+  | 'error'
 
 export type ProviderCacheMeta = {
   fetchedAt: number
@@ -23,4 +30,22 @@ export const getProviderFailureStatus = (error: unknown): 'timeout' | 'error' =>
     typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : ''
 
   return code === 'ECONNABORTED' || code === 'ETIMEDOUT' ? 'timeout' : 'error'
+}
+
+export const getCachedProviderLoadStatus = ({
+  hasCachedProviders,
+  fetchedAt,
+  now,
+  freshDurationMs,
+}: {
+  hasCachedProviders: boolean
+  fetchedAt: number
+  now: number
+  freshDurationMs: number
+}): 'cached' | 'stale' | null => {
+  if (!hasCachedProviders) {
+    return null
+  }
+
+  return now - fetchedAt < freshDurationMs ? 'cached' : 'stale'
 }

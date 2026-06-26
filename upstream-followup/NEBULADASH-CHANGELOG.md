@@ -22,6 +22,47 @@
 
 ## 2026-06-26
 
+### feat: mark stale provider cache state
+
+- 提交：当前工作区
+- 类型：Provider 缓存状态增强
+- 目的：区分“可用缓存”和“旧缓存”，避免 Provider 数据已经超过建议新鲜期时仍只显示普通缓存状态。
+
+涉及文件：
+
+- `src/helper/proxyCache.ts`
+- `src/helper/proxyCache.spec.ts`
+- `src/store/proxies.ts`
+- `src/components/sidebar/ProxiesCtrl.tsx`
+- `src/i18n/en.ts`
+- `src/i18n/zh.ts`
+- `src/i18n/zh-tw.ts`
+- `src/i18n/ru.ts`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 新增 `stale` Provider 加载状态。
+- Provider 缓存未超过新鲜期时继续显示“缓存数据”。
+- Provider 缓存超过新鲜期时显示“旧缓存”。
+- 旧缓存仍可用于展示，但不会标记为已加载；切到 Provider 标签时仍会尝试刷新。
+- 继续遵守慢接口隔离：状态判断不主动请求 `/providers/proxies`。
+
+验证：
+
+- `pnpm test src/helper/proxyCache.spec.ts`：先失败于缺少 `getCachedProviderLoadStatus`，实现后 34/34 pass
+- `pnpm test`：34/34 pass
+- `pnpm type-check`：pass
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md src/helper/proxyCache.ts src/helper/proxyCache.spec.ts`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+
+后续注意：
+
+- 后续如果增加缓存过期策略，应继续允许旧缓存展示，不能因为过期直接清空 Provider 页面。
+
 ### docs: narrow upstream follow-up scope
 
 - 提交：当前工作区

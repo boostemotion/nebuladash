@@ -68,6 +68,7 @@ const zh: LANG_MESSAGE = {
   noExpire: '不限时',
   updated: '更新于',
   providerStatusCached: '缓存数据',
+  providerStatusStale: '旧缓存',
   providerStatusFresh: '已更新',
   providerStatusTimeout: '代理商接口超时',
   providerStatusError: '代理商加载失败',

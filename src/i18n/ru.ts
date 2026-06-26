@@ -68,6 +68,7 @@ const ru: LANG_MESSAGE = {
   noExpire: 'Нет',
   updated: 'Обновлено',
   providerStatusCached: 'Кэш',
+  providerStatusStale: 'Старый кэш',
   providerStatusFresh: 'Обновлено',
   providerStatusTimeout: 'Таймаут провайдера',
   providerStatusError: 'Ошибка провайдера',

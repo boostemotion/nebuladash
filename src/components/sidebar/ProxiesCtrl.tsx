@@ -161,6 +161,8 @@ export default defineComponent({
           return t('loading')
         case 'cached':
           return t('providerStatusCached')
+        case 'stale':
+          return t('providerStatusStale')
         case 'fresh':
           return t('providerStatusFresh')
         case 'timeout':
@@ -175,6 +177,8 @@ export default defineComponent({
       switch (proxyProviderLoadStatus.value) {
         case 'fresh':
           return 'badge-success'
+        case 'stale':
+          return 'badge-warning'
         case 'timeout':
         case 'error':
           return 'badge-error'

@@ -19,6 +19,7 @@ import {
 import { isProxyGroup } from '@/helper'
 import { showNotification } from '@/helper/notification'
 import {
+  getCachedProviderLoadStatus,
   getProviderFailureStatus,
   getProxyCacheKey,
   type ProviderCacheMeta,
@@ -212,13 +213,16 @@ const applyProxyData = (
 const hydrateProxyStateFromCache = () => {
   lastProxyData = cachedProxyData.value
   const hasCachedProviders = cachedProxyProviders.value.length > 0
-  const providerCacheAge = Date.now() - (cachedProxyProviderMeta.value?.fetchedAt ?? 0)
+  const providerCacheStatus = getCachedProviderLoadStatus({
+    hasCachedProviders,
+    fetchedAt: cachedProxyProviderMeta.value?.fetchedAt ?? 0,
+    now: Date.now(),
+    freshDurationMs: PROVIDER_CACHE_FRESH_DURATION,
+  })
 
-  hasLoadedProxyProviders.value =
-    hasCachedProviders && providerCacheAge < PROVIDER_CACHE_FRESH_DURATION
-  proxyProviderLoadStatus.value = hasCachedProviders
-    ? 'cached'
-    : (cachedProxyProviderMeta.value?.status ?? 'idle')
+  hasLoadedProxyProviders.value = providerCacheStatus === 'cached'
+  proxyProviderLoadStatus.value =
+    providerCacheStatus ?? cachedProxyProviderMeta.value?.status ?? 'idle'
 
   if (lastProxyData) {
     applyProxyData(lastProxyData, cachedProxyProviders.value)

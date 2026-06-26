@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { getProviderFailureStatus, getProxyCacheKey, type ProxyCacheKind } from './proxyCache.ts'
+import {
+  getCachedProviderLoadStatus,
+  getProviderFailureStatus,
+  getProxyCacheKey,
+  type ProxyCacheKind,
+} from './proxyCache.ts'
 
 test('scopes proxy caches by backend UUID', () => {
   const cases: Array<[ProxyCacheKind, string]> = [
@@ -23,4 +28,40 @@ test('classifies axios timeout errors separately from other failures', () => {
   assert.equal(getProviderFailureStatus({ code: 'ETIMEDOUT' }), 'timeout')
   assert.equal(getProviderFailureStatus({ code: 'ERR_NETWORK' }), 'error')
   assert.equal(getProviderFailureStatus(null), 'error')
+})
+
+test('marks provider cache as cached when it is still fresh', () => {
+  assert.equal(
+    getCachedProviderLoadStatus({
+      hasCachedProviders: true,
+      fetchedAt: 1_000,
+      now: 1_500,
+      freshDurationMs: 1_000,
+    }),
+    'cached',
+  )
+})
+
+test('marks provider cache as stale when it is older than the fresh duration', () => {
+  assert.equal(
+    getCachedProviderLoadStatus({
+      hasCachedProviders: true,
+      fetchedAt: 1_000,
+      now: 2_001,
+      freshDurationMs: 1_000,
+    }),
+    'stale',
+  )
+})
+
+test('returns null provider cache status when no provider cache exists', () => {
+  assert.equal(
+    getCachedProviderLoadStatus({
+      hasCachedProviders: false,
+      fetchedAt: 1_000,
+      now: 1_500,
+      freshDurationMs: 1_000,
+    }),
+    null,
+  )
 })
