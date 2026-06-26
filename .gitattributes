@@ -1,0 +1,3 @@
+router-updater/*.sh text eol=lf
+router-updater/*.cgi text eol=lf
+router-updater/config.example text eol=lf

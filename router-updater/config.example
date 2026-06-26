@@ -1,0 +1,8 @@
+NEBULADASH_TOKEN="replace-with-generated-token"
+TARGET_LINK="/www/nebuladash"
+PARTITION_A="/www/nebuladash-a"
+PARTITION_B="/www/nebuladash-b"
+RELEASE_URL="https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip"
+WORK_DIR="/usr/share/nebuladash-updater/work"
+LOG_DIR="/usr/share/nebuladash-updater/logs"
+STATE_FILE="/usr/share/nebuladash-updater/state.json"
