@@ -1,5 +1,9 @@
 # NebulaDash Router Updater Implementation Plan
 
+> Status: completed and shipped in `v2.8.0-nebula.3`. This file is retained as the historical
+> implementation plan. For current install and troubleshooting instructions, use
+> `router-updater/README.md`, `PUBLICATION.md`, and `upstream-followup/AI-HANDOFF.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a self-managed router-side NebulaDash updater that can be triggered from the NebulaDash frontend and safely deploys releases with an A/B directory switch.

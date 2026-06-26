@@ -4,10 +4,11 @@
 
 ## 当前状态
 
-- 当前包版本：`2.8.0-nebula.2`
+- 当前包版本：`2.8.0-nebula.3`
 - 上游代码基线：Zashboard `2.8.0`
 - 已对照的官方版本：Zashboard `3.11.0`（2026-06-24）
-- 已新增可选路由器端自管理更新器：`router-updater/`
+- 已新增并发布可选路由器端自管理更新器：`router-updater/`
+- `v2.8.0-nebula.3` Release 已发布，`latest/download/dist.zip` 已确认指向该版本
 - 远程约定：
   - `origin`：`boostemotion/nebuladash`，只推送 NebulaDash
   - `upstream`：`Zephyruso/zashboard`，只拉取官方更新
@@ -42,10 +43,15 @@
 - `7f80b09c`：Provider 失败通知去重。
 - `07b60048`：发布前检查脚本和 `2.8.0-nebula.2` 版本治理。
 - `96410915`、`3c8be8e4`、`dafbae80`、`f19cf352`、`a7433367`：路由器端自管理更新器、A/B 部署脚本、CGI、前端 API 和设置页按钮。
+- `1fb54e4e`：更新前增加同版本、旧版本和未知版本风险确认。
+- `a445829c`：安装器和 CGI 兼容 CRLF，避免 token 肉眼一致但比较失败。
+- `47aae275`：兼容 uHTTPd 不转发自定义 header，前端和 CGI 支持 query token fallback。
+- `ca42aedc`：版本推进到 `2.8.0-nebula.3`。
+- `4edf421a`：记录 `v2.8.0-nebula.3` 发布日志哈希。
 
 ## 下一步优先级
 
-1. 路由器空闲后，在真实 OpenWrt / OpenClash 环境验证 `router-updater/smoke-test.sh`、安装器、前端按钮和 rollback。
+1. 路由器空闲后，补做 rollback 实测，并记录 A/B 分区切换结果。
 2. 路由器空闲后，再做真实 OpenClash / Mihomo Provider 超时、缓存和后端切换回归。
 3. 多后端标题、后端 uptime、代理图标映射等非视觉核心信息展示按需评估。
 
@@ -63,6 +69,7 @@
 - 改动如果影响新对话接手路径，更新本文。
 - 改动如果影响公开用户用法，更新根目录 `README.md` 或 `README-改动说明.md`。
 - 改动如果影响路由器部署或更新路径，更新 `router-updater/README.md` 和 `PUBLICATION.md`。
+- 如果更新器认证在 OpenWrt 上失败，先区分三层：脚本直跑、HTTP header、HTTP query token。
 - 不要把 NebulaDash 本地改动写进根目录 `CHANGELOG.md`，它主要来自官方 Zashboard。
 - 删除旧计划前，先确认其独有信息已经合并进维护日志、迭代计划或 SOP。
 

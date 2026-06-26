@@ -30,10 +30,10 @@
 
 NebulaDash 使用独立预发布后缀，不直接冒充 Zashboard 官方版本。
 
-- 常规本地增强发布：沿用当前上游基线并递增 Nebula 后缀，例如 `2.8.0-nebula.2`
+- 常规本地增强发布：沿用当前上游基线并递增 Nebula 后缀，例如 `2.8.0-nebula.3`
 - 只有真正迁移到上游 3.x 代码基线后，才使用类似 `3.x.y-nebula.n` 的版本号
 - 不使用纯 `3.2.0` 这类官方风格版本号，避免用户误判为 Zashboard 官方 3.x
-- Release tag 必须等于 `v<package.json version>`，例如 `v2.8.0-nebula.2`
+- Release tag 必须等于 `v<package.json version>`，例如 `v2.8.0-nebula.3`
 
 普通 Push 和 Pull Request 只执行：
 
@@ -54,8 +54,8 @@ pnpm release:check
 推送与 `package.json` 版本一致的标签后，例如：
 
 ```bash
-git tag v2.8.0-nebula.2
-git push origin v2.8.0-nebula.2
+git tag v2.8.0-nebula.3
+git push origin v2.8.0-nebula.3
 ```
 
 GitHub Actions 会自动生成 Release，并上传：
@@ -69,6 +69,12 @@ GitHub Actions 会自动生成 Release，并上传：
 - `dist-sarasa-only.zip`
 
 Release 工作流只使用 GitHub 自动提供的 `GITHUB_TOKEN`，不需要个人 PAT。
+
+tag 推送后要等待 GitHub Actions 的 Release workflow 完成，并确认：
+
+- Release 页面存在目标 tag。
+- `dist.zip` 已上传。
+- `https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip` 跳转到目标 tag。
 
 ## OpenClash 更新配置
 
@@ -104,6 +110,8 @@ https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
 - `/www/nebuladash`
 
 公开仓库只能提交示例配置。不得提交真实 `NEBULADASH_TOKEN`、路由器实际配置、日志、工作目录或构建包。
+
+OpenWrt/uHTTPd 可能不会向 CGI 传递自定义请求头。前端会同时传 `X-NebulaDash-Token` header 和 `token` query 参数，CGI 优先校验 header，缺失时校验 query token。默认安装器生成的是 hex token，不要手动改成包含空格、`&`、`=` 等 URL 特殊字符的值。
 
 ## 公开前检查
 

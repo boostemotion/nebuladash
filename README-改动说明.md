@@ -2,6 +2,8 @@
 
 本项目在 **不引入服务端中转/SQLite 持久化** 的前提下，对原版 Zashboard 做了针对日常使用的前端增强，重点是：分组可读性、搜索可用性、规则定位效率、以及低资源设备（如路由器）友好。
 
+当前发布版本：`2.8.0-nebula.3`。
+
 ---
 
 ## 设计目标
@@ -99,6 +101,28 @@
 - 构建时不再出现 Vite 的 `Some chunks are larger than 500 kB` 警告
 - 当前最大 JS chunk 为 `echarts`，约 `388 kB`
 
+## 8) 更新源保护与自管理更新器
+
+- 面板更新源固定到 `boostemotion/nebuladash` 的 GitHub Release，避免误拉官方 Zashboard 覆盖本地版。
+- 当前 latest 下载地址：
+  `https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip`
+- 设置页新增 NebulaDash 自管理更新器：
+  - 更新器地址
+  - 更新器密钥
+  - 检查更新器
+  - 更新 NebulaDash
+  - 回滚 NebulaDash
+- 路由器端更新器位于 `router-updater/`，默认安装到：
+  - `/usr/share/nebuladash-updater/`
+  - `/www/cgi-bin/nebuladash-updater`
+  - `/www/nebuladash-a`
+  - `/www/nebuladash-b`
+  - `/www/nebuladash`
+- 更新采用 A/B 分区：先写入 inactive 分区，验证 `index.html`、`assets/`、`manifest.webmanifest` 后再切换 symlink。
+- 支持回滚到另一分区。
+- OpenWrt/uHTTPd 可能不转发自定义 header，前端会同时发送 header token 和 query token，CGI 会自动兼容。
+- 更新前会检查 NebulaDash latest Release；如果无法确认版本、同版本或远端更旧，会先弹出风险确认。
+
 ---
 
 ## 快速启动
@@ -162,6 +186,13 @@ corepack pnpm dev
 - 路由懒加载与构建拆包：
   - `src/router/index.ts`
   - `vite.config.ts`
+- 路由器自管理更新器：
+  - `router-updater/updater.sh`
+  - `router-updater/nebuladash-updater.cgi`
+  - `router-updater/install.sh`
+  - `src/helper/routerUpdater.ts`
+  - `src/api/routerUpdater.ts`
+  - `src/components/settings/ZashboardSettings.vue`
 
 ---
 
@@ -171,6 +202,7 @@ corepack pnpm dev
 
 ```bash
 pnpm type-check
+pnpm test
 pnpm exec eslint .
 pnpm build
 ```

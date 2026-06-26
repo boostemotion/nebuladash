@@ -27,9 +27,11 @@
 ## 当前背景
 
 - 本地上游代码基线：Zashboard `2.8.0`
-- 当前 NebulaDash 包版本：`2.8.0-nebula.1`
+- 当前 NebulaDash 包版本：`2.8.0-nebula.3`
 - 已确认对照的上游版本：Zashboard `3.11.0`（2026-06-24）
 - 当前仓库是叠加了 OpenClash / Mihomo 本地优化的公开 fork，不是纯净上游镜像
+- `v2.8.0-nebula.3` 已发布，Release latest/download/dist.zip 已确认指向该版本
+- NebulaDash 自管理更新器已在真实路由器上完成 status/update 链路验证，使用 A/B 分区和 token 认证
 
 后续策略是选择性跟进上游：
 

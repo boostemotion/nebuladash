@@ -22,6 +22,45 @@
 
 ## 2026-06-26
 
+### docs: refresh release and updater handoff docs
+
+- 提交：当前工作区
+- 类型：文档整理 / 接手窗口
+- 目的：在 `v2.8.0-nebula.3` 发布和路由器更新成功后，同步公开 README、二改说明、发布说明、路由器更新器文档和上游跟进文档，避免后续 AI 继续按旧状态判断。
+
+涉及文件：
+
+- `README.md`
+- `README-改动说明.md`
+- `PUBLICATION.md`
+- `router-updater/README.md`
+- `docs/superpowers/plans/2026-06-26-nebuladash-router-updater.md`
+- `upstream-followup/README.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/SOP.md`
+- `upstream-followup/UPSTREAM-FEATURES.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 文档当前版本统一更新为 `2.8.0-nebula.3`。
+- 公开 README 增加当前 Release 链接、自管理更新器下载源、风险确认和 uHTTPd query token fallback 说明。
+- `router-updater/README.md` 增加基于 zip 的安装命令、CRLF 清理、HTTP query token fallback、update 命令和 `No update has run yet` 状态说明。
+- AI 接手和迭代计划更新为：安装、status、update 已在真实路由器上验证，rollback 仍待补测。
+- 历史 implementation plan 标注为已完成并保留为历史计划。
+- SOP 增加 NebulaDash Release 发布检查和 latest 下载验证流程。
+
+验证：
+
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md router-updater/README.md upstream-followup/*.md docs/superpowers/plans/*.md`：pass
+- `git diff --check`：pass，仅提示 Windows 工作区换行转换
+
+后续注意：
+
+- 不修改根目录 `CHANGELOG.md`，它主要来自官方 Zashboard。
+- 历史维护日志中的旧版本号保留为历史事实，不批量替换。
+
 ### release: prepare v2.8.0-nebula.3
 
 - 提交：`ca42aedc`

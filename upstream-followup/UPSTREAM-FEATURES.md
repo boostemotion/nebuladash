@@ -3,7 +3,7 @@
 基线：
 
 - 本地上游代码基线：Zashboard `2.8.0`
-- 当前 NebulaDash 包版本：`2.8.0-nebula.1`
+- 当前 NebulaDash 包版本：`2.8.0-nebula.3`
 - 上游最新发布：`3.11.0`
 - 已拉取的 `upstream/main`：`9150a53e`
 
@@ -108,14 +108,12 @@
 
 ### P1
 
-- Provider 缓存旧数据提示和元数据整理
-- Provider 请求错误通知去重
-- 后端切换、缓存隔离和删除后端缓存清理的测试补强
-- Release 发布前检查清单或脚本固化
+- 真实 OpenClash / Mihomo Provider 超时、缓存和后端切换回归
+- 路由器更新器 rollback 实测
+- 后端 uptime / 多后端标题等非视觉核心信息展示，按需评估
 
 ### P2
 
-- 后端 uptime / 多后端标题等非视觉核心信息展示，按需评估
 - 代理图标映射增强，需与本地 `iconReflectList` 融合
 
 ### P3

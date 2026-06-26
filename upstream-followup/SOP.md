@@ -46,6 +46,33 @@
 
 ## 二、推荐工作流
 
+### 0. 发布 NebulaDash 版本
+
+NebulaDash 使用独立 Nebula 后缀版本号。只有真正迁移到上游 3.x 基线后，才使用
+`3.x.y-nebula.n`；常规本地增强继续递增当前基线后缀，例如 `2.8.0-nebula.3`。
+
+固定流程：
+
+```bash
+pnpm release:check
+pnpm test
+pnpm type-check
+pnpm lint
+pnpm build
+git tag v<package.json version>
+git push origin main
+git push origin v<package.json version>
+```
+
+tag 推送后等待 GitHub Actions Release workflow 完成，并验证：
+
+```bash
+gh release view v<package.json version> --repo boostemotion/nebuladash
+curl -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
+```
+
+`latest/download/dist.zip` 必须跳转到刚发布的 tag 后，路由器端“更新 NebulaDash”按钮才应该使用。
+
 ### 1. 固定同步命令
 
 ```bash
@@ -153,6 +180,8 @@ adapt(upstream): port proxy folder UI from zashboard v3.7.0
 - `UPSTREAM-FEATURES.md`：只写官方上游功能盘点和跟进取舍。
 - `README.md`：面向公开用户，避免塞入内部维护细节。
 - `README-改动说明.md`：面向理解二改功能，保留可验证的功能说明。
+- `router-updater/README.md`：面向路由器安装、更新、回滚和故障排查。
+- `PUBLICATION.md`：面向公开发布、Release、更新源和禁止提交内容。
 
 旧计划文件如果已经完成或并入总计划，应删除或归档；删除前必须确认独有信息已进入维护日志或迭代计划。
 
