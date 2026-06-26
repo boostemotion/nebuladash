@@ -33,3 +33,7 @@ Recent history follows Conventional Commit style, for example `feat: upgrade pro
 ## Security & Maintenance Notes
 
 Do not commit secrets, backend passwords, or generated credentials. Keep OpenClash- and upstream-tracking work documented in `README-改动说明.md` and `upstream-followup/`. When syncing from the upstream fork, fetch from `upstream` and push only to `origin`.
+
+## NebulaDash Maintenance Log
+
+Every local NebulaDash change must be recorded in `upstream-followup/NEBULADASH-CHANGELOG.md` before completion. Include the date, commit hash or working state, purpose, touched files, behavior changes, validation commands, and follow-up notes. This is mandatory for proxy page, rule page, search, provider loading/caching, update-source, release, and upstream-sync work, because these areas contain local OpenClash-specific changes that upstream Zashboard may overwrite.
