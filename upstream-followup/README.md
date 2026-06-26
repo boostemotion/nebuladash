@@ -44,3 +44,6 @@
 - `PLAN.md` 已合并进 `NEBULADASH-ITERATION-PLAN.md` 和 `SOP.md`。
 - `NODE-PARENT-SEARCH-PLAN.md` 对应功能已完成，并已记录在 `NEBULADASH-CHANGELOG.md` 的
   `feat: match proxy parents by node search` 小节。
+- `docs/superpowers/plans/2026-06-26-nebuladash-router-updater.md` 对应功能已完成并发布到
+  `v2.8.0-nebula.3`。当前安装、发布和故障排查信息已合并到 `router-updater/README.md`、
+  `PUBLICATION.md`、`AI-HANDOFF.md` 和 `NEBULADASH-CHANGELOG.md`。

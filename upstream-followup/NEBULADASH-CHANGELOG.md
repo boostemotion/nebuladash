@@ -22,6 +22,34 @@
 
 ## 2026-06-26
 
+### docs: remove completed router updater implementation plan
+
+- 提交：当前工作区
+- 类型：文档整理 / 过期文件清理
+- 目的：删除已完成并发布的路由器更新器实施计划，避免后续 AI 或新对话误把历史计划当作待执行任务。
+
+涉及文件：
+
+- `docs/superpowers/plans/2026-06-26-nebuladash-router-updater.md`
+- `upstream-followup/README.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 移除已完成的超长 implementation plan。
+- 在 `upstream-followup/README.md` 记录该计划已合并到当前 README、发布说明、更新器说明和维护日志。
+- 当前路由器更新器的真实入口改为 `router-updater/README.md`、`PUBLICATION.md`、`AI-HANDOFF.md` 和本维护日志。
+
+验证：
+
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md router-updater/README.md upstream-followup/*.md`：pass
+- `git diff --check`：pass，仅提示 Windows 工作区换行转换
+
+后续注意：
+
+- 不删除 `router-updater/smoke-test.sh`，它仍是 POSIX 环境下验证 A/B 更新器的入口。
+- 不删除 `_deploy/`、`dist/`、`node_modules/`，它们是本地忽略产物，不属于 Git 清理范围。
+
 ### docs: refresh release and updater handoff docs
 
 - 提交：`ca11185a`
