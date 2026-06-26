@@ -24,7 +24,7 @@
 
 ### ops: verify router updater from NebulaDash UI
 
-- 提交：当前工作区
+- 提交：`fc86d6a1`
 - 类型：实机验收 / 路由器更新器
 - 目的：记录 `v2.8.0-nebula.3` 发布链路补齐后，路由器端可以通过 NebulaDash 前端按钮触发更新，作为后续接手和排障的真实验收依据。
 
