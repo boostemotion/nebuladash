@@ -24,7 +24,7 @@
 
 ### feat: add router-side AB updater
 
-- 提交：`96410915`、`3c8be8e4`、`dafbae80`、`f19cf352`、`a7433367`，文档收尾为当前工作区
+- 提交：`96410915`、`3c8be8e4`、`dafbae80`、`f19cf352`、`a7433367`、`2070a6d1`，验证记录为当前工作区
 - 类型：部署体验 / 更新器 / 设置页
 - 目的：让 NebulaDash 前端按钮触发路由器端更新脚本，用 A/B 分区替代每次手工复制 `/www/nebuladash`。
 
@@ -65,9 +65,12 @@
 验证：
 
 - `pnpm test src/helper/routerUpdater.spec.ts`：先失败于缺少 helper / 默认 endpoint 函数，实现后 49/49 pass
+- `pnpm release:check`：pass，期望 tag 为 `v2.8.0-nebula.2`
+- `pnpm test`：初次在 sandbox 内被 Windows ACL 拦截；提升权限重跑后 49/49 pass
 - `pnpm type-check`：pass
 - `pnpm lint`：pass
 - `pnpm build`：pass
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md router-updater/*.md upstream-followup/*.md docs/superpowers/plans/*.md`：pass
 - `git diff --check`：pass
 - `sh router-updater/smoke-test.sh`：当前 Windows 本机失败，原因是 `sh` 不存在；脚本文件已确认 LF，仍需在 OpenWrt、Linux、WSL 或 Git Bash 环境执行。
 
