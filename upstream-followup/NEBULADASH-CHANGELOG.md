@@ -22,6 +22,38 @@
 
 ## 2026-06-26
 
+### ops: verify router updater from NebulaDash UI
+
+- 提交：当前工作区
+- 类型：实机验收 / 路由器更新器
+- 目的：记录 `v2.8.0-nebula.3` 发布链路补齐后，路由器端可以通过 NebulaDash 前端按钮触发更新，作为后续接手和排障的真实验收依据。
+
+涉及范围：
+
+- 前端设置页的更新器地址和更新器 token 配置
+- `/cgi-bin/nebuladash-updater` CGI 入口
+- `/usr/share/nebuladash-updater` 更新器服务目录
+- GitHub Release latest `dist.zip`
+- `/www/nebuladash` 当前部署目录
+
+行为结果：
+
+- `https://github.com/boostemotion/nebuladash/releases/latest/download/router-updater.zip` 已可下载更新器安装包。
+- 路由器前端按钮已能触发 NebulaDash 更新流程。
+- 更新器仍以 `/www/nebuladash` 为目标路径，沿用当前部署目录，不迁移到 OpenClash 内置 UI 目录。
+- A/B 分区和回滚能力仍由 `router-updater/` 脚本负责。
+
+验证：
+
+- 用户在路由器实机页面点击 NebulaDash 更新按钮后确认：可以更新。
+- 该验收发生在 `v2.8.0-nebula.3` Release 已补上传 `router-updater.zip` 之后。
+
+后续注意：
+
+- 路由器临时目录 `/tmp/nebuladash` 只用于上传、解压和临时操作，验收完成后可清理。
+- 不要删除 `/www/nebuladash`、`/usr/share/nebuladash-updater`、`/www/cgi-bin/nebuladash-updater`。
+- 若后续修改更新器 CGI、token 校验、Release 下载地址或 A/B 切换逻辑，必须重新做一次路由器实机按钮更新验收。
+
 ### ci: publish router updater archive in releases
 
 - 提交：`36e21a8f`
