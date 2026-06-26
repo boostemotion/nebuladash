@@ -12,10 +12,16 @@
 
 当前 `upstream/main` 相比 `v3.11.0` 多出 11 个提交。
 
+### 已落地
+
+- `83dda306`：设置项 label/select 宽度修复，本地已在 `2ce694691` 落地，对应
+  `src/assets/main.css` 的 `.setting-item-label` 和 `src/components/settings/ProxiesSettings.vue`
+  的 `customGlobalNode` 下拉宽度。
+- `6f65c3bf`：select 默认外观修复，本地已在 `2ce694691` 落地，对应
+  `src/assets/main.css` 的 `@utility select { appearance: none; }`。
+
 ### 可选择跟进
 
-- `83dda306`：设置项 label/select 宽度修复
-- `6f65c3bf`：select 默认外观修复
 - `bed57f21`：后端 uptime 展示
 - `314afebb`：连接状态延迟统计
 

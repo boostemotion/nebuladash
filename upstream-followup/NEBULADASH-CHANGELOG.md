@@ -22,6 +22,35 @@
 
 ## 2026-06-26
 
+### docs: mark upstream select style fixes as landed
+
+- 提交：当前工作区
+- 类型：上游审计 / 文档维护
+- 目的：记录上游 `83dda306` 和 `6f65c3bf` 对应的 select / setting label 样式修复已在本地落地，避免后续重复把它们当作待办项。
+
+涉及文件：
+
+- `upstream-followup/UPSTREAM-FEATURES.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 将 `83dda306` 从“可选择跟进”调整为“已落地”，本地对应 `src/assets/main.css` 的 `.setting-item-label` 和 `src/components/settings/ProxiesSettings.vue` 的 `customGlobalNode` 下拉宽度。
+- 将 `6f65c3bf` 从“可选择跟进”调整为“已落地”，本地对应 `src/assets/main.css` 的 `@utility select { appearance: none; }`。
+- 记录本地落地提交为 `2ce694691`。
+
+验证：
+
+- `git show --stat --patch --minimal 6f65c3bf`：确认上游 select 默认外观修复仅新增 `appearance: none`
+- `git show --stat --patch --minimal 83dda306`：确认上游 setting label 和 `customGlobalNode` 下拉宽度修复
+- `git blame -L 50,65 -- src/assets/main.css`：确认 `appearance: none` 来自 `2ce694691`
+- `git blame -L 382,392 -- src/assets/main.css`：确认 `.setting-item-label` 修复来自 `2ce694691`
+- `git blame -L 149,154 -- src/components/settings/ProxiesSettings.vue`：确认 `customGlobalNode` 下拉 `w-32` 来自 `2ce694691`
+
+后续注意：
+
+- 后续上游审计时不要再把 `83dda306` 和 `6f65c3bf` 列入待移植项。
+
 ### docs: refresh upstream difference audit
 
 - 提交：`6f95c5ff`
