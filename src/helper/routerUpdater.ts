@@ -22,6 +22,15 @@ export const buildRouterUpdaterHeaders = (token: string) => ({
   'X-NebulaDash-Token': token,
 })
 
+export const getDefaultRouterUpdaterEndpoint = (href: string) => {
+  const url = new URL(href)
+  url.port = ''
+  url.pathname = '/cgi-bin/nebuladash-updater'
+  url.search = ''
+  url.hash = ''
+  return url.toString().replace(/\/$/, '')
+}
+
 export const parseRouterUpdaterResponse = (value: unknown): RouterUpdaterResponse => {
   if (typeof value !== 'object' || value === null) {
     return { ok: false, status: 'error', message: 'Invalid updater response' }

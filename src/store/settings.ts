@@ -18,6 +18,7 @@ import {
   TEST_URL,
   type THEME,
 } from '@/constant'
+import { getDefaultRouterUpdaterEndpoint } from '@/helper/routerUpdater'
 import { getMinCardWidth, isMiddleScreen, isPreferredDark } from '@/helper/utils'
 import type { SourceIPLabel } from '@/types'
 import { useStorage } from '@vueuse/core'
@@ -75,6 +76,11 @@ export const emoji = useStorage<EMOJIS>(
 export const customBackgroundURL = useStorage('config/custom-background-image', '')
 export const dashboardTransparent = useStorage('config/dashboard-transparent', 90)
 export const autoUpgrade = useStorage('config/auto-upgrade', false)
+export const routerUpdaterEndpoint = useStorage(
+  'config/router-updater-endpoint',
+  getDefaultRouterUpdaterEndpoint(window.location.href),
+)
+export const routerUpdaterToken = useStorage('config/router-updater-token', '')
 export const checkUpgradeCore = useStorage('config/check-upgrade-core', true)
 export const autoUpgradeCore = useStorage('config/auto-upgrade-core', false)
 export const swipeInPages = useStorage('config/swipe-in-pages', true)

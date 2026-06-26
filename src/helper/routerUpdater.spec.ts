@@ -3,6 +3,7 @@ import test from 'node:test'
 import {
   buildRouterUpdaterHeaders,
   buildRouterUpdaterUrl,
+  getDefaultRouterUpdaterEndpoint,
   parseRouterUpdaterResponse,
 } from './routerUpdater.ts'
 
@@ -46,4 +47,11 @@ test('normalizes malformed updater responses into an error response', () => {
     status: 'error',
     message: 'Invalid updater response',
   })
+})
+
+test('uses the current origin for the default router updater endpoint', () => {
+  assert.equal(
+    getDefaultRouterUpdaterEndpoint('http://192.168.6.1:9090/ui/nebuladash/'),
+    'http://192.168.6.1/cgi-bin/nebuladash-updater',
+  )
 })
