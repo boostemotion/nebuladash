@@ -27,3 +27,9 @@ test -d "$ROOT/www/nebuladash/assets"
 
 NEBULADASH_UPDATER_CONFIG="$ROOT/runtime/config" sh router-updater/updater.sh status
 NEBULADASH_UPDATER_CONFIG="$ROOT/runtime/config" sh router-updater/updater.sh rollback
+
+REQUEST_METHOD=POST QUERY_STRING='action=status' HTTP_X_NEBULADASH_TOKEN=wrong \
+  NEBULADASH_UPDATER_CONFIG="$ROOT/runtime/config" \
+  NEBULADASH_UPDATER_BIN=router-updater/updater.sh \
+  sh router-updater/nebuladash-updater.cgi > "$ROOT/cgi-denied.json"
+grep '"ok":false' "$ROOT/cgi-denied.json"
