@@ -238,11 +238,60 @@
         <span class="font-mono break-all">{{ requiredUiDownloadUrl }}</span>
       </p>
     </div>
+    <div class="mt-4 grid max-w-3xl grid-cols-1 gap-2 md:grid-cols-2">
+      <div class="setting-item">
+        <div class="setting-item-label">{{ $t('routerUpdaterEndpoint') }}</div>
+        <TextInput
+          v-model="routerUpdaterEndpoint"
+          class="w-64"
+          :clearable="false"
+        />
+      </div>
+      <div class="setting-item">
+        <div class="setting-item-label">{{ $t('routerUpdaterToken') }}</div>
+        <TextInput
+          v-model="routerUpdaterToken"
+          class="w-64"
+          :clearable="true"
+        />
+      </div>
+      <div class="col-span-1 flex flex-wrap gap-2 md:col-span-2">
+        <button
+          class="btn btn-sm"
+          :disabled="routerUpdaterBusy"
+          @click="checkRouterUpdater"
+        >
+          {{ $t('routerUpdaterCheck') }}
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
+          :disabled="routerUpdaterBusy"
+          @click="updateNebulaDashViaRouter"
+        >
+          {{ $t('routerUpdaterUpdate') }}
+        </button>
+        <button
+          class="btn btn-warning btn-sm"
+          :disabled="routerUpdaterBusy"
+          @click="rollbackNebulaDashViaRouter"
+        >
+          {{ $t('routerUpdaterRollback') }}
+        </button>
+      </div>
+      <p
+        v-if="routerUpdaterMessage"
+        class="text-base-content/70 col-span-1 text-xs md:col-span-2"
+      >
+        <span class="font-medium">{{ $t('routerUpdaterStatus') }}:</span>
+        {{ routerUpdaterMessage }}
+      </p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { dashboardVersion, upgradeUIAPI } from '@/api'
+import { fetchRouterUpdaterStatus, runRouterUpdaterAction } from '@/api/routerUpdater'
 import LanguageSelect from '@/components/settings/LanguageSelect.vue'
 import { useIsSettingVisible, useSettings } from '@/composables/settings'
 import { GENERAL_ITEM_KEYS } from '@/config/settingsItems'
@@ -266,6 +315,8 @@ import {
   defaultTheme,
   emoji,
   font,
+  routerUpdaterEndpoint,
+  routerUpdaterToken,
 } from '@/store/settings'
 import {
   AdjustmentsHorizontalIcon,
@@ -360,6 +411,77 @@ const { isUIUpdateAvailable } = useSettings()
 const isUIUpgrading = ref(false)
 const requiredUiDownloadUrl = NEBULADASH_RELEASE_DOWNLOAD_URL
 const isUIUpgradeBlocked = computed(() => !canUpgradeNebulaDashFromConfig(configs.value))
+const routerUpdaterBusy = ref(false)
+const routerUpdaterMessage = ref('')
+
+const assertRouterUpdaterToken = () => {
+  if (!routerUpdaterToken.value.trim()) {
+    showNotification({ content: 'routerUpdaterTokenMissing', type: 'alert-warning' })
+    return false
+  }
+  return true
+}
+
+const checkRouterUpdater = async () => {
+  if (!assertRouterUpdaterToken()) return
+
+  routerUpdaterBusy.value = true
+  try {
+    const result = await fetchRouterUpdaterStatus(
+      routerUpdaterEndpoint.value,
+      routerUpdaterToken.value,
+    )
+    routerUpdaterMessage.value = result.message || result.status
+    showNotification({ content: 'routerUpdaterSuccess', type: 'alert-success' })
+  } catch (error) {
+    routerUpdaterMessage.value = error instanceof Error ? error.message : ''
+    showNotification({ content: 'routerUpdaterFailed', type: 'alert-error' })
+  } finally {
+    routerUpdaterBusy.value = false
+  }
+}
+
+const updateNebulaDashViaRouter = async () => {
+  if (!assertRouterUpdaterToken()) return
+
+  routerUpdaterBusy.value = true
+  try {
+    const result = await runRouterUpdaterAction(
+      routerUpdaterEndpoint.value,
+      routerUpdaterToken.value,
+      'update',
+    )
+    routerUpdaterMessage.value = result.message || result.status
+    showNotification({ content: 'routerUpdaterSuccess', type: 'alert-success' })
+    setTimeout(() => window.location.reload(), 1000)
+  } catch (error) {
+    routerUpdaterMessage.value = error instanceof Error ? error.message : ''
+    showNotification({ content: 'routerUpdaterFailed', type: 'alert-error' })
+  } finally {
+    routerUpdaterBusy.value = false
+  }
+}
+
+const rollbackNebulaDashViaRouter = async () => {
+  if (!assertRouterUpdaterToken()) return
+
+  routerUpdaterBusy.value = true
+  try {
+    const result = await runRouterUpdaterAction(
+      routerUpdaterEndpoint.value,
+      routerUpdaterToken.value,
+      'rollback',
+    )
+    routerUpdaterMessage.value = result.message || result.status
+    showNotification({ content: 'routerUpdaterSuccess', type: 'alert-success' })
+    setTimeout(() => window.location.reload(), 1000)
+  } catch (error) {
+    routerUpdaterMessage.value = error instanceof Error ? error.message : ''
+    showNotification({ content: 'routerUpdaterFailed', type: 'alert-error' })
+  } finally {
+    routerUpdaterBusy.value = false
+  }
+}
 
 const handlerClickUpgradeUI = async () => {
   if (isUIUpgrading.value) return
