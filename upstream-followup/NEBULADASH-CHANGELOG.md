@@ -22,6 +22,49 @@
 
 ## 2026-06-26
 
+### chore: add release preflight and bump nebula patch version
+
+- 提交：当前工作区
+- 类型：发布流程固化 / 版本治理
+- 目的：把发布前版本检查固化为可本地复用的脚本，并明确 NebulaDash 不直接使用 Zashboard 官方风格版本号。
+
+涉及文件：
+
+- `package.json`
+- `.github/workflows/release.yml`
+- `tools/release-preflight.ts`
+- `src/helper/releasePreflight.ts`
+- `src/helper/releasePreflight.spec.ts`
+- `README.md`
+- `PUBLICATION.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 当前开发线版本从 `2.8.0-nebula.1` 推进到 `2.8.0-nebula.2`。
+- 新增 `pnpm release:check`，校验包名、Nebula 版本格式和 tag/package 一致性。
+- Release workflow 改为调用同一个 `pnpm release:check`，避免本地检查与 GitHub Actions 分叉。
+- 明确版本策略：当前仍基于 Zashboard `2.8.0`，不使用纯 `3.2.0`；只有真正迁移到上游 3.x 基线后才考虑 `3.x.y-nebula.n`。
+
+验证：
+
+- `pnpm test src/helper/releasePreflight.spec.ts`：先失败于缺少 `releasePreflight.ts`，实现后 44/44 pass
+- `pnpm release:check`：pass，期望 tag 为 `v2.8.0-nebula.2`
+- `$env:RELEASE_TAG='v3.2.0'; pnpm release:check`：按预期失败，拒绝 tag/package 不一致
+- `pnpm test`：44/44 pass
+- `pnpm type-check`：pass
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md src/helper/releasePreflight.ts src/helper/releasePreflight.spec.ts tools/release-preflight.ts .github/workflows/release.yml package.json`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+- `git diff --check`：pass，仅有 CRLF 提示
+
+后续注意：
+
+- 发布 `2.8.0-nebula.2` 时，必须创建并推送 tag `v2.8.0-nebula.2`。
+- 不要因为本地补丁数量增加就改成纯上游版本号；版本号必须反映真实代码基线和分支身份。
+
 ### test: cover backend proxy cache cleanup
 
 - 提交：当前工作区
