@@ -22,6 +22,61 @@
 
 ## 2026-06-26
 
+### feat: add router-side AB updater
+
+- 提交：`96410915`、`3c8be8e4`、`dafbae80`、`f19cf352`、`a7433367`，文档收尾为当前工作区
+- 类型：部署体验 / 更新器 / 设置页
+- 目的：让 NebulaDash 前端按钮触发路由器端更新脚本，用 A/B 分区替代每次手工复制 `/www/nebuladash`。
+
+涉及文件：
+
+- `.gitattributes`
+- `router-updater/config.example`
+- `router-updater/updater.sh`
+- `router-updater/nebuladash-updater.cgi`
+- `router-updater/install.sh`
+- `router-updater/smoke-test.sh`
+- `router-updater/README.md`
+- `src/helper/routerUpdater.ts`
+- `src/helper/routerUpdater.spec.ts`
+- `src/api/routerUpdater.ts`
+- `src/store/settings.ts`
+- `src/components/settings/ZashboardSettings.vue`
+- `src/i18n/en.ts`
+- `src/i18n/zh.ts`
+- `src/i18n/zh-tw.ts`
+- `src/i18n/ru.ts`
+- `README.md`
+- `PUBLICATION.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 新增可选路由器端更新器源码目录 `router-updater/`。
+- 安装后运行目录为 `/usr/share/nebuladash-updater/`，CGI 入口为 `/www/cgi-bin/nebuladash-updater`。
+- 更新器管理 `/www/nebuladash-a`、`/www/nebuladash-b` 和 `/www/nebuladash` symlink。
+- 更新器只接受 `status`、`update`、`rollback`，并要求 `X-NebulaDash-Token`。
+- 更新流程先部署 inactive 分区，验证 `index.html`、`assets/`、`manifest.webmanifest` 后再切换。
+- 前端设置页新增 updater endpoint、token、检查、更新和回滚按钮。
+- 默认 endpoint 会从当前地址推导为 `http://<router>/cgi-bin/nebuladash-updater`。
+
+验证：
+
+- `pnpm test src/helper/routerUpdater.spec.ts`：先失败于缺少 helper / 默认 endpoint 函数，实现后 49/49 pass
+- `pnpm type-check`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+- `git diff --check`：pass
+- `sh router-updater/smoke-test.sh`：当前 Windows 本机失败，原因是 `sh` 不存在；脚本文件已确认 LF，仍需在 OpenWrt、Linux、WSL 或 Git Bash 环境执行。
+
+后续注意：
+
+- 真实路由器验证前，不要把该更新器标记为已完成生产回归。
+- 不能让前端传任意命令给 CGI；后续只能扩展固定 action。
+- 更新器 token 是本地 updater token，不是 GitHub token、OpenClash secret 或 Mihomo API password。
+
 ### docs: plan router-side AB updater
 
 - 提交：当前工作区

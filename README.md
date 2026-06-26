@@ -98,6 +98,19 @@ http://10.0.0.1:9090/ui/nebuladash/
 
 如需切回原版 Zashboard，改回对应的 `external-ui-name` 并重启 OpenClash。
 
+## NebulaDash 自管理更新器
+
+OpenClash LuCI 内置的 Dashboard / Yacd / Metacubexd / Zashboard 按钮不包含 NebulaDash。若希望在
+NebulaDash 前端里点击按钮后直接触发路由器脚本更新，可安装本仓的可选路由器端更新器：
+
+- 源码目录：`router-updater/`
+- 运行目录：`/usr/share/nebuladash-updater/`
+- HTTP 入口：`/www/cgi-bin/nebuladash-updater`
+- 面板入口：`/www/nebuladash`
+- 部署策略：A/B 分区，失败不切换，支持回滚
+
+安装和配置见 [router-updater/README.md](./router-updater/README.md)。
+
 ## 连接参数
 
 可通过 URL 参数预填后端连接信息：

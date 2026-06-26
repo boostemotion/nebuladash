@@ -85,6 +85,26 @@ OpenClash / Mihomo 的 `/upgrade/ui` 接口执行下载。
 只有该地址指向 `boostemotion/nebuladash` 的 GitHub Release ZIP 时，设置页才允许执行
 “更新面板”和自动更新；否则按钮会禁用并提示正确地址。
 
+## NebulaDash 自管理更新器
+
+如果不想依赖 OpenClash LuCI 内置面板按钮，可使用 `router-updater/` 中的可选更新器。
+
+发布产物仍来自同一个 NebulaDash Release：
+
+```text
+https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
+```
+
+更新器运行在路由器上，默认安装到：
+
+- `/usr/share/nebuladash-updater/`
+- `/www/cgi-bin/nebuladash-updater`
+- `/www/nebuladash-a`
+- `/www/nebuladash-b`
+- `/www/nebuladash`
+
+公开仓库只能提交示例配置。不得提交真实 `NEBULADASH_TOKEN`、路由器实际配置、日志、工作目录或构建包。
+
 ## 公开前检查
 
 ```bash

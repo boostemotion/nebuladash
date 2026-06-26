@@ -7,6 +7,7 @@
 - 当前包版本：`2.8.0-nebula.2`
 - 上游代码基线：Zashboard `2.8.0`
 - 已对照的官方版本：Zashboard `3.11.0`（2026-06-24）
+- 已新增可选路由器端自管理更新器：`router-updater/`
 - 远程约定：
   - `origin`：`boostemotion/nebuladash`，只推送 NebulaDash
   - `upstream`：`Zephyruso/zashboard`，只拉取官方更新
@@ -39,11 +40,12 @@
 - `a04a355e`、`560c81fb`：公开 README 和维护日志整理。
 - `842788ee`：Provider 旧缓存状态。
 - `7f80b09c`：Provider 失败通知去重。
-- 当前工作区：后端代理缓存 key 隔离和删除后端缓存清理测试补强。
+- `07b60048`：发布前检查脚本和 `2.8.0-nebula.2` 版本治理。
+- `96410915`、`3c8be8e4`、`dafbae80`、`f19cf352`、`a7433367`：路由器端自管理更新器、A/B 部署脚本、CGI、前端 API 和设置页按钮。
 
 ## 下一步优先级
 
-1. 固化 Release 发布前检查清单或脚本。
+1. 路由器空闲后，在真实 OpenWrt / OpenClash 环境验证 `router-updater/smoke-test.sh`、安装器、前端按钮和 rollback。
 2. 路由器空闲后，再做真实 OpenClash / Mihomo Provider 超时、缓存和后端切换回归。
 3. 多后端标题、后端 uptime、代理图标映射等非视觉核心信息展示按需评估。
 
@@ -60,6 +62,7 @@
 - 改动如果影响后续路线，更新 `NEBULADASH-ITERATION-PLAN.md`。
 - 改动如果影响新对话接手路径，更新本文。
 - 改动如果影响公开用户用法，更新根目录 `README.md` 或 `README-改动说明.md`。
+- 改动如果影响路由器部署或更新路径，更新 `router-updater/README.md` 和 `PUBLICATION.md`。
 - 不要把 NebulaDash 本地改动写进根目录 `CHANGELOG.md`，它主要来自官方 Zashboard。
 - 删除旧计划前，先确认其独有信息已经合并进维护日志、迭代计划或 SOP。
 
@@ -72,6 +75,12 @@ pnpm test
 pnpm type-check
 pnpm lint
 pnpm build
+```
+
+路由器更新器改动还需要在可用 POSIX shell 环境运行：
+
+```bash
+sh router-updater/smoke-test.sh
 ```
 
 纯文档改动至少执行：
