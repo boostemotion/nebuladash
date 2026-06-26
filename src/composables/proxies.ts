@@ -1,6 +1,7 @@
 import { isSingBox } from '@/api'
 import { GLOBAL, PROXY_TAB_TYPE } from '@/constant'
 import { isHiddenGroup } from '@/helper'
+import { matchesProviderSearchTarget } from '@/helper/proxyProviderSearch'
 import {
   getSearchTermVariants,
   matchesSearchTargets,
@@ -360,22 +361,16 @@ const getProxySections = (): ProxySection[] => {
       key: 'provider',
       title: 'proxyProvider',
       items: proxyProviederList.value
-        .map((provider) => provider.name)
-        .filter((name) => {
+        .filter((provider) => {
           const searchTerms = splitSearchTerms(proxiesFilter.value)
 
           if (searchTerms.length === 0) {
             return true
           }
 
-          const provider = proxyProviederList.value.find((item) => item.name === name)
-
-          return matchesSearchTargets(
-            name,
-            provider?.proxies.map((proxy) => proxy.name) ?? [],
-            searchTerms,
-          )
-        }),
+          return matchesProviderSearchTarget(provider, searchTerms)
+        })
+        .map((provider) => provider.name),
     },
   ]
 

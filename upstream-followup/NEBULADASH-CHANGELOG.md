@@ -22,6 +22,107 @@
 
 ## 2026-06-26
 
+### docs: narrow upstream follow-up scope
+
+- 提交：当前工作区
+- 类型：维护路线调整
+- 目的：根据当前使用方式更新上游跟进策略，明确搜索模式和 UI/交互类上游功能不再作为当前主线，避免后续 AI 重复建议偏离方向的功能。
+
+涉及文件：
+
+- `upstream-followup/UPSTREAM-FEATURES.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 搜索模式切换标记为暂不推进，原因是当前智能搜索已满足主要使用场景。
+- 规则卡片动画、`SegmentedControl`、代理页视觉/交互增强标记为当前主线不跟，原因是用户已有插件补界面。
+- 后续优先级改为 Provider 缓存旧数据提示、错误通知去重、后端切换 / 缓存清理测试和 Release 发布前检查固化。
+- `AI-HANDOFF.md` 增加“当前明确不推进”小节，方便新对话接手时快速避开低价值方向。
+
+验证：
+
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md src/helper/proxyProviderSearch.ts src/helper/proxyProviderSearch.spec.ts`：pass
+
+后续注意：
+
+- 只有出现明确痛点时，才重新评估搜索模式、代理文件夹或 UI/交互类上游功能。
+
+### feat: enhance provider tab search targets
+
+- 提交：当前工作区
+- 类型：Provider 搜索增强
+- 目的：补齐 Provider 标签内搜索目标，让已加载 Provider 可以按 Provider 元数据和订阅信息筛选，同时继续遵守慢接口隔离。
+
+涉及文件：
+
+- `src/helper/proxyProviderSearch.ts`
+- `src/helper/proxyProviderSearch.spec.ts`
+- `src/composables/proxies.ts`
+- `README-改动说明.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 新增 Provider 搜索 helper，集中生成 Provider 搜索目标。
+- Provider 标签内搜索继续支持 Provider 名和节点名。
+- Provider 标签内搜索新增支持测试 URL、更新时间、Provider 类型、订阅下载量、上传量、总量、到期时间戳和到期日期。
+- Provider 搜索只使用已加载的 `proxyProviederList` 数据，不主动触发 `/providers/proxies`。
+- 多关键词仍保持现有 AND 语义，且不会把关键词拆到无关 Provider 目标之间误命中。
+
+验证：
+
+- `pnpm test src/helper/proxyProviderSearch.spec.ts`：先失败于缺少 `proxyProviderSearch.ts`，实现后 pass
+- `pnpm test`：31/31 pass
+- `pnpm type-check`：pass
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md src/helper/proxyProviderSearch.ts src/helper/proxyProviderSearch.spec.ts`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+
+后续注意：
+
+- 后续若增加显式搜索模式，Provider 搜索仍应复用 `src/helper/proxyProviderSearch.ts`，不要在组件中散落重复过滤逻辑。
+- Provider 搜索不得成为触发 `/providers/proxies` 慢请求的理由。
+
+### docs: consolidate maintenance handoff documents
+
+- 提交：当前工作区
+- 类型：维护文档整理
+- 目的：降低后续 AI 或新对话接手时的文档噪音，明确文档职责、阅读顺序和过时计划的处理规则。
+
+涉及文件：
+
+- `README.md`
+- `upstream-followup/README.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/SOP.md`
+- `upstream-followup/PLAN.md`
+- `upstream-followup/NODE-PARENT-SEARCH-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 新增 `AI-HANDOFF.md`，作为新开对话、其他 AI 或维护者接手 NebulaDash 时的首读入口。
+- `upstream-followup/README.md` 改为维护文档导航，明确每份文档职责和阅读顺序。
+- `NEBULADASH-ITERATION-PLAN.md` 修正过时状态：搜索高亮、缓存按后端隔离、Release 发布流程和更新源保护均已落地。
+- `SOP.md` 增加文档职责和文档验证规则。
+- 删除已合并进总计划的旧 `PLAN.md`。
+- 删除已完成并记录到维护日志的 `NODE-PARENT-SEARCH-PLAN.md`。
+
+验证：
+
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md`：pass
+
+后续注意：
+
+- 接手者应先读 `upstream-followup/AI-HANDOFF.md`，再读维护日志和迭代计划。
+- 新增或删除维护文档时，要同步更新 `upstream-followup/README.md` 的文档职责说明。
+
 ### docs: refresh public README
 
 - 提交：`a04a355e`

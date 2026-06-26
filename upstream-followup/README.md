@@ -1,34 +1,44 @@
-# 上游跟进总览
+# NebulaDash 维护文档入口
 
-这个文件夹专门用来跟进 `Zephyruso/zashboard` 上游项目，避免二改记录散落在 `README`、聊天记录和临时笔记里。
+这个目录是 NebulaDash 后续维护、上游同步和 AI 接手的固定窗口。根目录
+`CHANGELOG.md` 主要来自官方 Zashboard，不记录本分支二改。
 
-## 文件说明
+## 建议阅读顺序
 
-- `NEBULADASH-ITERATION-PLAN.md`
-  NebulaDash 后续迭代总计划，整合 OpenClash 慢 Provider 接口实测结论、本地专项优化、上游版本差异、实施优先级和回归标准
-- `PLAN.md`
-  当前这份 NebulaDash 的上游跟进计划，含优先级、节奏、风险和验收标准
-- `SOP.md`
-  规范化跟进流程，偏工业化操作说明，适合长期维护 fork
-- `UPSTREAM-FEATURES.md`
-  当前已确认的上游新特性盘点，按版本阶段归类
+1. `AI-HANDOFF.md`
+   新开对话或其他 AI 接手时先读。它只保留当前状态、不可破坏约束、下一步建议和文档维护规则。
+2. `NEBULADASH-CHANGELOG.md`
+   实际维护日志。每次本地改动必须追加记录，优先看最新日期和最新小节。
+3. `NEBULADASH-ITERATION-PLAN.md`
+   后续迭代总计划，包含性能根因、已完成能力、上游差异、高冲突文件和回归清单。
+4. `UPSTREAM-FEATURES.md`
+   官方 Zashboard 新功能盘点。只用于判断“哪些上游能力值得选择性移植”。
+5. `SOP.md`
+   长期维护流程，包括上游同步、分支策略、文档更新和回归验证。
+
+## 文档职责
+
+- `AI-HANDOFF.md`：面向接手者的短入口，只写当前事实、读文档顺序、禁止事项和下一步。
+- `NEBULADASH-CHANGELOG.md`：按时间记录已经发生的本地改动，不写未来愿望。
+- `NEBULADASH-ITERATION-PLAN.md`：维护后续路线和验收标准，计划变化时更新这里。
+- `UPSTREAM-FEATURES.md`：记录官方上游功能差异和取舍理由。
+- `SOP.md`：记录可重复的操作流程和文档规范。
 
 ## 当前背景
 
 - 本地上游代码基线：Zashboard `2.8.0`
 - 当前 NebulaDash 包版本：`2.8.0-nebula.1`
-- 上游当前最新发布：`3.11.0`（2026-06-24）
-- 当前仓库相对上游不是“纯净 fork”，已经叠加了较多本地二改
+- 已确认对照的上游版本：Zashboard `3.11.0`（2026-06-24）
+- 当前仓库是叠加了 OpenClash / Mihomo 本地优化的公开 fork，不是纯净上游镜像
 
-这意味着后续策略不应是“盲目全量同步”，而应是：
+后续策略是选择性跟进上游：
 
-1. 先稳住你当前可用的代理页和 OpenClash 适配
-2. 再按功能价值做选择性回收
-3. 最后才考虑较大规模的视觉或架构对齐
+1. 先保护代理页、规则页、搜索和 Provider 慢接口隔离。
+2. 再按实际价值小步移植上游修复。
+3. 大规模 UI、设置页或代理页重构必须单独分支验证。
 
-## 推荐原则
+## 已合并或删除的旧文档
 
-- 只把“对你有价值”的上游功能拉回来
-- 优先同步可独立 cherry-pick 的小功能
-- 大改版 UI 和交互，必须单独建分支验证
-- 永远保留一条“可回退到当前可用版本”的稳定线
+- `PLAN.md` 已合并进 `NEBULADASH-ITERATION-PLAN.md` 和 `SOP.md`。
+- `NODE-PARENT-SEARCH-PLAN.md` 对应功能已完成，并已记录在 `NEBULADASH-CHANGELOG.md` 的
+  `feat: match proxy parents by node search` 小节。

@@ -168,6 +168,7 @@ Windows 下也可以使用本仓启动脚本：
 
 上游跟进资料：
 
+- [upstream-followup/AI-HANDOFF.md](./upstream-followup/AI-HANDOFF.md)：新对话 / 其他 AI 接手入口
 - [README-改动说明.md](./README-改动说明.md)：本分支二改功能说明
 - [upstream-followup/NEBULADASH-CHANGELOG.md](./upstream-followup/NEBULADASH-CHANGELOG.md)：NebulaDash 实际维护更新日志
 - [upstream-followup/NEBULADASH-ITERATION-PLAN.md](./upstream-followup/NEBULADASH-ITERATION-PLAN.md)：后续迭代计划

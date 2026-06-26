@@ -83,6 +83,7 @@ git checkout -b feat/upstream-provider-sync
 - 大改动：建 spike 分支单独验证
 
 原因很简单：
+
 - fork 一旦加了自己的业务逻辑，整仓 rebase 成本会越来越高
 
 ### 4. 每次同步后做回归清单
@@ -106,6 +107,7 @@ git checkout -b feat/upstream-provider-sync
 - `upstream-followup/`
 
 专门记录：
+
 - 上游差异
 - 决策
 - 跟进计划
@@ -134,11 +136,42 @@ adapt(upstream): port proxy folder UI from zashboard v3.7.0
 > 为什么这次不跟？
 
 比如：
+
 - 风险太大
 - 当前没有业务价值
 - 和本地改动冲突太强
 
 把“不跟”也记下来，后面就不会重复评估。
+
+### 4. 文档要按职责维护
+
+后续 AI 或维护者接手时，文档比聊天记录更可靠。每次改动后按下面规则落文档：
+
+- `AI-HANDOFF.md`：只写当前状态、接手顺序、不可破坏约束和下一步建议。
+- `NEBULADASH-CHANGELOG.md`：只写已经发生的本地改动，包含目的、文件、行为变化、验证和后续注意。
+- `NEBULADASH-ITERATION-PLAN.md`：只写后续路线、优先级、验收标准和高冲突文件。
+- `UPSTREAM-FEATURES.md`：只写官方上游功能盘点和跟进取舍。
+- `README.md`：面向公开用户，避免塞入内部维护细节。
+- `README-改动说明.md`：面向理解二改功能，保留可验证的功能说明。
+
+旧计划文件如果已经完成或并入总计划，应删除或归档；删除前必须确认独有信息已进入维护日志或迭代计划。
+
+### 5. 文档验证
+
+纯文档改动至少执行：
+
+```bash
+pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md
+```
+
+如果同时改代码，仍按项目基线执行：
+
+```bash
+pnpm test
+pnpm type-check
+pnpm lint
+pnpm build
+```
 
 ## 四、你这个项目最适合的跟进模型
 
