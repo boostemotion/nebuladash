@@ -24,7 +24,7 @@
 
 ### fix: sync upstream settings select styling
 
-- 提交：待提交
+- 提交：`2ce69469`
 - 类型：上游低风险样式同步
 - 来源：
   - `upstream/main` `6f65c3bf`：`fix: remove default appearance for select utility to enhance styling`
