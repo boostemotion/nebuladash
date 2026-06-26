@@ -24,7 +24,7 @@
 
 ### docs: downgrade rollback test and uptime follow-up
 
-- 提交：当前工作区
+- 提交：`b09b967f`
 - 类型：路线调整 / 上游审计
 - 目的：根据实际使用判断，将路由器更新器 rollback 破坏性实测从近期优先级降级；同时确认上游 `bed57f21` 后端 uptime 展示依赖 sing-box native startedAt，不适合当前 OpenClash / Mihomo 主线空移植。
 
