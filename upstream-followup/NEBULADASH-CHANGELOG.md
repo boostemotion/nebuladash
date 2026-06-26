@@ -24,7 +24,7 @@
 
 ### fix: harden router updater token parsing against CRLF
 
-- 提交：`8f0221b0`
+- 提交：`a445829c`
 - 类型：路由器更新器 / 安装兼容性
 - 目的：修复 OpenWrt 上 CGI 已命中但始终返回 `Unauthorized updater request` 的问题，避免脚本或配置文件带 CRLF 时 token 肉眼一致但字符串比较失败。
 
