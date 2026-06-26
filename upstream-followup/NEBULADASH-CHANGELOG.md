@@ -24,7 +24,7 @@
 
 ### docs: refresh upstream difference audit
 
-- 提交：当前工作区
+- 提交：`6f95c5ff`
 - 类型：上游审计 / 文档维护
 - 目的：执行上游差异审计，确认 `upstream/main` 当前仍停在 `9150a53e`，并把“不直接 rebase/merge upstream、按单个补丁选择性移植”的同步策略写入交接文档。
 
