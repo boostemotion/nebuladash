@@ -22,6 +22,39 @@
 
 ## 2026-06-26
 
+### fix: sync upstream settings select styling
+
+- 提交：待提交
+- 类型：上游低风险样式同步
+- 来源：
+  - `upstream/main` `6f65c3bf`：`fix: remove default appearance for select utility to enhance styling`
+  - `upstream/main` `83dda306`：`fix: adjust setting item label flex properties and update select width in ProxiesSettings component`
+- 目的：同步官方 post-v3.11.0 中与设置页 select 外观、设置项 label 伸缩和代理设置下拉宽度相关的小修复。
+
+涉及文件：
+
+- `src/assets/main.css`
+- `src/components/settings/ProxiesSettings.vue`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- `.select` utility 增加 `appearance: none`，减少浏览器默认 select 外观对 daisyUI 样式的干扰。
+- `.setting-item-label` 从 `flex-1` 调整为 `shrink-0 grow`，降低设置项 label 被挤压的概率。
+- `customGlobalNode` 下拉框从 `min-w-24` 改为 `w-32`，对齐官方代理设置页宽度修复。
+
+验证：
+
+- `pnpm test`：26/26 pass
+- `pnpm type-check`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+
+后续注意：
+
+- 该同步只涉及样式，不触碰代理数据流、Provider 请求、搜索、缓存和更新源。
+- 本地没有官方 `src/assets/styles/*` 目录，因此采用手动映射到 `src/assets/main.css`。
+
 ### 本地二改基线：OpenClash 环境特化优化
 
 - 提交：历史二改整合，已包含在公开仓库初始提交 `b28546ab`

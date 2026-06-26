@@ -150,7 +150,7 @@
             {{ $t('customGlobalNode') }}
           </div>
           <select
-            class="select select-sm min-w-24"
+            class="select select-sm w-32"
             v-model="customGlobalNode"
           >
             <option
