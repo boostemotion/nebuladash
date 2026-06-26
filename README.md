@@ -1,87 +1,198 @@
 # NebulaDash
 
-NebulaDash 是基于 Zashboard 的轻量增强分支，重点优化 OpenClash / Mihomo
-多 Provider 场景下的代理页可用性、搜索、规则链路定位和低资源设备体验。
+NebulaDash 是基于 [Zashboard](https://github.com/Zephyruso/zashboard) 的轻量增强分支，面向 OpenClash / Mihomo 日常使用场景优化。
 
-本项目保持浏览器直连后端，不增加常驻中转服务或数据库。
+核心目标是：不引入常驻中转服务或数据库，仍由浏览器直连后端，同时改善多 Provider 配置下代理页加载慢、搜索不稳定、规则链路难定位等问题。
 
 <p align="center">
   <img src="./readme/pc.png" height="300">
   <img src="./readme/mobile.png" height="300">
 </p>
 
-## **Requirement**
+## 项目定位
 
-Browser support
+- 上游来源：`Zephyruso/zashboard`
+- 本仓地址：`boostemotion/nebuladash`
+- 当前版本：`2.8.0-nebula.1`
+- 技术栈：Vue 3 + Vite + TypeScript + Tailwind CSS / daisyUI
+- 架构：纯前端面板，浏览器直连 OpenClash / Mihomo API
 
-- Chrome 111 (released March 2023)
-- Firefox 128 (released July 2024)
-- Safari 16.4 (released March 2023)
-- Not supported on iOS 16.4 jailbroken version.
+NebulaDash 不是 Zashboard 官方版本。本分支会选择性跟进上游更新，但会优先保留 OpenClash 多 Provider 环境下的本地优化。
 
-## **Download**
+## 主要增强
 
-You can download NebulaDash release archives here:
+### 代理页加载与分组
 
-release:
+- 代理页拆分为三段视图：
+  - 策略组
+  - 节点组
+  - 代理商
+- 首屏只依赖 `/proxies`，不再让慢速 `/providers/proxies` 阻塞策略组和节点组。
+- Provider 数据只在切到“代理商”标签或手动刷新时请求。
+- 代理数据和 Provider 数据增加本地缓存，后端慢时仍能先用缓存起屏。
+- 建立“节点 -> Provider”映射，减少界面层重复遍历。
 
-- [dist.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip) — bundled fonts
-- [dist-no-fonts.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-no-fonts.zip) — system fonts only
-- [dist-cdn-fonts.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-cdn-fonts.zip) — CDN fonts
-- [dist-firasans-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-firasans-only.zip)
-- [dist-misans-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-misans-only.zip)
-- [dist-pingfang-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-pingfang-only.zip)
-- [dist-sarasa-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-sarasa-only.zip)
+### 搜索增强
 
-Releases are generated from public version tags by GitHub Actions. See
-[PUBLICATION.md](./PUBLICATION.md) for repository and release safety rules.
+- 统一搜索能力：
+  - NFKC 规范化
+  - 符号容错
+  - 多关键词 AND
+  - 域名 label 变体
+- 代理页搜索支持：
+  - 组名匹配
+  - 节点名匹配
+  - 子节点命中后显示父级策略组 / 节点组
+  - 首次输入搜索词时再补拉规则数据，用于规则联动搜索
+- 规则页搜索支持链路感知匹配，可通过下游节点筛出上游规则。
+- 搜索命中项带高亮，便于确认实际命中位置。
 
-## **OpenClash Update URL**
+### 规则链路定位
+
+- 策略组卡片支持“规则直通”。
+- 可从策略组跳转到对应规则。
+- 可点击链路节点切换到目标分段并定位到具体卡片。
+- 规则直通末尾显示最终节点所属 Provider，便于确认实际出口来源。
+
+### 构建与低资源设备体验
+
+- 路由懒加载，减少首包压力。
+- Vite / Rollup 手动 chunk 拆分，避免所有视图和大依赖一次进入首包。
+- 保持纯前端架构，不增加路由器上的 Node / Docker 常驻负担。
+
+### 更新保护
+
+- 面板更新源固定为 NebulaDash Release。
+- 如果后端配置的 UI 下载地址不是 `boostemotion/nebuladash` 的 GitHub Release ZIP，面板会禁用“更新面板”，避免误把自己替换成其他面板。
+
+## 下载
+
+最新构建产物：
+
+- [dist.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip)
+
+发布和公开仓库隔离规则见：
+
+- [PUBLICATION.md](./PUBLICATION.md)
+
+## OpenClash / Mihomo 更新配置
+
+推荐将 UI 下载地址配置为 NebulaDash Release：
 
 ```yaml
 external-ui-download-url: https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
 ```
 
-## Tips
+如果希望与原版 Zashboard 共存，可使用不同的 `external-ui-name`：
 
-1. The connection table can be dragged with the left mouse button, and right-clicking can copy cell content.
-2. Right-clicking on a node / node group card will perform a speedtest for the node / node group.
-3. The proxy group sorting is based on the node order in the GLOBAL group. In Mihomo, it follows the configuration file order, while in sing-box, route.final is placed first, with the rest following the configuration file order. If you need custom ordering, you can specify the order by overriding the GLOBAL group.
-4. The dashboard supports PWA (Progressive Web App), which can provide a native app-like experience on mobile devices through "Add to Home Screen".
-5. The dashboard's upgrade button and auto-upgrade functionality require the core's UI download path to point to NebulaDash. If it points elsewhere, NebulaDash disables dashboard upgrades to avoid replacing itself with another panel.
+```yaml
+external-ui: /usr/share/openclash/ui
+external-ui-name: nebuladash
+```
 
-## 提示
+示例访问地址：
 
-1. 连接表格可被鼠标左键拖动，右键可复制单元格内容。
-2. 右键点击节点/节点组卡片可对节点/节点组进行测速。
-3. 面板的节点组排序是根据GLOBAL组中的节点顺序排序的，在Mihomo中会是按配置文件的顺序，在sing-box中会把route.final放到第一位，其余按照配置文件顺序，如果你需要自定义顺序，可通过覆盖GLOBAL组指定顺序
-4. 面板支持PWA（Progressive Web App），可以在移动设备上通过"添加到主屏幕"获得类原生app的体验
-5. 面板的更新按钮和自动更新功能要求核心的 UI 下载地址指向 NebulaDash；如果指向其他面板，NebulaDash 会禁用面板更新，避免把自己替换成别的面板。
+```text
+http://10.0.0.1:9090/ui/nebuladash/
+```
 
-## URL params format
+如需切回原版 Zashboard，改回对应的 `external-ui-name` 并重启 OpenClash。
 
-#### basic example
+## 连接参数
 
+可通过 URL 参数预填后端连接信息：
+
+```text
 http://host:port/#/setup?hostname=ipordomain&port=9090&secret=123456
+```
 
-1. **`http` / `https`**
-   - Determines the protocol (`http` or `https`).
-   - Default: current page protocol
+支持参数：
 
-2. **`hostname`**
-   - The Clash API's IP or domain.
+- `hostname`：Clash / Mihomo API 地址。
+- `port`：Clash / Mihomo API 端口。
+- `secret`：API 鉴权密钥。
+- `secondaryPath`：可选的后端路径前缀。
+- `disableUpgradeCore`：设为 `1` 或 `true` 时隐藏核心升级按钮。
 
-3. **`port`**
-   - The Clash API port.
+## 浏览器要求
 
-4. **`secondaryPath`**
-   - Optional path appended to the base URL.
-   - Default: An empty string.
+- Chrome 111+
+- Firefox 128+
+- Safari 16.4+
+- 不支持 iOS 16.4 越狱版本
 
-5. **`secret`**
-   - Password for authentication.
+## 使用提示
 
-6. **`disableUpgradeCore`**
-   - Set '1' or 'true' to hide upgrade core button
+- 连接表格可用鼠标左键拖动，右键可复制单元格内容。
+- 右键点击节点 / 节点组卡片可对节点 / 节点组测速。
+- 节点组排序默认基于 GLOBAL 组中的节点顺序；如需自定义顺序，可通过覆盖 GLOBAL 组指定。
+- 支持 PWA，可在移动端通过“添加到主屏幕”获得类原生体验。
 
-### I code just for fun, not for money. If you really want to donate, please consider donating to [UNICEF](https://www.unicef.org/) to help hungry children.
+## 本地开发
+
+本项目使用 `pnpm@10.15.0`。
+
+```bash
+pnpm install
+pnpm dev
+```
+
+常用命令：
+
+```bash
+pnpm test
+pnpm type-check
+pnpm lint
+pnpm build
+pnpm preview
+```
+
+Windows 下也可以使用本仓启动脚本：
+
+```powershell
+.\start-za.ps1
+```
+
+仅检查环境：
+
+```powershell
+.\start-za.ps1 -Check
+```
+
+## 维护与上游同步
+
+本分支采用双远程维护模型：
+
+- `upstream`：官方 Zashboard，只拉取
+- `origin`：NebulaDash 自仓，只推送
+
+上游跟进资料：
+
+- [README-改动说明.md](./README-改动说明.md)：本分支二改功能说明
+- [upstream-followup/NEBULADASH-CHANGELOG.md](./upstream-followup/NEBULADASH-CHANGELOG.md)：NebulaDash 实际维护更新日志
+- [upstream-followup/NEBULADASH-ITERATION-PLAN.md](./upstream-followup/NEBULADASH-ITERATION-PLAN.md)：后续迭代计划
+- [upstream-followup/UPSTREAM-FEATURES.md](./upstream-followup/UPSTREAM-FEATURES.md)：上游差异和可跟进功能
+
+同步上游时的固定原则：
+
+- 不直接覆盖代理页、规则页、搜索、Provider 缓存相关本地逻辑。
+- 上游更新先筛选，再手动融合。
+- 每次本地改动都要写入 NebulaDash 维护更新日志。
+
+## 验证基线
+
+提交前至少执行：
+
+```bash
+pnpm test
+pnpm type-check
+pnpm lint
+pnpm build
+```
+
+## 致谢
+
+- 原项目：[Zashboard](https://github.com/Zephyruso/zashboard)
+- 后端生态：OpenClash、Mihomo / Clash.Meta、sing-box
+
+本项目继承上游 MIT License。

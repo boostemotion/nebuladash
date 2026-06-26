@@ -22,6 +22,34 @@
 
 ## 2026-06-26
 
+### docs: refresh public README
+
+- 提交：待提交
+- 类型：公开文档整理
+- 目的：把根目录 README 从简单下载说明更新为面向公开仓库的项目首页，明确 NebulaDash 定位、核心二改、OpenClash 更新配置、开发命令和上游同步入口。
+
+涉及文件：
+
+- `README.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- README 增加项目定位、主要增强、下载、OpenClash / Mihomo 更新配置、浏览器要求、本地开发、维护与上游同步、验证基线和致谢。
+- README 保留并精简旧版 URL 参数说明和常用操作提示，避免公开首页丢失基础使用信息。
+- 下载入口收敛到已确认的 `dist.zip`，避免首页列出未确认存在的 Release 资产。
+- 增加维护文档入口，后续查看二改功能、迭代计划、上游差异和维护日志更直接。
+
+验证：
+
+- `pnpm exec prettier --check README.md upstream-followup\NEBULADASH-CHANGELOG.md`：pass
+- `pnpm test`：26/26 pass
+
+后续注意：
+
+- README 只作为公开入口，详细二改说明仍维护在 `README-改动说明.md`。
+- 后续新增重要功能时，应同步更新 README 的“主要增强”或文档入口。
+
 ### fix: sync upstream settings select styling
 
 - 提交：`2ce69469`
