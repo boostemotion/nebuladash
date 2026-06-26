@@ -72,6 +72,8 @@ const ru: LANG_MESSAGE = {
   providerStatusTimeout: 'Таймаут провайдера',
   providerStatusError: 'Ошибка провайдера',
   upgradeUI: 'Обновить панель',
+  upgradeUIDisabledTip:
+    'Обновление панели отключено, пока URL загрузки внешнего UI не указывает на NebulaDash: ',
   reloadConfigs: 'Перезагрузить конфигурации',
   updateConfigs: 'Обновить конфигурации',
   updateConfigsSuccess: 'Конфигурации успешно обновлены',

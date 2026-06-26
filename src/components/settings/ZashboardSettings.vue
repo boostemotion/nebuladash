@@ -14,7 +14,7 @@
           <span class="bg-secondary h-2 w-2 rounded-full"></span>
         </span>
         <a
-          href="https://github.com/boostemotion/NebulaDash"
+          href="https://github.com/boostemotion/nebuladash"
           target="_blank"
           class="flex flex-col gap-1"
         >
@@ -211,6 +211,8 @@
       <button
         v-if="isVisibleUpgradeUI"
         :class="twMerge('btn btn-primary btn-sm', isUIUpgrading ? 'animate-pulse' : '')"
+        :disabled="isUIUpgradeBlocked"
+        :title="isUIUpgradeBlocked ? $t('upgradeUIDisabledTip') : ''"
         @click="handlerClickUpgradeUI"
       >
         {{ $t('upgradeUI') }}
@@ -228,6 +230,13 @@
         {{ $t('exportSettings') }}
       </button>
       <ImportSettings v-if="isVisibleImportSettings" />
+      <p
+        v-if="isVisibleUpgradeUI && isUIUpgradeBlocked"
+        class="text-warning col-span-2 text-xs md:col-span-4"
+      >
+        {{ $t('upgradeUIDisabledTip') }}
+        <span class="font-mono break-all">{{ requiredUiDownloadUrl }}</span>
+      </p>
     </div>
   </div>
 </template>
@@ -240,7 +249,13 @@ import { GENERAL_ITEM_KEYS } from '@/config/settingsItems'
 import { EMOJIS, FONTS } from '@/constant'
 import { handlerUpgradeSuccess } from '@/helper'
 import { deleteBase64FromIndexedDB, LOCAL_IMAGE, saveBase64ToIndexedDB } from '@/helper/indexeddb'
+import { showNotification } from '@/helper/notification'
+import {
+  canUpgradeNebulaDashFromConfig,
+  NEBULADASH_RELEASE_DOWNLOAD_URL,
+} from '@/helper/uiUpdateSource'
 import { exportSettings, isPWA } from '@/helper/utils'
+import { configs } from '@/store/config'
 import {
   autoTheme,
   autoUpgrade,
@@ -343,8 +358,19 @@ const fontOptions = computed(() => {
 const { isUIUpdateAvailable } = useSettings()
 
 const isUIUpgrading = ref(false)
+const requiredUiDownloadUrl = NEBULADASH_RELEASE_DOWNLOAD_URL
+const isUIUpgradeBlocked = computed(() => !canUpgradeNebulaDashFromConfig(configs.value))
+
 const handlerClickUpgradeUI = async () => {
   if (isUIUpgrading.value) return
+  if (isUIUpgradeBlocked.value) {
+    showNotification({
+      content: 'upgradeUIDisabledTip',
+      type: 'alert-warning',
+    })
+    return
+  }
+
   isUIUpgrading.value = true
   try {
     await upgradeUIAPI()

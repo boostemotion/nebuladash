@@ -72,6 +72,7 @@ const zh: LANG_MESSAGE = {
   providerStatusTimeout: '代理商接口超时',
   providerStatusError: '代理商加载失败',
   upgradeUI: '更新面板',
+  upgradeUIDisabledTip: '后端 UI 下载地址未指向 NebulaDash，已禁止更新面板。请配置为：',
   reloadConfigs: '重载配置',
   updateConfigs: '更新配置',
   updateConfigsSuccess: '配置更新成功',

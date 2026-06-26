@@ -1,4 +1,4 @@
-export const NEBULADASH_REPOSITORY = 'boostemotion/NebulaDash'
+export const NEBULADASH_REPOSITORY = 'boostemotion/nebuladash'
 
 export const getLatestReleaseApiUrl = () =>
   `https://api.github.com/repos/${NEBULADASH_REPOSITORY}/releases/latest`

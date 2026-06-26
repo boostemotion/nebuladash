@@ -21,6 +21,8 @@ export type Config = {
   'mode-list': string[]
   modes: string[]
   'log-level': string
+  'external-ui-download-url'?: string
+  'external-ui-url'?: string
   ipv6: boolean
   tun: {
     enable: boolean

@@ -70,6 +70,8 @@ const en = {
   providerStatusTimeout: 'Provider timeout',
   providerStatusError: 'Provider error',
   upgradeUI: 'Upgrade dashboard',
+  upgradeUIDisabledTip:
+    'Dashboard upgrade is disabled until the backend external UI download URL points to NebulaDash: ',
   reloadConfigs: 'Reload configs',
   updateConfigs: 'Update configs',
   updateConfigsSuccess: 'Configs updated successfully',

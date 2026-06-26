@@ -8,10 +8,10 @@ import {
 } from './version.ts'
 
 test('uses the NebulaDash repository for release checks', () => {
-  assert.equal(NEBULADASH_REPOSITORY, 'boostemotion/NebulaDash')
+  assert.equal(NEBULADASH_REPOSITORY, 'boostemotion/nebuladash')
   assert.equal(
     getLatestReleaseApiUrl(),
-    'https://api.github.com/repos/boostemotion/NebulaDash/releases/latest',
+    'https://api.github.com/repos/boostemotion/nebuladash/releases/latest',
   )
 })
 

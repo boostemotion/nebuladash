@@ -25,13 +25,13 @@ You can download NebulaDash release archives here:
 
 release:
 
-- [dist.zip](https://github.com/boostemotion/NebulaDash/releases/latest/download/dist.zip) — bundled fonts
-- [dist-no-fonts.zip](https://github.com/boostemotion/NebulaDash/releases/latest/download/dist-no-fonts.zip) — system fonts only
-- [dist-cdn-fonts.zip](https://github.com/boostemotion/NebulaDash/releases/latest/download/dist-cdn-fonts.zip) — CDN fonts
-- [dist-firasans-only.zip](https://github.com/boostemotion/NebulaDash/releases/latest/download/dist-firasans-only.zip)
-- [dist-misans-only.zip](https://github.com/boostemotion/NebulaDash/releases/latest/download/dist-misans-only.zip)
-- [dist-pingfang-only.zip](https://github.com/boostemotion/NebulaDash/releases/latest/download/dist-pingfang-only.zip)
-- [dist-sarasa-only.zip](https://github.com/boostemotion/NebulaDash/releases/latest/download/dist-sarasa-only.zip)
+- [dist.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip) — bundled fonts
+- [dist-no-fonts.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-no-fonts.zip) — system fonts only
+- [dist-cdn-fonts.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-cdn-fonts.zip) — CDN fonts
+- [dist-firasans-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-firasans-only.zip)
+- [dist-misans-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-misans-only.zip)
+- [dist-pingfang-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-pingfang-only.zip)
+- [dist-sarasa-only.zip](https://github.com/boostemotion/nebuladash/releases/latest/download/dist-sarasa-only.zip)
 
 Releases are generated from public version tags by GitHub Actions. See
 [PUBLICATION.md](./PUBLICATION.md) for repository and release safety rules.
@@ -39,7 +39,7 @@ Releases are generated from public version tags by GitHub Actions. See
 ## **OpenClash Update URL**
 
 ```yaml
-external-ui-download-url: https://github.com/boostemotion/NebulaDash/releases/latest/download/dist.zip
+external-ui-download-url: https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
 ```
 
 ## Tips
@@ -48,7 +48,7 @@ external-ui-download-url: https://github.com/boostemotion/NebulaDash/releases/la
 2. Right-clicking on a node / node group card will perform a speedtest for the node / node group.
 3. The proxy group sorting is based on the node order in the GLOBAL group. In Mihomo, it follows the configuration file order, while in sing-box, route.final is placed first, with the rest following the configuration file order. If you need custom ordering, you can specify the order by overriding the GLOBAL group.
 4. The dashboard supports PWA (Progressive Web App), which can provide a native app-like experience on mobile devices through "Add to Home Screen".
-5. The dashboard's upgrade button and auto-upgrade functionality require proper configuration of the core's UI download path ([mihomo](https://wiki.metacubex.one/config/general/#_9) | [sing-box](https://sing-box.sagernet.org/configuration/experimental/clash-api/#external_ui_download_url)), otherwise clicking update may result in updating to the core's default panel.
+5. The dashboard's upgrade button and auto-upgrade functionality require the core's UI download path to point to NebulaDash. If it points elsewhere, NebulaDash disables dashboard upgrades to avoid replacing itself with another panel.
 
 ## 提示
 
@@ -56,7 +56,7 @@ external-ui-download-url: https://github.com/boostemotion/NebulaDash/releases/la
 2. 右键点击节点/节点组卡片可对节点/节点组进行测速。
 3. 面板的节点组排序是根据GLOBAL组中的节点顺序排序的，在Mihomo中会是按配置文件的顺序，在sing-box中会把route.final放到第一位，其余按照配置文件顺序，如果你需要自定义顺序，可通过覆盖GLOBAL组指定顺序
 4. 面板支持PWA（Progressive Web App），可以在移动设备上通过"添加到主屏幕"获得类原生app的体验
-5. 面板的更新按钮和自动更新功能需要正确的配置核心的ui下载路径 ([mihomo](https://wiki.metacubex.one/config/general/#_9) | [sing-box](https://sing-box.sagernet.org/configuration/experimental/clash-api/#external_ui_download_url)), 否则可能会在点击更新后更新为核心默认面板
+5. 面板的更新按钮和自动更新功能要求核心的 UI 下载地址指向 NebulaDash；如果指向其他面板，NebulaDash 会禁用面板更新，避免把自己替换成别的面板。
 
 ## URL params format
 
