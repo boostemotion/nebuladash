@@ -24,7 +24,7 @@
 
 ### docs: refresh release and updater handoff docs
 
-- 提交：当前工作区
+- 提交：`ca11185a`
 - 类型：文档整理 / 接手窗口
 - 目的：在 `v2.8.0-nebula.3` 发布和路由器更新成功后，同步公开 README、二改说明、发布说明、路由器更新器文档和上游跟进文档，避免后续 AI 继续按旧状态判断。
 
