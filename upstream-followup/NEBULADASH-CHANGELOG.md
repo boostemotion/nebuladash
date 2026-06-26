@@ -22,6 +22,43 @@
 
 ## 2026-06-26
 
+### test: cover backend proxy cache cleanup
+
+- 提交：当前工作区
+- 类型：后端缓存隔离测试补强
+- 目的：把后端 UUID 对应的代理缓存 key 和删除后端时的缓存清理规则集中到 `proxyCache` helper，并用自动测试防止后续新增缓存类型时漏清。
+
+涉及文件：
+
+- `src/helper/proxyCache.ts`
+- `src/helper/proxyCache.spec.ts`
+- `src/store/setup.ts`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 新增 `getProxyCacheKeysForBackend()`，统一返回指定后端的三类代理缓存 key。
+- 新增 `clearProxyCacheForBackend()`，删除后端时集中清理 `/proxies`、Provider 数据和 Provider 元数据缓存。
+- `removeBackend()` 改为调用清理 helper，不再在 Store 内手写三次 `localStorage.removeItem()`。
+- 新增测试覆盖后端间 cache key 隔离，以及删除后端时应清理的全部代理缓存 key。
+
+验证：
+
+- `pnpm test src/helper/proxyCache.spec.ts`：先失败于缺少 `getProxyCacheKeysForBackend` / `clearProxyCacheForBackend`，实现后 40/40 pass
+- `pnpm test`：40/40 pass
+- `pnpm type-check`：pass
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md src/helper/proxyCache.ts src/helper/proxyCache.spec.ts src/store/setup.ts`：pass
+- `pnpm lint`：pass
+- `pnpm build`：pass
+- `git diff --check`：pass，仅有 CRLF 提示
+
+后续注意：
+
+- 本次不做真实浏览器后端切换实测；路由器空闲后仍需做多后端切换缓存不串的手动回归。
+- 后续如新增代理相关缓存类型，必须同步更新 `PROXY_CACHE_KINDS`，删除后端时才能一起清理。
+
 ### feat: dedupe provider failure notifications
 
 - 提交：当前工作区

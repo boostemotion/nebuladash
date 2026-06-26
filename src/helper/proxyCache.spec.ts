@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  clearProxyCacheForBackend,
   getCachedProviderLoadStatus,
   getProviderFailureStatus,
   getProxyCacheKey,
+  getProxyCacheKeysForBackend,
   shouldNotifyProviderFailure,
   type ProxyCacheKind,
 } from './proxyCache.ts'
@@ -22,6 +24,40 @@ test('scopes proxy caches by backend UUID', () => {
 
 test('uses an inactive namespace when no backend is selected', () => {
   assert.equal(getProxyCacheKey('data', ''), 'cache/proxy-data/inactive')
+})
+
+test('returns every backend-scoped proxy cache key for cleanup', () => {
+  assert.deepEqual(getProxyCacheKeysForBackend('backend-a'), [
+    'cache/proxy-data/backend-a',
+    'cache/proxy-providers/backend-a',
+    'cache/proxy-provider-meta/backend-a',
+  ])
+})
+
+test('keeps proxy cache keys isolated across backend UUIDs', () => {
+  assert.notDeepEqual(
+    getProxyCacheKeysForBackend('backend-a'),
+    getProxyCacheKeysForBackend('backend-b'),
+  )
+})
+
+test('clears every proxy cache entry for a removed backend', () => {
+  const removedKeys: string[] = []
+
+  clearProxyCacheForBackend(
+    {
+      removeItem: (key) => {
+        removedKeys.push(key)
+      },
+    },
+    'backend-a',
+  )
+
+  assert.deepEqual(removedKeys, [
+    'cache/proxy-data/backend-a',
+    'cache/proxy-providers/backend-a',
+    'cache/proxy-provider-meta/backend-a',
+  ])
 })
 
 test('classifies axios timeout errors separately from other failures', () => {

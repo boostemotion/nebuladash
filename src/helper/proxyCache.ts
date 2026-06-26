@@ -20,9 +20,21 @@ const CACHE_PREFIX_MAP: Record<ProxyCacheKind, string> = {
   providers: 'cache/proxy-providers',
   'provider-meta': 'cache/proxy-provider-meta',
 }
+const PROXY_CACHE_KINDS: ProxyCacheKind[] = ['data', 'providers', 'provider-meta']
 
 export const getProxyCacheKey = (kind: ProxyCacheKind, backendUuid: string) => {
   return `${CACHE_PREFIX_MAP[kind]}/${backendUuid || 'inactive'}`
+}
+
+export const getProxyCacheKeysForBackend = (backendUuid: string) => {
+  return PROXY_CACHE_KINDS.map((kind) => getProxyCacheKey(kind, backendUuid))
+}
+
+export const clearProxyCacheForBackend = (
+  storage: Pick<Storage, 'removeItem'>,
+  backendUuid: string,
+) => {
+  getProxyCacheKeysForBackend(backendUuid).forEach((key) => storage.removeItem(key))
 }
 
 export const getProviderFailureStatus = (error: unknown): 'timeout' | 'error' => {
