@@ -22,6 +22,32 @@
 
 ## 2026-06-26
 
+### docs: plan router-side AB updater
+
+- 提交：当前工作区
+- 类型：部署体验规划
+- 目的：规划一个可由 NebulaDash 前端触发的路由器端 AB 更新器，替代手工复制 `/www/nebuladash`。
+
+涉及文件：
+
+- `docs/superpowers/plans/2026-06-26-nebuladash-router-updater.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 无运行时代码变化；这是实施计划。
+- 计划约束了 updater 独立目录、token 校验、`status/update/rollback` 三个动作、A/B 分区、失败不切换和回滚路径。
+
+验证：
+
+- `pnpm exec prettier --check upstream-followup/NEBULADASH-CHANGELOG.md docs/superpowers/plans/*.md`：初次发现计划文档格式问题，已执行 `pnpm exec prettier --write docs/superpowers/plans/2026-06-26-nebuladash-router-updater.md` 修复。
+- `git diff --check`：pass；仅提示 Windows 工作区换行转换。
+
+后续注意：
+
+- 实现时必须保留 token 校验，不能允许前端传任意 shell 命令。
+- 实现时必须先部署到 inactive 分区并验证结构，再切换 `/www/nebuladash`。
+
 ### chore: add release preflight and bump nebula patch version
 
 - 提交：当前工作区
