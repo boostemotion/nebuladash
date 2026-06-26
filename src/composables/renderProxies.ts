@@ -1,6 +1,11 @@
 import { NOT_CONNECTED, PROXY_SORT_TYPE } from '@/constant'
 import { isProxyGroup } from '@/helper'
-import { getSearchTermVariants, matchesSearchTerm, splitSearchTerms } from '@/helper/search'
+import {
+  getSearchTermVariants,
+  matchesSearchTarget,
+  matchesSearchTerm,
+  splitSearchTerms,
+} from '@/helper/search'
 import { getLatencyByName, proxiesFilter } from '@/store/proxies'
 import { hideUnavailableProxies, proxySortType, useSmartGroupSort } from '@/store/settings'
 import { smartOrderMap } from '@/store/smart'
@@ -58,9 +63,7 @@ const getRenderProxies = (proxies: string[], groupName?: string) => {
 
     const allProxies = proxies
 
-    proxies = proxies.filter((name) => {
-      return filters.every((f) => matchesSearchTerm(name, f))
-    })
+    proxies = proxies.filter((name) => matchesSearchTarget(name, filters))
 
     if (groupName && proxies.length === 0) {
       proxies = allProxies

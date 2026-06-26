@@ -61,6 +61,26 @@ export const getSearchTermVariants = (term: string) => {
   return [...variants]
 }
 
+export const matchesSearchTarget = (candidate: string, terms: string[]) => {
+  if (terms.length === 0) {
+    return true
+  }
+
+  return terms.every((term) => {
+    const variants = getSearchTermVariants(term)
+
+    return variants.some((variant) => matchesSearchTerm(candidate, variant))
+  })
+}
+
+export const matchesSearchTargets = (parentName: string, childNames: string[], terms: string[]) => {
+  if (terms.length === 0) {
+    return true
+  }
+
+  return [parentName, ...childNames].some((target) => matchesSearchTarget(target, terms))
+}
+
 type HighlightPart = {
   text: string
   matched: boolean

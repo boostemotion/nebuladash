@@ -1,7 +1,12 @@
 import { isSingBox } from '@/api'
 import { GLOBAL, PROXY_TAB_TYPE } from '@/constant'
 import { isHiddenGroup } from '@/helper'
-import { getSearchTermVariants, matchesSearchTerm, splitSearchTerms } from '@/helper/search'
+import {
+  getSearchTermVariants,
+  matchesSearchTargets,
+  matchesSearchTerm,
+  splitSearchTerms,
+} from '@/helper/search'
 import { configs } from '@/store/config'
 import {
   getProxyGroupChains,
@@ -284,11 +289,7 @@ const getRenderGroups = () => {
       return true
     }
 
-    return searchTerms.every((term) => {
-      const variants = getSearchTermVariants(term)
-
-      return variants.some((variant) => matchesSearchTerm(groupName, variant))
-    })
+    return matchesSearchTargets(groupName, proxyMap.value[groupName]?.all ?? [], searchTerms)
   })
 }
 
@@ -367,11 +368,13 @@ const getProxySections = (): ProxySection[] => {
             return true
           }
 
-          return searchTerms.every((term) => {
-            const variants = getSearchTermVariants(term)
+          const provider = proxyProviederList.value.find((item) => item.name === name)
 
-            return variants.some((variant) => matchesSearchTerm(name, variant))
-          })
+          return matchesSearchTargets(
+            name,
+            provider?.proxies.map((proxy) => proxy.name) ?? [],
+            searchTerms,
+          )
         }),
     },
   ]
