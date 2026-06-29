@@ -22,6 +22,40 @@
 
 ## 2026-06-29
 
+### fix: show staged progress while router updater is running
+
+- 提交：当前工作区
+- 类型：路由器更新器 / 设置页反馈
+- 目的：解决点击 `更新 NebulaDash` 后前端只会等待最终结果、看不到中间进度提示的问题。
+
+涉及文件：
+
+- `router-updater/updater.sh`
+- `src/components/settings/ZashboardSettings.vue`
+- `src/helper/routerUpdaterScripts.spec.ts`
+- `src/helper/uiUpdateWiring.spec.ts`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 路由器更新脚本会在更新过程中连续写入阶段状态：准备、下载、解压、切换分区。
+- 更新脚本在阶段失败时会把 `state.json` 写成 `error`，避免前端一直停留在 `updating`。
+- 设置页点击 `更新 NebulaDash` 后会并发轮询 updater status，并把阶段消息实时显示在“更新器状态”里。
+- 回滚链路也会在切换分区前写入 `updating` 状态。
+
+验证：
+
+- `pnpm test src/helper/routerUpdaterScripts.spec.ts src/helper/uiUpdateWiring.spec.ts`：通过；脚本实际运行全部 `src/**/*.spec.ts`
+- `pnpm test`：通过，64 个测试全部通过
+- `pnpm type-check`：通过
+- `pnpm lint`：通过
+- `pnpm build`：通过
+
+后续注意：
+
+- 这次修复目前只在源码和 `main` 分支里，未新发 Release；如果要通过路由器真实升级链路测试，还需要下一次版本发布。
+
 ### release: prepare v2.8.0-nebula.4
 
 - 提交：`f2ea79bd`

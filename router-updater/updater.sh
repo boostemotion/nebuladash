@@ -38,8 +38,7 @@ validate_release_url() {
   case "$RELEASE_URL" in
     https://github.com/boostemotion/nebuladash/releases/*/download/*.zip | file://*) ;;
     *)
-      respond false error "Refusing non-NebulaDash release URL" "$(active_partition)" ""
-      exit 1
+      return 1
       ;;
   esac
 }
@@ -108,6 +107,18 @@ write_state() {
     "$status" "$message" "$active" "$updated_at" > "$STATE_FILE"
 }
 
+clear_action_trap() {
+  trap - EXIT HUP INT TERM
+}
+
+fail_action() {
+  active="$1"
+  message="$2"
+  write_state "$active" error "$message"
+  respond false error "$message" "$active" ""
+  exit 1
+}
+
 do_status() {
   active="$(active_partition)"
   if [ -f "$STATE_FILE" ]; then
@@ -118,36 +129,63 @@ do_status() {
 }
 
 do_update() {
-  validate_release_url
   inactive_name="$(inactive_partition_name)"
   inactive_path="$(inactive_partition_path)"
+  update_error_message="Preparing NebulaDash update"
+
+  trap 'fail_action "$inactive_name" "$update_error_message"' EXIT HUP INT TERM
+
+  write_state "$inactive_name" updating "Preparing NebulaDash update"
+  validate_release_url
+
+  update_error_message="Downloading NebulaDash release"
+  write_state "$inactive_name" updating "Downloading NebulaDash release"
   zip_path="$(download_release)"
 
+  update_error_message="Extracting NebulaDash release"
+  write_state "$inactive_name" updating "Extracting NebulaDash release"
   rm -rf "$inactive_path"
   mkdir -p "$inactive_path"
   unzip -oq "$zip_path" -d "$inactive_path"
   verify_partition "$inactive_path"
+
+  update_error_message="Switching active NebulaDash partition"
+  write_state "$inactive_name" updating "Switching active NebulaDash partition"
   ln -sfn "$inactive_path" "$TARGET_LINK"
+
+  clear_action_trap
   write_state "$inactive_name" ok "Updated NebulaDash"
   respond true ok "Updated NebulaDash" "$inactive_name" ""
 }
 
 do_rollback() {
   active="$(active_partition)"
+  rollback_error_message="Preparing NebulaDash rollback"
+
+  trap 'fail_action "$active" "$rollback_error_message"' EXIT HUP INT TERM
+
   if [ "$active" = "a" ] && [ -d "$PARTITION_B" ]; then
+    rollback_error_message="Switching active NebulaDash partition"
+    write_state b updating "$rollback_error_message"
     ln -sfn "$PARTITION_B" "$TARGET_LINK"
+    clear_action_trap
     write_state b ok "Rolled back to partition b"
     respond true ok "Rolled back to partition b" b ""
     exit 0
   fi
 
   if [ "$active" = "b" ] && [ -d "$PARTITION_A" ]; then
+    rollback_error_message="Switching active NebulaDash partition"
+    write_state a updating "$rollback_error_message"
     ln -sfn "$PARTITION_A" "$TARGET_LINK"
+    clear_action_trap
     write_state a ok "Rolled back to partition a"
     respond true ok "Rolled back to partition a" a ""
     exit 0
   fi
 
+  clear_action_trap
+  write_state "$active" error "No rollback partition available"
   respond false error "No rollback partition available" "$active" ""
   exit 1
 }

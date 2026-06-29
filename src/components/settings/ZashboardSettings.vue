@@ -532,17 +532,51 @@ const checkRouterUpdater = async () => {
   }
 }
 
+const sleep = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms))
+
+const pollRouterUpdaterStatusUntilSettled = async (actionRequest: Promise<unknown>) => {
+  while (true) {
+    const settled = await Promise.race([
+      actionRequest.then(
+        () => true,
+        () => true,
+      ),
+      sleep(700).then(() => false),
+    ])
+
+    if (settled) {
+      return
+    }
+
+    try {
+      const status = await fetchRouterUpdaterStatus(
+        routerUpdaterEndpoint.value,
+        routerUpdaterToken.value,
+      )
+
+      if (status.status === 'updating') {
+        routerUpdaterMessage.value = status.message || status.status
+      }
+    } catch {
+      // Keep waiting for the action request result.
+    }
+  }
+}
+
 const updateNebulaDashViaRouter = async () => {
   if (!assertRouterUpdaterToken()) return
   if (!(await confirmRouterUpdaterVersionRisk())) return
 
   routerUpdaterBusy.value = true
   try {
-    const result = await runRouterUpdaterAction(
+    const updateRequest = runRouterUpdaterAction(
       routerUpdaterEndpoint.value,
       routerUpdaterToken.value,
       'update',
     )
+    const pollRequest = pollRouterUpdaterStatusUntilSettled(updateRequest)
+    const [result] = await Promise.all([updateRequest, pollRequest])
+
     routerUpdaterMessage.value = result.message || result.status
     showNotification({ content: 'routerUpdaterSuccess', type: 'alert-success' })
     setTimeout(() => window.location.reload(), 1000)

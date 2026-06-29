@@ -13,6 +13,7 @@
 - `router-updater.zip` 已由 Release workflow 自动上传到 `v2.8.0-nebula.4`，latest 下载链路已验证
 - 路由器实机已确认可通过 NebulaDash 前端按钮触发更新
 - 设置页已拆分“检查更新器”和“检查新版本”；进入设置页会自动检查 NebulaDash Release，并在有新版本时显示红点
+- 路由器端更新流程现在会在设置页显示阶段状态，例如下载、解压和切换分区
 - 远程约定：
   - `origin`：`boostemotion/nebuladash`，只推送 NebulaDash
   - `upstream`：`Zephyruso/zashboard`，只拉取官方更新
@@ -58,6 +59,7 @@
 - `efc62d9d`：当前 `v2.8.0-nebula.3` Release 已补上传 `router-updater.zip` 并验证 latest 链接。
 - `fc86d6a1`：记录路由器实机前端按钮更新成功。
 - `73420c5c`、`f2ea79bd`：设置页独立新版本检查、自动检查与红点提示已发布到 `v2.8.0-nebula.4`。
+- 当前工作区：更新器状态轮询与阶段提示已修复，但尚未发布新 Release。
 - 设置页新版本检查已独立于 updater status，支持自动检查和红点提示。
 
 ## 下一步优先级

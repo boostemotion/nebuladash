@@ -27,3 +27,11 @@ test('translations include NebulaDash release status labels', () => {
   assert.match(zh, /uiUpdateStatus:/)
   assert.match(zh, /uiUpdateAvailable:/)
 })
+
+test('settings page polls updater status while dashboard update is running', () => {
+  const settingsView = readLocalFile('src/components/settings/ZashboardSettings.vue')
+
+  assert.match(settingsView, /pollRouterUpdaterStatusUntilSettled/)
+  assert.match(settingsView, /const updateRequest = runRouterUpdaterAction\(/)
+  assert.match(settingsView, /await Promise\.all\(\[updateRequest, pollRequest\]\)/)
+})

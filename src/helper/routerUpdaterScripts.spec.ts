@@ -33,3 +33,19 @@ test('router updater CGI accepts a query token fallback when headers are unavail
   assert.match(cgi, /QUERY_TOKEN=/)
   assert.match(cgi, /TOKEN="\$\{HTTP_X_NEBULADASH_TOKEN:-\$QUERY_TOKEN\}"/)
 })
+
+test('router updater writes staged progress updates during dashboard upgrade', () => {
+  const updater = readFileSync(join(ROOT, 'router-updater/updater.sh'), 'utf8')
+
+  assert.match(updater, /write_state .*updating .*Preparing NebulaDash update/)
+  assert.match(updater, /write_state .*updating .*Downloading NebulaDash release/)
+  assert.match(updater, /write_state .*updating .*Extracting NebulaDash release/)
+  assert.match(updater, /write_state .*updating .*Switching active NebulaDash partition/)
+})
+
+test('router updater records an error state when update stages fail', () => {
+  const updater = readFileSync(join(ROOT, 'router-updater/updater.sh'), 'utf8')
+
+  assert.match(updater, /write_state .*error/)
+  assert.match(updater, /trap .*EXIT/)
+})
