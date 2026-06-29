@@ -4,11 +4,12 @@
 
 ## 当前状态
 
-- 当前包版本：`2.8.0-nebula.3`
+- 当前包版本：`2.8.0-nebula.4`
 - 上游代码基线：Zashboard `2.8.0`
 - 已对照的官方版本：Zashboard `3.11.0`（2026-06-24）
 - 已复查的 upstream main：`9150a53e`（2026-06-26 fetch 后无新增）
 - 已新增并发布可选路由器端自管理更新器：`router-updater/`
+- `v2.8.0-nebula.4` 作为下一次发布目标，当前工作区已包含新版本检查与红点提示改动
 - `v2.8.0-nebula.3` Release 已发布，`latest/download/dist.zip` 已确认指向该版本
 - `router-updater.zip` 已补上传到 `v2.8.0-nebula.3` Release，latest 下载链路已验证
 - 路由器实机已确认可通过 NebulaDash 前端按钮触发更新

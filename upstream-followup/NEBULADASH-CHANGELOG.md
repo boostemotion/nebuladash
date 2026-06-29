@@ -22,6 +22,42 @@
 
 ## 2026-06-29
 
+### release: prepare v2.8.0-nebula.4
+
+- 提交：当前工作区
+- 类型：发布准备 / 版本推进
+- 目的：发布“设置页独立新版本检查、自动检查和红点提示”能力，使路由器端可以通过 NebulaDash Release latest 链路实际测试升级。
+
+涉及文件：
+
+- `package.json`
+- `README.md`
+- `README-改动说明.md`
+- `PUBLICATION.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/README.md`
+- `upstream-followup/UPSTREAM-FEATURES.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 版本号从 `2.8.0-nebula.3` 提升到 `2.8.0-nebula.4`。
+- README、发布说明和维护文档中的“当前版本 / 当前 Release / 发布示例 tag”同步切换到 `v2.8.0-nebula.4`。
+- 本次发布目标是让真实 `latest/download/dist.zip` 指向包含版本检查与红点提示的新构建。
+
+验证：
+
+- `RELEASE_TAG=v2.8.0-nebula.4 pnpm release:check`：通过，预期 tag 为 `v2.8.0-nebula.4`
+- `pnpm test`：通过，61 个测试全部通过
+- `pnpm type-check`：通过
+- `pnpm lint`：通过
+- `pnpm build`：通过
+
+后续注意：
+
+- 发布完成后需要确认 `latest/download/dist.zip` 和 Release 页面都切到 `v2.8.0-nebula.4`。
+
 ### feat: split updater health check from release version check
 
 - 提交：`73420c5c`

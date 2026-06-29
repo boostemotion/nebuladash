@@ -3,7 +3,7 @@
 基线：
 
 - 本地上游代码基线：Zashboard `2.8.0`
-- 当前 NebulaDash 包版本：`2.8.0-nebula.3`
+- 当前 NebulaDash 包版本：`2.8.0-nebula.4`
 - 上游最新发布：`3.11.0`
 - 已拉取的 `upstream/main`：`9150a53e`
 - 最近审计：2026-06-26，`git fetch upstream --tags` 后确认无新增 upstream commit
