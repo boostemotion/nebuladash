@@ -4,11 +4,12 @@
 
 ## 当前状态
 
-- 当前包版本：`2.8.0-nebula.4`
+- 当前包版本：`2.8.0-nebula.4.2.0`
 - 上游代码基线：Zashboard `2.8.0`
 - 已对照的官方版本：Zashboard `3.11.0`（2026-06-24）
 - 已复查的 upstream main：`9150a53e`（2026-06-26 fetch 后无新增）
 - 已新增并发布可选路由器端自管理更新器：`router-updater/`
+- `v2.8.0-nebula.4.2.0` 作为下一次发布目标，当前工作区已包含更新阶段提示修复和新的 Nebula 多级版本规则
 - `v2.8.0-nebula.4` Release 已发布，`latest/download/dist.zip` 已确认指向该版本
 - `router-updater.zip` 已由 Release workflow 自动上传到 `v2.8.0-nebula.4`，latest 下载链路已验证
 - 路由器实机已确认可通过 NebulaDash 前端按钮触发更新
@@ -59,7 +60,7 @@
 - `efc62d9d`：当前 `v2.8.0-nebula.3` Release 已补上传 `router-updater.zip` 并验证 latest 链接。
 - `fc86d6a1`：记录路由器实机前端按钮更新成功。
 - `73420c5c`、`f2ea79bd`：设置页独立新版本检查、自动检查与红点提示已发布到 `v2.8.0-nebula.4`。
-- 当前工作区：更新器状态轮询与阶段提示已修复，但尚未发布新 Release。
+- 当前工作区：更新器状态轮询与阶段提示已修复，待发布到 `v2.8.0-nebula.4.2.0`。
 - 设置页新版本检查已独立于 updater status，支持自动检查和红点提示。
 
 ## 下一步优先级

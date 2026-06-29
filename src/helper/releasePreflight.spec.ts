@@ -20,6 +20,20 @@ test('accepts NebulaDash patch releases that match the pushed tag', () => {
   )
 })
 
+test('accepts multi-level Nebula release versions that match the pushed tag', () => {
+  assert.deepEqual(
+    validateReleasePreflight({
+      packageName: 'nebuladash',
+      version: '2.8.0-nebula.4.2.0',
+      tagName: 'v2.8.0-nebula.4.2.0',
+    }),
+    {
+      expectedTag: 'v2.8.0-nebula.4.2.0',
+      errors: [],
+    },
+  )
+})
+
 test('rejects upstream-style versions without the Nebula suffix', () => {
   assert.deepEqual(
     validateReleasePreflight({
@@ -29,7 +43,7 @@ test('rejects upstream-style versions without the Nebula suffix', () => {
     }),
     {
       expectedTag: 'v3.2.0',
-      errors: ['package.json version must use the Nebula release format: x.y.z-nebula.n'],
+      errors: ['package.json version must use the Nebula release format: x.y.z-nebula.a[.b[.c]]'],
     },
   )
 })

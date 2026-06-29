@@ -22,6 +22,47 @@
 
 ## 2026-06-29
 
+### release: prepare v2.8.0-nebula.4.2.0
+
+- 提交：当前工作区
+- 类型：发布准备 / 版本策略
+- 目的：按新的 Nebula 多级版本规则发布包含“更新阶段提示修复”的版本，其中 `nebula.4` 表示大功能轮次，`nebula.4.2` 表示小功能轮次，`nebula.4.2.0` 表示当前 bugfix 计数。
+
+涉及文件：
+
+- `package.json`
+- `src/helper/releasePreflight.ts`
+- `src/helper/releasePreflight.spec.ts`
+- `src/helper/version.spec.ts`
+- `README.md`
+- `README-改动说明.md`
+- `PUBLICATION.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/README.md`
+- `upstream-followup/UPSTREAM-FEATURES.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/SOP.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 版本号从 `2.8.0-nebula.4` 提升到 `2.8.0-nebula.4.2.0`。
+- 发布预检从只接受 `x.y.z-nebula.n` 扩展为接受 `x.y.z-nebula.a[.b[.c]]`。
+- 公开发布文档和维护文档同步采用新的 Nebula 多级版本语义。
+
+验证：
+
+- `RELEASE_TAG=v2.8.0-nebula.4.2.0 pnpm release:check`
+- `pnpm test`
+- `pnpm type-check`
+- `pnpm lint`
+- `pnpm build`
+
+后续注意：
+
+- 当前仅完成工作区版本和文档收口，尚未创建 `v2.8.0-nebula.4.2.0` tag / GitHub Release。
+- 发布完成后应确认 `latest/download/dist.zip` 和 `latest/download/router-updater.zip` 都切到 `v2.8.0-nebula.4.2.0`。
+
 ### fix: show staged progress while router updater is running
 
 - 提交：`a7b7c67e`

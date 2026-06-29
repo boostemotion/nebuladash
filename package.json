@@ -1,6 +1,6 @@
 {
   "name": "nebuladash",
-  "version": "2.8.0-nebula.4",
+  "version": "2.8.0-nebula.4.2.0",
   "description": "A lightweight Zashboard fork optimized for OpenClash and Mihomo",
   "license": "MIT",
   "type": "module",

@@ -21,12 +21,18 @@ test('detects newer NebulaDash prereleases', () => {
   assert.equal(isNewerReleaseVersion('v2.8.0-nebula.2', '2.8.0-nebula.1'), true)
   assert.equal(isNewerReleaseVersion('v2.8.0-nebula.1', '2.8.0-nebula.1'), false)
   assert.equal(isNewerReleaseVersion('v2.8.0-nebula.0', '2.8.0-nebula.1'), false)
+  assert.equal(isNewerReleaseVersion('v2.8.0-nebula.4.2.0', '2.8.0-nebula.4.1.9'), true)
+  assert.equal(isNewerReleaseVersion('v2.8.0-nebula.4.2.0', '2.8.0-nebula.4.2.0'), false)
+  assert.equal(isNewerReleaseVersion('v2.8.0-nebula.4.1.9', '2.8.0-nebula.4.2.0'), false)
 })
 
 test('compares release tags against the current version', () => {
   assert.equal(compareReleaseVersion('v2.8.0-nebula.3', '2.8.0-nebula.2'), 1)
   assert.equal(compareReleaseVersion('v2.8.0-nebula.2', '2.8.0-nebula.2'), 0)
   assert.equal(compareReleaseVersion('v2.8.0-nebula.1', '2.8.0-nebula.2'), -1)
+  assert.equal(compareReleaseVersion('v2.8.0-nebula.4.2.0', '2.8.0-nebula.4.1.9'), 1)
+  assert.equal(compareReleaseVersion('v2.8.0-nebula.4.2.0', '2.8.0-nebula.4.2.0'), 0)
+  assert.equal(compareReleaseVersion('v2.8.0-nebula.4.1.9', '2.8.0-nebula.4.2.0'), -1)
   assert.equal(compareReleaseVersion('latest', '2.8.0-nebula.2'), null)
 })
 
@@ -40,33 +46,33 @@ test('ignores malformed release tags', () => {
 })
 
 test('classifies release update states for the settings UI', () => {
-  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.4', '2.8.0-nebula.3'), {
+  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.4.2.0', '2.8.0-nebula.4.1.9'), {
     status: 'available',
-    latestReleaseTag: 'v2.8.0-nebula.4',
+    latestReleaseTag: 'v2.8.0-nebula.4.2.0',
     isUpdateAvailable: true,
   })
 
-  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.3', '2.8.0-nebula.3'), {
+  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.4.2.0', '2.8.0-nebula.4.2.0'), {
     status: 'current',
-    latestReleaseTag: 'v2.8.0-nebula.3',
+    latestReleaseTag: 'v2.8.0-nebula.4.2.0',
     isUpdateAvailable: false,
   })
 
-  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.2', '2.8.0-nebula.3'), {
+  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.4.1.9', '2.8.0-nebula.4.2.0'), {
     status: 'ahead',
-    latestReleaseTag: 'v2.8.0-nebula.2',
+    latestReleaseTag: 'v2.8.0-nebula.4.1.9',
     isUpdateAvailable: false,
   })
 })
 
 test('treats missing or malformed release tags as unknown update state', () => {
-  assert.deepEqual(getReleaseUpdateState(null, '2.8.0-nebula.3'), {
+  assert.deepEqual(getReleaseUpdateState(null, '2.8.0-nebula.4.2.0'), {
     status: 'unknown',
     latestReleaseTag: null,
     isUpdateAvailable: false,
   })
 
-  assert.deepEqual(getReleaseUpdateState('latest', '2.8.0-nebula.3'), {
+  assert.deepEqual(getReleaseUpdateState('latest', '2.8.0-nebula.4.2.0'), {
     status: 'unknown',
     latestReleaseTag: 'latest',
     isUpdateAvailable: false,

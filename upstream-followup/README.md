@@ -27,10 +27,10 @@
 ## 当前背景
 
 - 本地上游代码基线：Zashboard `2.8.0`
-- 当前 NebulaDash 包版本：`2.8.0-nebula.4`
+- 当前 NebulaDash 包版本：`2.8.0-nebula.4.2.0`
 - 已确认对照的上游版本：Zashboard `3.11.0`（2026-06-24）
 - 当前仓库是叠加了 OpenClash / Mihomo 本地优化的公开 fork，不是纯净上游镜像
-- `v2.8.0-nebula.4` 已发布，Release latest/download/dist.zip 已确认指向该版本
+- `v2.8.0-nebula.4.2.0` 为当前发布目标；发布后应验证 Release latest/download/dist.zip 指向该版本
 - NebulaDash 自管理更新器已在真实路由器上完成 status/update 链路验证，使用 A/B 分区和 token 认证
 
 后续策略是选择性跟进上游：
@@ -45,5 +45,5 @@
 - `NODE-PARENT-SEARCH-PLAN.md` 对应功能已完成，并已记录在 `NEBULADASH-CHANGELOG.md` 的
   `feat: match proxy parents by node search` 小节。
 - `docs/superpowers/plans/2026-06-26-nebuladash-router-updater.md` 对应功能已完成并发布到
-  `v2.8.0-nebula.4`。当前安装、发布和故障排查信息已合并到 `router-updater/README.md`、
+  `v2.8.0-nebula.4.2.0`。当前安装、发布和故障排查信息已合并到 `router-updater/README.md`、
   `PUBLICATION.md`、`AI-HANDOFF.md` 和 `NEBULADASH-CHANGELOG.md`。

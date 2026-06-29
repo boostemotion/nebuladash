@@ -1,4 +1,4 @@
-const NEBULA_VERSION_PATTERN = /^\d+\.\d+\.\d+-nebula\.\d+$/
+const NEBULA_VERSION_PATTERN = /^\d+\.\d+\.\d+-nebula\.\d+(?:\.\d+)*$/
 
 export type ReleasePreflightInput = {
   packageName: string
@@ -26,7 +26,7 @@ export const validateReleasePreflight = ({
   }
 
   if (!NEBULA_VERSION_PATTERN.test(version)) {
-    errors.push('package.json version must use the Nebula release format: x.y.z-nebula.n')
+    errors.push('package.json version must use the Nebula release format: x.y.z-nebula.a[.b[.c]]')
   }
 
   if (tagName && tagName !== expectedTag) {

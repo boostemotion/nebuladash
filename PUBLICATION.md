@@ -30,10 +30,17 @@
 
 NebulaDash 使用独立预发布后缀，不直接冒充 Zashboard 官方版本。
 
-- 常规本地增强发布：沿用当前上游基线并递增 Nebula 后缀，例如 `2.8.0-nebula.4`
-- 只有真正迁移到上游 3.x 代码基线后，才使用类似 `3.x.y-nebula.n` 的版本号
+- 常规本地增强发布：沿用当前上游基线并递增 Nebula 后缀，例如 `2.8.0-nebula.4.2.0`
+- 推荐语义：
+  `nebula.4`
+  表示一轮大功能上线编号。
+  `nebula.4.2`
+  表示该大功能轮次下的第 2 个小功能增量。
+  `nebula.4.2.0`
+  表示该小功能轮次下当前累计的 bugfix 计数。
+- 只有真正迁移到上游 3.x 代码基线后，才使用类似 `3.x.y-nebula.a[.b[.c]]` 的版本号
 - 不使用纯 `3.2.0` 这类官方风格版本号，避免用户误判为 Zashboard 官方 3.x
-- Release tag 必须等于 `v<package.json version>`，例如 `v2.8.0-nebula.4`
+- Release tag 必须等于 `v<package.json version>`，例如 `v2.8.0-nebula.4.2.0`
 
 普通 Push 和 Pull Request 只执行：
 
@@ -54,8 +61,8 @@ pnpm release:check
 推送与 `package.json` 版本一致的标签后，例如：
 
 ```bash
-git tag v2.8.0-nebula.4
-git push origin v2.8.0-nebula.4
+git tag v2.8.0-nebula.4.2.0
+git push origin v2.8.0-nebula.4.2.0
 ```
 
 GitHub Actions 会自动生成 Release，并上传：
