@@ -22,6 +22,36 @@
 
 ## 2026-06-29
 
+### docs: record v2.8.0-nebula.4.2.0 release
+
+- 提交：当前工作区
+- 类型：发布确认 / 文档回写
+- 目的：在 `v2.8.0-nebula.4.2.0` Release 完成后，把公开 README 和交接文档从“待发布”状态切换为“已发布”状态，避免后续 AI 或新对话继续按 `.4` 判断当前 Release。
+
+涉及文件：
+
+- `README.md`
+- `README-改动说明.md`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/README.md`
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- README 当前 Release 已更新为 `v2.8.0-nebula.4.2.0`。
+- 交接文档已明确 `v2.8.0-nebula.4.2.0` 已发布，且 `latest/download/dist.zip`、`latest/download/router-updater.zip` 都已切换到该版本。
+
+验证：
+
+- `gh release view v2.8.0-nebula.4.2.0 --repo boostemotion/nebuladash --json tagName,assets,url,isDraft,isPrerelease`
+- `curl.exe -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip`
+- `curl.exe -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/router-updater.zip`
+
+后续注意：
+
+- 后续若继续发布新版本，README 中“当前已发布 Release”和 `AI-HANDOFF.md` 顶部状态必须同步更新。
+
 ### release: prepare v2.8.0-nebula.4.2.0
 
 - 提交：`a9c02547`
@@ -57,11 +87,16 @@
 - `pnpm type-check`
 - `pnpm lint`
 - `pnpm build`
+- `git push origin main`
+- `git push origin v2.8.0-nebula.4.2.0`
+- `gh release view v2.8.0-nebula.4.2.0 --repo boostemotion/nebuladash --json tagName,assets,url,isDraft,isPrerelease`
+- `curl.exe -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip`
+- `curl.exe -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/router-updater.zip`
 
 后续注意：
 
-- 当前仅完成工作区版本和文档收口，尚未创建 `v2.8.0-nebula.4.2.0` tag / GitHub Release。
-- 发布完成后应确认 `latest/download/dist.zip` 和 `latest/download/router-updater.zip` 都切到 `v2.8.0-nebula.4.2.0`。
+- `v2.8.0-nebula.4.2.0` Release 已生成，`dist.zip` 与 `router-updater.zip` 均已上传。
+- `latest/download/dist.zip` 和 `latest/download/router-updater.zip` 已确认切到 `v2.8.0-nebula.4.2.0`。
 
 ### fix: show staged progress while router updater is running
 
