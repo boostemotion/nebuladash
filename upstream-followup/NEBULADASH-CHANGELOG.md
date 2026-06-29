@@ -24,7 +24,7 @@
 
 ### release: prepare v2.8.0-nebula.4
 
-- 提交：当前工作区
+- 提交：`f2ea79bd`
 - 类型：发布准备 / 版本推进
 - 目的：发布“设置页独立新版本检查、自动检查和红点提示”能力，使路由器端可以通过 NebulaDash Release latest 链路实际测试升级。
 
@@ -53,10 +53,14 @@
 - `pnpm type-check`：通过
 - `pnpm lint`：通过
 - `pnpm build`：通过
+- `git push origin main`：通过
+- `git push origin v2.8.0-nebula.4`：通过，触发 GitHub Release workflow
+- `curl.exe -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip`：通过，跳转到 `v2.8.0-nebula.4/dist.zip` 并返回 `200 OK`
+- `curl.exe -I -L https://github.com/boostemotion/nebuladash/releases/latest/download/router-updater.zip`：通过，跳转到 `v2.8.0-nebula.4/router-updater.zip` 并返回 `200 OK`
 
 后续注意：
 
-- 发布完成后需要确认 `latest/download/dist.zip` 和 Release 页面都切到 `v2.8.0-nebula.4`。
+- 路由器端现在可以直接通过 `latest/download/dist.zip` 拉到包含“检查新版本”和红点提示的 `v2.8.0-nebula.4`。
 
 ### feat: split updater health check from release version check
 
