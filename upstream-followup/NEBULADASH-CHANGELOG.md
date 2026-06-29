@@ -24,7 +24,7 @@
 
 ### feat: split updater health check from release version check
 
-- 提交：当前工作区
+- 提交：`73420c5c`
 - 类型：设置页 / 版本检查 / 更新提示
 - 目的：解决设置页“检查更新器”只能验证 updater 配置可用、不能识别 NebulaDash 是否有新版本的问题；补上独立的新版本检查、自动识别和红点提示。
 
