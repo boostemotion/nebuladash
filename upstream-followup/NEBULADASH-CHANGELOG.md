@@ -24,7 +24,7 @@
 
 ### fix: show staged progress while router updater is running
 
-- 提交：当前工作区
+- 提交：`a7b7c67e`
 - 类型：路由器更新器 / 设置页反馈
 - 目的：解决点击 `更新 NebulaDash` 后前端只会等待最终结果、看不到中间进度提示的问题。
 
