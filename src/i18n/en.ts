@@ -73,6 +73,12 @@ const en = {
   providerLoadTimeoutTip: 'Proxy provider request timed out. Cached data is kept.',
   providerLoadErrorTip: 'Failed to load proxy providers. Cached data is kept.',
   upgradeUI: 'Upgrade dashboard',
+  checkUIUpdate: 'Check latest release',
+  uiUpdateStatus: 'Version status',
+  uiUpdateAvailable: 'New NebulaDash version available: {version}',
+  uiUpdateCurrent: 'NebulaDash is already up to date',
+  uiUpdateAhead: 'Current build is newer than latest release: {current} > {version}',
+  uiUpdateUnknown: 'Unable to check the latest NebulaDash release',
   upgradeUIDisabledTip:
     'Dashboard upgrade is disabled until the backend external UI download URL points to NebulaDash: ',
   routerUpdater: 'NebulaDash updater',

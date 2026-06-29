@@ -1,11 +1,17 @@
-import { fetchIsUIUpdateAvailable, upgradeUIAPI } from '@/api'
+import { fetchUIUpdateState, upgradeUIAPI } from '@/api'
 import { canUpgradeNebulaDashFromConfig } from '@/helper/uiUpdateSource'
+import type { ReleaseUpdateCheck } from '@/helper/version'
 import { configs } from '@/store/config'
 import { autoUpgrade, hiddenSettingsItems } from '@/store/settings'
 import type { MaybeRef } from 'vue'
 import { computed, ref, unref } from 'vue'
 
 const isUIUpdateAvailable = ref(false)
+const isCheckingUIUpdate = ref(false)
+const hasCheckedUIUpdate = ref(false)
+const latestUIReleaseTag = ref<string | null>(null)
+const uiUpdateState = ref<ReleaseUpdateCheck['status']>('unknown')
+let uiUpdateCheckPromise: Promise<ReleaseUpdateCheck> | null = null
 
 /**
  * Returns true when the setting item with the given key is visible.
@@ -33,18 +39,44 @@ export function useHasAnyVisibleSetting(keys: MaybeRef<string[]>) {
 
 export const useSettings = () => {
   const checkUIUpdate = async () => {
-    isUIUpdateAvailable.value = await fetchIsUIUpdateAvailable()
-    if (
-      isUIUpdateAvailable.value &&
-      autoUpgrade.value &&
-      canUpgradeNebulaDashFromConfig(configs.value)
-    ) {
-      upgradeUIAPI()
+    if (uiUpdateCheckPromise) {
+      return uiUpdateCheckPromise
+    }
+
+    isCheckingUIUpdate.value = true
+    uiUpdateCheckPromise = (async () => {
+      const result = await fetchUIUpdateState()
+
+      hasCheckedUIUpdate.value = true
+      isUIUpdateAvailable.value = result.isUpdateAvailable
+      latestUIReleaseTag.value = result.latestReleaseTag
+      uiUpdateState.value = result.status
+
+      if (
+        result.isUpdateAvailable &&
+        autoUpgrade.value &&
+        canUpgradeNebulaDashFromConfig(configs.value)
+      ) {
+        upgradeUIAPI()
+      }
+
+      return result
+    })()
+
+    try {
+      return await uiUpdateCheckPromise
+    } finally {
+      isCheckingUIUpdate.value = false
+      uiUpdateCheckPromise = null
     }
   }
 
   return {
+    hasCheckedUIUpdate,
+    isCheckingUIUpdate,
     isUIUpdateAvailable,
     checkUIUpdate,
+    latestUIReleaseTag,
+    uiUpdateState,
   }
 }

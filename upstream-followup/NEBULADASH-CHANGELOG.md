@@ -20,6 +20,53 @@
 
 ---
 
+## 2026-06-29
+
+### feat: split updater health check from release version check
+
+- 提交：当前工作区
+- 类型：设置页 / 版本检查 / 更新提示
+- 目的：解决设置页“检查更新器”只能验证 updater 配置可用、不能识别 NebulaDash 是否有新版本的问题；补上独立的新版本检查、自动识别和红点提示。
+
+涉及文件：
+
+- `src/helper/version.ts`
+- `src/helper/version.spec.ts`
+- `src/helper/uiUpdateWiring.spec.ts`
+- `src/api/index.ts`
+- `src/composables/settings.ts`
+- `src/components/settings/ZashboardSettings.vue`
+- `src/i18n/en.ts`
+- `src/i18n/ru.ts`
+- `src/i18n/zh-tw.ts`
+- `src/i18n/zh.ts`
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 设置页保留 `检查更新器`，只负责检查路由器 updater endpoint / token / status。
+- 新增独立的 `检查新版本` 按钮，专门检查 GitHub Release latest tag 与当前 `dashboardVersion` 的关系。
+- 进入设置页时会自动执行一次 NebulaDash 版本检查，不再需要用户手动先点按钮才能看到更新状态。
+- 当 latest release 高于当前版本时，NebulaDash 标题和 `更新面板` 按钮都会显示红点提示。
+- 设置页新增版本状态文案：新版本可用、已是最新、当前版本高于 latest release、无法检查 release。
+- 版本检查状态流改为在 `useSettings()` 中集中管理，避免“检查更新器”和“检查新版本”混成一条链路。
+
+验证：
+
+- `pnpm test src/helper/version.spec.ts src/helper/uiUpdateWiring.spec.ts`：通过；脚本实际运行全部 `src/**/*.spec.ts`
+- `pnpm test`：通过，61 个测试全部通过
+- `pnpm type-check`：通过
+- `pnpm lint`：通过
+- `pnpm build`：通过
+- `pnpm exec prettier --check src/api/index.ts src/components/settings/ZashboardSettings.vue src/composables/settings.ts src/helper/version.ts src/helper/version.spec.ts src/helper/uiUpdateWiring.spec.ts src/i18n/en.ts src/i18n/ru.ts src/i18n/zh-tw.ts src/i18n/zh.ts upstream-followup/AI-HANDOFF.md upstream-followup/NEBULADASH-CHANGELOG.md`：通过
+- `git diff --check`：通过，仅提示 Windows 工作区下 Git 可能在下次触碰文件时转换 CRLF
+
+后续注意：
+
+- 当前自动检查发生在设置页挂载时，不做全局后台轮询，避免无意义 GitHub 请求。
+- 红点提示基于 GitHub Release latest tag，不依赖后端 `external-ui-download-url` 是否配置正确；即使更新源配置错误，也会提示“有新版本”，但 `更新面板` 仍可能因为更新源保护而被禁用。
+
 ## 2026-06-26
 
 ### docs: downgrade rollback test and uptime follow-up

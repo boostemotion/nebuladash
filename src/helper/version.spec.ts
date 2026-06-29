@@ -4,6 +4,7 @@ import {
   compareReleaseVersion,
   fetchLatestReleaseTag,
   getLatestReleaseApiUrl,
+  getReleaseUpdateState,
   isNewerReleaseVersion,
   NEBULADASH_REPOSITORY,
 } from './version.ts'
@@ -36,6 +37,40 @@ test('detects newer stable base versions', () => {
 
 test('ignores malformed release tags', () => {
   assert.equal(isNewerReleaseVersion('latest', '2.8.0-nebula.1'), false)
+})
+
+test('classifies release update states for the settings UI', () => {
+  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.4', '2.8.0-nebula.3'), {
+    status: 'available',
+    latestReleaseTag: 'v2.8.0-nebula.4',
+    isUpdateAvailable: true,
+  })
+
+  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.3', '2.8.0-nebula.3'), {
+    status: 'current',
+    latestReleaseTag: 'v2.8.0-nebula.3',
+    isUpdateAvailable: false,
+  })
+
+  assert.deepEqual(getReleaseUpdateState('v2.8.0-nebula.2', '2.8.0-nebula.3'), {
+    status: 'ahead',
+    latestReleaseTag: 'v2.8.0-nebula.2',
+    isUpdateAvailable: false,
+  })
+})
+
+test('treats missing or malformed release tags as unknown update state', () => {
+  assert.deepEqual(getReleaseUpdateState(null, '2.8.0-nebula.3'), {
+    status: 'unknown',
+    latestReleaseTag: null,
+    isUpdateAvailable: false,
+  })
+
+  assert.deepEqual(getReleaseUpdateState('latest', '2.8.0-nebula.3'), {
+    status: 'unknown',
+    latestReleaseTag: 'latest',
+    isUpdateAvailable: false,
+  })
 })
 
 test('returns the latest release tag from GitHub', async () => {

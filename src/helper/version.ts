@@ -5,6 +5,14 @@ export const getLatestReleaseApiUrl = () =>
 
 type ReleaseFetcher = (input: string) => Promise<Response>
 
+export type ReleaseUpdateState = 'available' | 'current' | 'ahead' | 'unknown'
+
+export type ReleaseUpdateCheck = {
+  status: ReleaseUpdateState
+  latestReleaseTag: string | null
+  isUpdateAvailable: boolean
+}
+
 export const fetchLatestReleaseTag = async (
   fetcher: ReleaseFetcher = fetch,
 ): Promise<string | null> => {
@@ -62,6 +70,51 @@ const comparePrereleaseIdentifier = (left: string, right: string) => {
 
 export const isNewerReleaseVersion = (releaseTag: string, currentVersion: string) => {
   return compareReleaseVersion(releaseTag, currentVersion) === 1
+}
+
+export const getReleaseUpdateState = (
+  latestReleaseTag: string | null,
+  currentVersion: string,
+): ReleaseUpdateCheck => {
+  if (!latestReleaseTag) {
+    return {
+      status: 'unknown',
+      latestReleaseTag: null,
+      isUpdateAvailable: false,
+    }
+  }
+
+  const comparison = compareReleaseVersion(latestReleaseTag, currentVersion)
+
+  if (comparison === 1) {
+    return {
+      status: 'available',
+      latestReleaseTag,
+      isUpdateAvailable: true,
+    }
+  }
+
+  if (comparison === 0) {
+    return {
+      status: 'current',
+      latestReleaseTag,
+      isUpdateAvailable: false,
+    }
+  }
+
+  if (comparison === -1) {
+    return {
+      status: 'ahead',
+      latestReleaseTag,
+      isUpdateAvailable: false,
+    }
+  }
+
+  return {
+    status: 'unknown',
+    latestReleaseTag,
+    isUpdateAvailable: false,
+  }
 }
 
 export const compareReleaseVersion = (releaseTag: string, currentVersion: string) => {

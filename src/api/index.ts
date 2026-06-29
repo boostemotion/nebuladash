@@ -1,7 +1,11 @@
 import { MIHOMO, MIHOMO_CHANNEL, ROUTE_NAME } from '@/constant'
 import { showNotification } from '@/helper/notification'
 import { getUrlFromBackend } from '@/helper/utils'
-import { fetchLatestReleaseTag, isNewerReleaseVersion } from '@/helper/version'
+import {
+  fetchLatestReleaseTag,
+  getReleaseUpdateState,
+  isNewerReleaseVersion,
+} from '@/helper/version'
 import router from '@/router'
 import { autoUpgradeCore, checkUpgradeCore } from '@/store/settings'
 import { activeBackend, activeUuid } from '@/store/setup'
@@ -378,6 +382,16 @@ export const fetchIsUIUpdateAvailable = async () => {
   } catch (error) {
     console.warn('Failed to check NebulaDash updates:', error)
     return false
+  }
+}
+
+export const fetchUIUpdateState = async () => {
+  try {
+    const latestReleaseTag = await fetchLatestReleaseTag()
+    return getReleaseUpdateState(latestReleaseTag, dashboardVersion.value)
+  } catch (error) {
+    console.warn('Failed to check NebulaDash updates:', error)
+    return getReleaseUpdateState(null, dashboardVersion.value)
   }
 }
 

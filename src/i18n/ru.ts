@@ -75,6 +75,12 @@ const ru: LANG_MESSAGE = {
   providerLoadTimeoutTip: 'Запрос провайдера прокси истек по времени. Кэш сохранен.',
   providerLoadErrorTip: 'Не удалось загрузить провайдеры прокси. Кэш сохранен.',
   upgradeUI: 'Обновить панель',
+  checkUIUpdate: 'Проверить новую версию',
+  uiUpdateStatus: 'Статус версии',
+  uiUpdateAvailable: 'Доступна новая версия NebulaDash: {version}',
+  uiUpdateCurrent: 'NebulaDash уже обновлён до последней версии',
+  uiUpdateAhead: 'Текущая сборка новее latest release: {current} > {version}',
+  uiUpdateUnknown: 'Не удалось проверить последнюю версию NebulaDash',
   upgradeUIDisabledTip:
     'Обновление панели отключено, пока URL загрузки внешнего UI не указывает на NebulaDash: ',
   routerUpdater: 'Обновление NebulaDash',

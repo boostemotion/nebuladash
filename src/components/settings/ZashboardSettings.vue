@@ -210,18 +210,32 @@
     >
       <button
         v-if="isVisibleUpgradeUI"
-        :class="twMerge('btn btn-primary btn-sm', isUIUpgrading ? 'animate-pulse' : '')"
-        :disabled="isUIUpgradeBlocked"
-        :title="isUIUpgradeBlocked ? $t('upgradeUIDisabledTip') : ''"
-        @click="handlerClickUpgradeUI"
+        class="btn btn-sm"
+        :disabled="isCheckingUIUpdate"
+        @click="handlerClickCheckUIUpdate"
       >
-        {{ $t('upgradeUI') }}
+        {{ isCheckingUIUpdate ? $t('checking') : $t('checkUIUpdate') }}
       </button>
       <div
         v-if="isVisibleUpgradeUI"
-        class="sm:hidden"
-      ></div>
-
+        class="indicator"
+      >
+        <span
+          v-if="isUIUpdateAvailable"
+          class="indicator-item top-1 right-1 flex"
+        >
+          <span class="bg-secondary absolute h-2 w-2 animate-ping rounded-full"></span>
+          <span class="bg-secondary h-2 w-2 rounded-full"></span>
+        </span>
+        <button
+          :class="twMerge('btn btn-primary btn-sm', isUIUpgrading ? 'animate-pulse' : '')"
+          :disabled="isUIUpgradeBlocked"
+          :title="isUIUpgradeBlocked ? $t('upgradeUIDisabledTip') : ''"
+          @click="handlerClickUpgradeUI"
+        >
+          {{ $t('upgradeUI') }}
+        </button>
+      </div>
       <button
         v-if="isVisibleExportSettings"
         class="btn btn-sm"
@@ -236,6 +250,13 @@
       >
         {{ $t('upgradeUIDisabledTip') }}
         <span class="font-mono break-all">{{ requiredUiDownloadUrl }}</span>
+      </p>
+      <p
+        v-if="isVisibleUpgradeUI && uiUpdateStatusMessage"
+        class="text-base-content/70 col-span-2 text-xs md:col-span-4"
+      >
+        <span class="font-medium">{{ $t('uiUpdateStatus') }}:</span>
+        {{ uiUpdateStatusMessage }}
       </p>
     </div>
     <div class="mt-4 grid max-w-3xl grid-cols-1 gap-2 md:grid-cols-2">
@@ -327,7 +348,7 @@ import {
   PlusIcon,
 } from '@heroicons/vue/24/outline'
 import { twMerge } from 'tailwind-merge'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import ImportSettings from '../common/ImportSettings.vue'
 import TextInput from '../common/TextInput.vue'
 import CustomTheme from './CustomTheme.vue'
@@ -408,13 +429,46 @@ const fontOptions = computed(() => {
   return Object.values(FONTS)
 })
 
-const { isUIUpdateAvailable } = useSettings()
+const {
+  checkUIUpdate,
+  hasCheckedUIUpdate,
+  isCheckingUIUpdate,
+  isUIUpdateAvailable,
+  latestUIReleaseTag,
+  uiUpdateState,
+} = useSettings()
 
 const isUIUpgrading = ref(false)
 const requiredUiDownloadUrl = NEBULADASH_RELEASE_DOWNLOAD_URL
 const isUIUpgradeBlocked = computed(() => !canUpgradeNebulaDashFromConfig(configs.value))
 const routerUpdaterBusy = ref(false)
 const routerUpdaterMessage = ref('')
+const uiUpdateStatusMessage = computed(() => {
+  if (isCheckingUIUpdate.value) {
+    return i18n.global.t('checking')
+  }
+
+  if (!hasCheckedUIUpdate.value) {
+    return ''
+  }
+
+  if (uiUpdateState.value === 'available' && latestUIReleaseTag.value) {
+    return i18n.global.t('uiUpdateAvailable', { version: latestUIReleaseTag.value })
+  }
+
+  if (uiUpdateState.value === 'current') {
+    return i18n.global.t('uiUpdateCurrent')
+  }
+
+  if (uiUpdateState.value === 'ahead') {
+    return i18n.global.t('uiUpdateAhead', {
+      current: dashboardVersion.value,
+      version: latestUIReleaseTag.value ?? '',
+    })
+  }
+
+  return i18n.global.t('uiUpdateUnknown')
+})
 
 const assertRouterUpdaterToken = () => {
   if (!routerUpdaterToken.value.trim()) {
@@ -521,6 +575,10 @@ const rollbackNebulaDashViaRouter = async () => {
   }
 }
 
+const handlerClickCheckUIUpdate = async () => {
+  await checkUIUpdate()
+}
+
 const handlerClickUpgradeUI = async () => {
   if (isUIUpgrading.value) return
   if (isUIUpgradeBlocked.value) {
@@ -552,4 +610,8 @@ const refreshPages = async () => {
   }
   window.location.reload()
 }
+
+onMounted(() => {
+  void checkUIUpdate()
+})
 </script>
