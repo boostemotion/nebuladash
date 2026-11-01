@@ -7,10 +7,10 @@ import {
   updateGeoData,
 } from '@/assembly/config'
 import {
-  fetchProxies,
   flushSmartGroupWeights,
   hasSmartGroup,
   invalidateProxyProviders,
+  refreshProxyData,
 } from '@/assembly/proxies'
 import { fetchRules } from '@/assembly/rules'
 import { restartCore } from '@/assembly/version'
@@ -53,7 +53,7 @@ const reloadAll = () => {
   invalidateProxyProviders()
   fetchConfigs()
   fetchRules()
-  fetchProxies()
+  refreshProxyData()
 }
 
 const isCoreRestarting = ref(false)

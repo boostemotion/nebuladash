@@ -50,7 +50,7 @@ import { showConfirmDialog } from '@/helper/confirm-dialog'
 import { notifyActionPending } from '@/helper/notification'
 import { notifyRequestError } from '@/helper/request-error'
 import { fetchConfigs } from '@/assembly/config'
-import { fetchProxies, invalidateProxyProviders } from '@/assembly/proxies'
+import { invalidateProxyProviders, refreshProxyData } from '@/assembly/proxies'
 import { fetchRules } from '@/assembly/rules'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -64,7 +64,7 @@ const reloadAll = () => {
   invalidateProxyProviders()
   fetchConfigs()
   fetchRules()
-  fetchProxies()
+  refreshProxyData()
 }
 
 const upgradingType = ref<'release' | 'alpha' | 'auto'>('auto')

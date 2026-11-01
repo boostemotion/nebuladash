@@ -58,7 +58,7 @@ import { loadConfigs } from '@/assembly/config'
 import { notifyActionPending, showNotification } from '@/helper/notification'
 import { notifyRequestError } from '@/helper/request-error'
 import { fetchConfigs } from '@/assembly/config'
-import { fetchProxies, invalidateProxyProviders } from '@/assembly/proxies'
+import { invalidateProxyProviders, refreshProxyData } from '@/assembly/proxies'
 import { fetchRules } from '@/assembly/rules'
 import { onMounted, ref } from 'vue'
 import DialogWrapper from '../../common/DialogWrapper.vue'
@@ -81,7 +81,7 @@ const reloadAll = () => {
   invalidateProxyProviders()
   fetchConfigs()
   fetchRules()
-  fetchProxies()
+  refreshProxyData()
 }
 
 const handleUpdateConfigs = async () => {

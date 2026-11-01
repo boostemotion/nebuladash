@@ -22,6 +22,45 @@
 
 ## 2026-11-01
 
+### refactor(provider): 收敛刷新入口，堵住“静默不更新”的复发路径
+
+- 提交：本提交
+- 类型：风险修复 / 架构收敛
+- 背景：上一轮修掉了 5 处“改了 Provider 数据却只刷 `/proxies`”的调用点，
+  但根因还在——`fetchProxies()` 这个函数名叫得太通用，任何后来者（或上游合并）
+  都可能再次用它来做“全量刷新”。
+
+改动：
+
+- 新增统一入口 `refreshProxyData({ resyncProviders = true })`：
+  拉 `/proxies`，并在 Provider 数据已加载时以 0 延迟排队一次去抖重拉。
+- `invalidateProxyProviders()` 增强：失效时若用户正停在“代理商”标签，
+  立即排队一次重拉，避免“停在该标签看着旧列表不动”。
+- 以下位置统一切到 `refreshProxyData()`：`assembly/session.ts`（启动与代际变化刷新）、
+  `helper/backend-actions.ts`、`UpdateConfigModal.vue`、`UpgradeCoreModal.vue`。
+- 维护文档补充硬规则：`fetchProxies()` 只负责 `/proxies`；
+  凡数据可能变化的场景必须走组合动作 / 失效函数 / 去抖重拉。
+
+验证：
+
+- `pnpm test` → 73 项通过
+- `pnpm type-check` / `pnpm lint` / `pnpm build` → 通过
+- `pnpm test:nebula` → 29/29 通过（含“首屏未请求 `/providers/proxies` **0 次**”，
+  说明统一入口没有把按需加载退回成启动即拉）
+- `pnpm test:verify` → 14/14 通过
+
+后续注意：
+
+- 新增“刷新”相关代码时，先判断要刷新的数据在哪份源里，再选函数；
+  不确定就用 `refreshProxyData()`（代价是一次去抖后的 Provider 重拉）。
+- `refreshProxyData()` 不会让首屏变慢：Provider 未加载时去抖重拉会被直接跳过。
+- 上游合并若把 `fetchProxies()` 改回“同时拉两份”，会与本地按需加载冲突，
+  合并时务必保留本地版本并在 `applyProxyData` 侧复核。
+
+---
+
+## 2026-11-01
+
 ### fix(provider): 同类“数据源未刷新”问题全面排查
 
 - 提交：本提交

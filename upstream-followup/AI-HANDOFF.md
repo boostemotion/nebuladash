@@ -60,6 +60,10 @@
 - 路由器端更新器动作仅 `status/update/rollback`，A/B 分区，失败不切换。
 - 路由懒加载与 `manualChunks` 拆包不得被上游静态导入覆盖（上游入口 chunk 达 2.1 MB）。
 - `test/nebula-verify.mjs`（`pnpm test:nebula`）必须持续通过：它是上述约束的可执行规格。
+- **数据刷新硬规则**：`fetchProxies()` 只拉 `/proxies`。凡“数据可能已变化”的场景
+  （更新订阅、健康检查、测速、配置重载、内核重启、后端代际变化）必须走
+  `refreshProxyData()` / `refreshProxyProvider()` / `scheduleProxyProvidersResync()`，
+  只调 `fetchProxies()` 会导致界面静默不更新（请求成功但数据源没换）。
 
 ## 下一步优先级
 

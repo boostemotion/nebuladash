@@ -8,9 +8,9 @@ import { driver } from './driver'
 import { initLogs, stopLogs } from './logs'
 import { initSatistic, stopSatistic } from './overview'
 import {
-  fetchProxies,
   hydrateProxiesFromCache,
   invalidateProxyProviders,
+  refreshProxyData,
   resetProxyState,
 } from './proxies'
 import { fetchRules } from './rules'
@@ -24,9 +24,10 @@ let refreshTimer: ReturnType<typeof setTimeout> | undefined
 const scheduleRefresh = () => {
   clearTimeout(refreshTimer)
   refreshTimer = setTimeout(() => {
-    // 代际变化通常意味着配置重载：Provider 列表可能变了，先让标记失效。
+    // 代际变化通常意味着配置重载：Provider 列表可能变了，先让标记失效，
+    // 再用统一入口刷新（代理 + Provider）。
     invalidateProxyProviders()
-    fetchProxies().catch(() => {})
+    refreshProxyData().catch(() => {})
     fetchRules().catch(() => {})
     fetchConfigs().catch(() => {})
   }, EVENT_DEBOUNCE)
@@ -70,7 +71,8 @@ export const startBackendSession = async () => {
   await probeActiveBackend().catch(() => {})
 
   fetchConfigs()
-  fetchProxies()
+  // 后端会话建立时也走统一入口：Provider 数据按需加载，这里不会额外拉取。
+  refreshProxyData()
   fetchRules()
   initConnections()
   initLogs()

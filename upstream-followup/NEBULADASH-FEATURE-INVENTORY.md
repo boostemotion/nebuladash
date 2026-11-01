@@ -153,6 +153,17 @@ type ProviderCacheMeta = {
 
 **约束**：不得为了显示 Provider 尾标而让所有代理卡片反复遍历完整 Provider 列表（用 §5 的映射代替）。
 
+**NebulaDash 追加约束（拆分数据源后必须遵守）**：
+
+- `/proxies` 与 `/providers/proxies` 现在是两个独立数据源，`fetchProxies()` **只拉前者**。
+- 任何会改变 Provider 数据的操作之后，必须调用：
+  - `refreshProxyProvider(name)` / `healthCheckProxyProvider(name)` / `refreshAllProxyProviders(names)`
+  - 或 `invalidateProxyProviders()`（配置重载 / 内核重启 / 代际变化）
+  - 或 `scheduleProxyProvidersResync()`（批量测速，800ms 去抖合并）
+- 只调 `fetchProxies()` 时，请求会成功但界面不更新——这是最容易复发的一类缺陷。
+- 每个 Provider 按钮都应带 `data-provider-*` 锚点，并在 `test/nebula-verify.mjs` 里
+  断言“点击后 `/providers/proxies` 请求数增加”。
+
 ---
 
 ## 4. 规则按需加载 `[本地独有]`

@@ -1,6 +1,6 @@
 import { activeConnections, connectionAccessor, disconnectById } from '@/assembly/connections'
 import { driver } from '@/assembly/driver'
-import { GLOBAL, IPV6_TEST_URL, NOT_CONNECTED, PROXY_TYPE } from '@/constant'
+import { GLOBAL, IPV6_TEST_URL, NOT_CONNECTED, PROXY_TAB_TYPE, PROXY_TYPE } from '@/constant'
 import { showNotification } from '@/helper/notification'
 import {
   getCachedProviderLoadStatus,
@@ -12,6 +12,7 @@ import {
 } from '@/helper/proxy-cache'
 import { notifyRequestError } from '@/helper/request-error'
 import { automaticDisconnection, iconReflectList, IPv6test } from '@/store/settings'
+import { proxiesTabShow } from '@/store/proxies'
 import { activeUuid } from '@/store/setup'
 
 import type { Proxy, ProxyProvider } from '@/types'
@@ -364,10 +365,18 @@ let providerResyncTimer: ReturnType<typeof setTimeout> | undefined
  * 下次进入代理商标签必须重新拉取，否则会一直显示旧列表。
  */
 export const invalidateProxyProviders = () => {
+  const wasLoaded = hasLoadedProxyProviders.value
+
   hasLoadedProxyProviders.value = false
 
   if (proxyProviderLoadStatus.value === 'fresh') {
     proxyProviderLoadStatus.value = 'cached'
+  }
+
+  // 如果用户此刻正停在“代理商”标签，失效后要立刻补一次，
+  // 否则他会一直看着旧列表直到手动切走再切回。
+  if (wasLoaded && proxiesTabShow.value === PROXY_TAB_TYPE.PROVIDER) {
+    scheduleProxyProvidersResync(0)
   }
 }
 
@@ -385,6 +394,24 @@ export const scheduleProxyProvidersResync = (delayMs = 800) => {
     providerResyncTimer = undefined
     void fetchProxyProviders(true).catch(() => {})
   }, delayMs)
+}
+
+/**
+ * NebulaDash 统一刷新入口。
+ *
+ * 规则（重要）：凡是“数据可能已变化”的场景一律调它，而不是单独调 `fetchProxies()`。
+ * `fetchProxies()` 只负责 `/proxies`，Provider 卡片的数据在另一份数据源里。
+ *
+ * `resyncProviders` 为 false 时只刷代理（极少场景，例如只关心组与节点选择状态）。
+ */
+export const refreshProxyData = async ({
+  resyncProviders = true,
+}: { resyncProviders?: boolean } = {}) => {
+  await fetchProxies()
+
+  if (resyncProviders) {
+    scheduleProxyProvidersResync(0)
+  }
 }
 
 /** 更新单个 Provider 的订阅，然后同步代理与 Provider 数据。 */
