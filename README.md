@@ -191,6 +191,24 @@ Windows 下也可以使用启动脚本：
 .\start-za.ps1 -Check   # 仅检查环境
 ```
 
+## 发布流程
+
+推送到 `main` 即自动发版，不需要手动打 tag：
+
+- 触发条件：改动落在 `src/` / `router-updater/` / `tools/` / `.github/workflows/` /
+  `index.html` / `vite.config.ts` / `package.json`
+- 工作流：`.github/workflows/auto-release.yml`
+- 内容：递增 patch 版本 → `eslint` / `test` / `type-check` → 构建 → 提交版本号并打 tag → 发布 Release
+- 构建失败不会推送 tag，不会留下空发布
+
+面板和路由器更新器都读 `releases/latest`，所以 **CI 变绿后就能在面板里点“更新 NebulaDash”**。
+
+补充约定：
+
+- 只改文档不会触发发布
+- 想跳过某次自动发布：commit message 里带 `[skip release]`
+- 需要手工控制版本号时，仍可手动打 tag（走 `.github/workflows/release.yml`）
+
 ## 维护与上游同步
 
 双远程模型：

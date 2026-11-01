@@ -22,6 +22,47 @@
 
 ## 2026-11-01
 
+### ci: 推送 main 自动发版（auto-release）
+
+- 提交：本提交
+- 类型：发布链路自动化
+- 目的：预期是“推到 GitHub 后在面板点一下就更新”。原来只有 tag 才触发 `release.yml`，
+  push main 不产生 Release，面板看不到新版本，需要手动打 tag。
+- 新增 `.github/workflows/auto-release.yml`：push main 时自动完成
+  递增版本 → 校验 → 构建 → 打 tag → 发布 Release。
+- 新增 `tools/bump-version.mjs`：递增 Nebula 版本最后一段，可选同步 README 版本号。
+
+行为变化：
+
+- 触发路径：`src/`、`router-updater/`、`tools/`、`.github/workflows/`、`index.html`、
+  `vite.config.ts`、`package.json`。
+- 执行顺序刻意是「先构建、后推送」：构建失败不会留下没有产物的 tag。
+- 自动递增产生的提交带 `[skip release]`，且工作流 `if` 跳过 `chore(release)` 开头的提交，
+  避免无限循环。
+- 手工打 tag 的路径仍保留（`release.yml`），用于需要指定版本号的场合。
+- `tools/release-preflight.ts` 改为优先读 `RELEASE_TAG`：
+  auto-release 场景下 `GITHUB_REF_NAME` 是 `main`，直接用它会导致 tag 校验误判。
+
+验证：
+
+- `node tools/bump-version.mjs --dry-run` → `3.30.0-nebula.3`
+- `node tools/bump-version.mjs --sync-docs` → 正确改写 `package.json` 与两份 README 的版本号
+- `RELEASE_TAG=v3.30.0-nebula.2 pnpm release:check` → 通过
+- `RELEASE_TAG=v9.9.9 pnpm release:check` → 按预期失败（tag 不一致）
+- 本次推送本身触发 auto-release，产出 `v3.30.0-nebula.3`，完成端到端验证
+
+后续注意：
+
+- 用 `GITHUB_TOKEN` 推送的 tag 不会触发其它工作流（GitHub 防递归），所以构建与发布
+  必须在同一个 job 内完成；不要拆成「打 tag 的 job + 响应该 tag 的 job」。
+- auto-release 只构建 3 个常用变体（`dist.zip`、`dist-no-fonts.zip`、`dist-cdn-fonts.zip`）；
+  需要全部 7 个字体变体时，手动打 tag 走 `release.yml`。
+- 版本号由 CI 改写后提交回 main，本地开发前记得先 `git pull`。
+
+---
+
+## 2026-11-01
+
 ### docs: 记录 v3.30.0-nebula.2 路由器端到端验证
 
 - 提交：本提交

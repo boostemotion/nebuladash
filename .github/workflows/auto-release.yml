@@ -1,0 +1,116 @@
+name: Auto Release
+
+# NebulaDash: 推到 main 就自动出 Release，面板里才能真正“点一下就更新”。
+#
+# 为什么不用 tag 触发另一个工作流：用 GITHUB_TOKEN 推送的 tag 不会触发新的
+# workflow（GitHub 防止递归），所以在同一个 job 里完成“递增版本 → 构建 → 发布”。
+# 手动打 tag 的路径仍由 release.yml 负责。
+#
+# 顺序刻意排成「先构建、后推送」：构建失败时不会留下没产物的 tag。
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'router-updater/**'
+      - 'tools/**'
+      - '.github/workflows/**'
+      - 'index.html'
+      - 'vite.config.ts'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    # 自动递增产生的那次提交不再触发发布，避免无限循环
+    if: |
+      !contains(github.event.head_commit.message, '[skip release]') &&
+      !startsWith(github.event.head_commit.message, 'chore(release)')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify source
+        run: |
+          pnpm exec eslint .
+          pnpm test
+          pnpm type-check
+
+      - name: Bump version
+        id: bump
+        run: |
+          version="$(node tools/bump-version.mjs --sync-docs)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${version}" >> "$GITHUB_OUTPUT"
+          echo "Bumped to ${version}"
+
+      - name: Release preflight
+        env:
+          RELEASE_TAG: ${{ steps.bump.outputs.tag }}
+        run: pnpm release:check
+
+      - name: Build release archives
+        shell: bash
+        run: |
+          zip -qr "router-updater.zip" router-updater
+
+          build_archive() {
+            local command="$1"
+            local archive="$2"
+            rm -rf dist
+            pnpm run "${command}"
+            (
+              cd dist
+              zip -qr "../${archive}" .
+            )
+          }
+
+          build_archive build dist.zip
+          build_archive build:no-fonts dist-no-fonts.zip
+          build_archive build:cdn-fonts dist-cdn-fonts.zip
+
+      - name: Commit version bump and tag
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add package.json README.md README-改动说明.md
+          git commit -m "chore(release): v${{ steps.bump.outputs.version }} [skip release]"
+          git tag -a "${{ steps.bump.outputs.tag }}" -m "NebulaDash ${{ steps.bump.outputs.tag }}"
+          git push origin HEAD:main
+          git push origin "${{ steps.bump.outputs.tag }}"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.tag }}
+          name: ${{ steps.bump.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            dist*.zip
+            router-updater.zip
