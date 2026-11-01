@@ -22,6 +22,53 @@
 
 ## 2026-11-01
 
+### feat(search)+docs: 补齐 Provider 搜索字段与仓库文档品牌化
+
+- 分支：`rebase/upstream-v3.30.0`
+- 提交：本提交
+- 类型：缺失补齐（重基线复盘）
+- 目的：重基线复盘发现两处缺失：① 旧版 Provider 搜索字段未完全移植；
+  ② 仓库根文档仍是上游 zashboard 原文，`PUBLICATION.md`、`README-改动说明.md` 未搬。
+
+涉及文件：
+
+- `src/helper/proxy-provider-search.ts` + `.spec.ts`（新增）
+- `src/helper/proxy-search.ts`、`src/helper/proxies.ts`
+- `README.md`、`README-改动说明.md`、`PUBLICATION.md`
+
+行为变化：
+
+- “代理商”标签组名模式搜索额外匹配：测试 URL、更新时间、Provider 类型、
+  订阅流量与到期日期（仅使用已加载数据，不触发 `/providers/proxies`）。
+- 节点搜索模式行为不变（仍只看 Provider 下的节点名）。
+- `README.md` 改为 NebulaDash 内容：基线版本、增强说明、下载地址、
+  更新器安装方式、开发与验证命令、维护资料入口。
+- 新增 `PUBLICATION.md`：可提交 / 禁止提交清单、仓库历史形态（含上游历史与
+  MIT 保留要求）、发布模型、版本号策略、发布检查与发布后确认。
+- 新增 `README-改动说明.md`：12 项二改说明、未移植项（由上游覆盖）、
+  有意行为差异、关键文件索引、手动实测清单、路由器实测记录。
+
+验证：
+
+- `pnpm test` → 71 项通过（新增 7 项 Provider 搜索用例）
+- `pnpm type-check` → 通过
+- `pnpm lint` → No issues found
+- `pnpm build` → 通过
+- `pnpm test:nebula` → 22/22 通过
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md` → 通过
+
+后续注意：
+
+- `src/helper/proxy-provider-search.ts` 的“节点名不在此处匹配”是刻意设计：
+  节点名匹配由节点搜索模式负责，避免两种模式语义重叠。
+- 根 `README.md` 引用了 `./readme/pc.png`、`./readme/mobile.png`，上游已提供，不要删。
+- 版本号策略已允许使用 `3.x.y-nebula.*`（已在 PUBLICATION 中说明），
+  旧文档中“只有迁移到 3.x 才可用”的表述已更新。
+
+---
+
+## 2026-11-01
+
 ### fix(updater): 下载 Release 时强制 HTTP/1.1
 
 - 分支：`rebase/upstream-v3.30.0`

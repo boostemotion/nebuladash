@@ -20,6 +20,7 @@ import {
   matchProxySearchKeyword,
   proxyGroupContainsMatchingNode,
   proxyProviderContainsMatchingNode,
+  proxyProviderMatchesSearch,
   proxySearchKeyword,
 } from './proxy-search'
 
@@ -131,9 +132,10 @@ const getRenderProxyProviders = () => {
     return names
   }
 
+  // 节点模式只看 Provider 下的节点名；组名模式看 Provider 名与订阅/测速元数据。
   const matches = isProxyNodeSearchMode.value
     ? proxyProviderContainsMatchingNode
-    : (name: string) => matchProxySearchKeyword(name)
+    : proxyProviderMatchesSearch
 
   return names.filter(matches)
 }
