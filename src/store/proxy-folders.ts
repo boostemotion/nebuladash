@@ -46,28 +46,38 @@ export const folderState = useStorage<FolderState>(
   },
 )
 
+/**
+ * NebulaDash: 不再预置上游的“策略组 / 节点组”内置文件夹。
+ *
+ * 上游的文件夹用 `hasGroup` / `nodeOnly` 规则自己分一次“策略组 / 节点组”，
+ * 与 NebulaDash 的三段视图（策略组 / 节点组 / 代理商）是两套判定标准。
+ * 两者叠加时会出现“在下面的节点组文件夹里再去点上面的节点组标签 → 交集为空 → 白板”。
+ * 因此内置文件夹不再生成，只保留用户自建文件夹。
+ */
 const seedDefaultFolders = () => {
   if (folderState.value.seeded) return
-  folderState.value.folders = [
-    {
-      id: BUILTIN_STRATEGY_ID,
-      name: 'folder_builtin_strategy',
-      order: 0,
-      rules: [{ type: 'auto', value: 'hasGroup' }],
-      manualIncludes: [],
-    },
-    {
-      id: BUILTIN_NODES_ID,
-      name: 'folder_builtin_nodes',
-      order: 1,
-      rules: [{ type: 'auto', value: 'nodeOnly' }],
-      manualIncludes: [],
-    },
-  ]
+
+  folderState.value.folders = []
   folderState.value.seeded = true
 }
 
 seedDefaultFolders()
+
+// 清理已存量的内置文件夹（老用户 localStorage 里已经有它们）。
+const removeLegacyBuiltinFolders = () => {
+  const legacyIds = new Set([BUILTIN_STRATEGY_ID, BUILTIN_NODES_ID])
+  const kept = folderState.value.folders.filter((folder) => !legacyIds.has(folder.id))
+
+  if (kept.length === folderState.value.folders.length) return
+
+  folderState.value.folders = kept
+
+  if (legacyIds.has(folderState.value.activeId)) {
+    folderState.value.activeId = VIRTUAL_ALL
+  }
+}
+
+removeLegacyBuiltinFolders()
 
 export const folders = computed({
   get: () => folderState.value.folders,
@@ -167,7 +177,12 @@ export const isProxyFolderModeActive = computed(() => {
     case FOLDER_MODE.OFF:
       return false
     default:
-      return proxyGroupList.value.length > FOLDER_MODE_AUTO_THRESHOLD
+      // AUTO：没有用户自建文件夹时不需要文件夹栏，
+      // 策略组 / 节点组的分组由 NebulaDash 的三段视图负责。
+      return (
+        folderState.value.folders.length > 0 &&
+        proxyGroupList.value.length > FOLDER_MODE_AUTO_THRESHOLD
+      )
   }
 })
 

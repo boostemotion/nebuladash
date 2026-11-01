@@ -129,6 +129,13 @@ const ru: LANG_MESSAGE = {
   updated: 'Обновлено',
   upgradeDashboard: 'Обновить панель до новой версии',
   providerRequestTimeout: 'Таймаут запроса провайдеров (с)',
+  emptySearchTitle: 'Нет подходящих прокси',
+  emptySearchDetail: 'Попробуйте меньше или другие ключевые слова.',
+  emptyFolderTitle: 'В этой папке нет элементов для текущей вкладки',
+  emptyFolderDetail:
+    'Папки и вкладки стратегий/узлов используют разные правила группировки. Смените папку или вкладку, либо сбросьте фильтр папки.',
+  emptyProxiesTitle: 'Здесь пока нет прокси',
+  emptyProxiesDetail: 'Проверьте подключение к бэкенду или переключитесь на другую вкладку.',
   providerStatusCached: 'Из кэша',
   providerStatusStale: 'Устаревший кэш',
   providerStatusFresh: 'Обновлено',

@@ -127,6 +127,13 @@ const en = {
   updated: 'Updated',
   upgradeDashboard: 'Upgrade dashboard',
   providerRequestTimeout: 'Provider request timeout (s)',
+  emptySearchTitle: 'No matching proxies',
+  emptySearchDetail: 'Try fewer or different keywords.',
+  emptyFolderTitle: 'This folder has nothing in the current tab',
+  emptyFolderDetail:
+    'Folders and the strategy/node tabs use different grouping rules. Switch folder or tab, or clear the folder filter.',
+  emptyProxiesTitle: 'No proxies here yet',
+  emptyProxiesDetail: 'Check the backend connection, or switch to another tab.',
   providerStatusCached: 'Cached',
   providerStatusStale: 'Old cache',
   providerStatusFresh: 'Fresh',

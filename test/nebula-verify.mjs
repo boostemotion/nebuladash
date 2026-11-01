@@ -288,6 +288,28 @@ try {
   )
   check('弹窗内提供“跳转规则”', /跳转规则|go to rules/i.test(chainText))
 
+  section('文件夹与三段视图不冲突')
+  const folderState = await page.evaluateJson(`
+    JSON.stringify(JSON.parse(localStorage.getItem('config/proxy-folders') || '{}'))
+  `)
+  check(
+    '不再预置上游的“策略组/节点组”内置文件夹',
+    Array.isArray(folderState.folders) && folderState.folders.length === 0,
+    `folders=${JSON.stringify(folderState.folders)}`,
+  )
+
+  section('空状态提示（不再白板）')
+  await typeIntoSearch(page, /searchProxyGroup|search|搜索/i, 'zzz-not-exist-zzz')
+  await sleep(1000)
+  const emptyText = await page.evaluate('document.body.innerText')
+  check(
+    '搜索无结果时给出提示',
+    /没有匹配的代理|no matching proxies/i.test(emptyText),
+    JSON.stringify(emptyText.slice(0, 80)),
+  )
+  await typeIntoSearch(page, /searchProxyGroup|search|搜索/i, '')
+  await sleep(600)
+
   section('规则页：链路感知搜索')
   await page.goto(`${await page.evaluate('location.origin')}/#/rules`)
   await sleep(1500)

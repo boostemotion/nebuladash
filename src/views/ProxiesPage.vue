@@ -13,6 +13,17 @@
     >
       <ProxiesCtrl />
       <FolderTopBar v-if="foldersUiVisible" />
+      <!--
+        NebulaDash: 三段视图 + 文件夹 + 搜索三者叠加时可能交集为空。
+        以前是纯白板，现在给出可操作的提示。
+      -->
+      <div
+        v-if="emptyHint"
+        class="text-base-content/60 flex flex-col items-center gap-2 px-6 py-16 text-center text-sm"
+      >
+        <p class="font-medium">{{ emptyHint.title }}</p>
+        <p class="text-xs">{{ emptyHint.detail }}</p>
+      </div>
       <div
         ref="columnsRef"
         class="flex gap-3 p-3 md:pr-2"
@@ -57,9 +68,18 @@ import { PROXY_TAB_TYPE } from '@/constant'
 import { isMiddleScreen } from '@/helper/utils'
 import { fetchProxies } from '@/assembly/proxies'
 import { disableProxiesPageTextSelect, twoColumnProxyGroup } from '@/store/settings'
-import { folderManagerOpen, isProxyFolderModeActive } from '@/store/proxy-folders'
+import {
+  activeFolderId,
+  folderManagerOpen,
+  isProxyFolderModeActive,
+  VIRTUAL_ALL,
+} from '@/store/proxy-folders'
+import { proxiesFilter } from '@/store/proxies'
 import { useResizeObserver, useSessionStorage } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+
+const { t } = useI18n()
 
 const { padding } = usePaddingForViews({
   offsetTop: 0,
@@ -288,6 +308,23 @@ const displayTwoColumns = computed(() => {
 const filterContent: <T>(all: T[], target: number) => T[] = (all, target) => {
   return all.filter((_, index: number) => index % 2 === target)
 }
+
+/**
+ * 空状态提示：区分「搜索无结果」「文件夹与当前标签冲突」「真的没有数据」。
+ */
+const emptyHint = computed(() => {
+  if (renderPageItems.value.length > 0) return null
+
+  if (proxiesFilter.value.trim()) {
+    return { title: t('emptySearchTitle'), detail: t('emptySearchDetail') }
+  }
+
+  if (foldersUiVisible.value && activeFolderId.value !== VIRTUAL_ALL) {
+    return { title: t('emptyFolderTitle'), detail: t('emptyFolderDetail') }
+  }
+
+  return { title: t('emptyProxiesTitle'), detail: t('emptyProxiesDetail') }
+})
 
 const columns = computed(() =>
   displayTwoColumns.value
