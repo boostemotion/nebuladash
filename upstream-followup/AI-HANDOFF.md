@@ -4,25 +4,36 @@
 
 ## 当前状态
 
-- **升级策略已变更（2026-06-29）**：不再逐提交选择性移植，改为「以官方最新版本为基线重建 + 按清单重放本地特色」。重放的唯一依据是 `NEBULADASH-FEATURE-INVENTORY.md`，执行流程见 `REBASELINE-PLAN.md`。
-- **环境阻塞**：当前开发机未安装 Git for Windows，pi 的 shell 工具只认 Git Bash，`git` / `pnpm` 均无法执行。重基线开始前必须先装 Git。
-- 当前包版本：`2.8.0-nebula.4.2.0`
-- 上游代码基线：Zashboard `2.8.0`
-- 已对照的官方版本：Zashboard `3.11.0`（2026-06-24）
-- 已复查的 upstream main：`9150a53e`（2026-06-26 fetch 后无新增）
-- 已新增并发布可选路由器端自管理更新器：`router-updater/`
-- `v2.8.0-nebula.4.2.0` 已发布，包含更新阶段提示修复和新的 Nebula 多级版本规则
-- `latest/download/dist.zip` 已确认跳转到 `v2.8.0-nebula.4.2.0/dist.zip`
-- `router-updater.zip` 已由 Release workflow 自动上传到 `v2.8.0-nebula.4.2.0`，latest 下载链路已验证
-- 路由器实机已确认可通过 NebulaDash 前端按钮触发更新
-- 设置页已拆分“检查更新器”和“检查新版本”；进入设置页会自动检查 NebulaDash Release，并在有新版本时显示红点
-- 路由器端更新流程现在会在设置页显示阶段状态，例如下载、解压和切换分区
-- 远程约定：
-  - `origin`：`boostemotion/nebuladash`，只推送 NebulaDash
-  - `upstream`：`Zephyruso/zashboard`，只拉取官方更新
-- 当前维护策略（2026-06-29 起）：**以官方最新版为基线重建 + 按清单重放本地特色**。旧的“按价值选择性移植”已停止使用；已完成前的本地代码保留在 `legacy/nebula-2.8.0` tag（重建开始时创建）。
-- 当前 `main` 与 `upstream/main` 无可用 merge-base；**重基线完成前**不要直接 `git rebase upstream/main` 或
-  `git merge upstream/main`。重基线后可以恢复为普通 `git merge upstream/main`。
+- **重基线进行中（2026-06-29）**：已完成「以官方 v3.30.0 为基线重建 + 按清单重放本地特色」全部 8 组。
+- 基线：`v3.30.0`（`bf4f00b`），dev 分支 `rebase/upstream-v3.30.0`
+- 包版本：`3.30.0-nebula.1`（Nebula 多级版本规则 `<上游版本>-nebula.<轮次>[.<功能>[.<修复>]]`）
+- 旧实现保留在 tag `legacy/nebula-2.8.0`（已推送 origin），可随时回退
+- 重基线后 `main` 将与上游共享历史，后续上游跟进恢复为普通 `git merge upstream/main`
+- 远程约定不变：`origin` 只推、`upstream` 只拉（push URL 已设为 `DISABLED`）
+- 当前 `nebuladash` 工作目录仍停留在旧 `main`（`legacy` 线），重基线在新分支完成，待切换
+
+## 重基线已完成的重放（8 组）
+
+| 组  | 内容                                                    | 提交      |
+| --- | ------------------------------------------------------- | --------- |
+| ①   | 品牌 / 版本治理 / 构建拆包 / 路由懒加载 / 更新源保护    | `06e7544` |
+| ②   | Provider 按需加载 / 15s 超时 / 缓存起屏 / 降级 / 状态机 | `e197910` |
+| ③   | 代理页三段视图 + 节点组聚类排序                         | `bd7b540` |
+| ④   | 搜索规范化 / 域名变体 / 反向映射 / 链路感知             | `88cd2d8` |
+| ⑤   | 规则直通入口 / 代理商尾标 / 跳转规则                    | `9ca2fe9` |
+| ⑥⑦  | 发布工作流 + 路由器端自管理更新器                       | `17f53ea` |
+| ⑧   | 设置导入废弃键清洗 + 启动脚本                           | `ae0339f` |
+
+相对上游 `v3.30.0`：`49 files changed, +2886 / -147`（`src/` 范围）。
+
+## 上游直接覆盖、不再本地重写的项
+
+- Setup 页连接失败提示（`describeProbeFailure`）
+- 移动端视口 / overscroll lock / 弹窗高度
+- 代理页滚动位置恢复（`helper/proxies-scroll.ts`）
+- 搜索模式切换与搜索高亮
+- 代理文件夹、链路弹窗本体、虚拟滚动
+- 节点图标映射改用节点自带 `provider-name`
 
 ## 接手时先做
 
@@ -36,38 +47,19 @@
 
 ## 必须保护的本地能力
 
-> 完整规格与验收标准见 `NEBULADASH-FEATURE-INVENTORY.md`。以下为必须重放、不得丢失的清单。
+> 完整规格与验收标准见 `NEBULADASH-FEATURE-INVENTORY.md`。以下为已重放、不得丢失的清单。
 
-- 代理页三段视图：策略组、节点组、代理商。
-- 策略组和节点组首屏不得等待 `/providers/proxies`。
-- Provider 数据只能按需加载、缓存、降级，不能恢复启动即请求。
-- 搜索必须保留 NFKC、符号容错、多关键词 AND、域名 label 变体、规则链路感知和节点名反查父级组。
-- 规则直通必须保留链路展开、跳转规则页、跨分段定位和最终 Provider 尾标。
-- 更新源必须指向 `boostemotion/nebuladash` Release，不能误拉官方 Zashboard 覆盖本地版。
-- 路由懒加载和构建拆包不能被上游静态导入覆盖。
-
-## 当前已完成的关键改动
-
-- `b28546ab`：公开仓库干净历史初始化。
-- `29dd6ff1`：面板更新源保护，Release 地址固定到 NebulaDash。
-- `7384f7ab`：节点名反查父级代理组 / Provider 搜索。
-- `2ce69469`：同步上游设置页 select / label 小样式修复。
-- `a04a355e`、`560c81fb`：公开 README 和维护日志整理。
-- `842788ee`：Provider 旧缓存状态。
-- `7f80b09c`：Provider 失败通知去重。
-- `07b60048`：发布前检查脚本和 `2.8.0-nebula.2` 版本治理。
-- `96410915`、`3c8be8e4`、`dafbae80`、`f19cf352`、`a7433367`：路由器端自管理更新器、A/B 部署脚本、CGI、前端 API 和设置页按钮。
-- `1fb54e4e`：更新前增加同版本、旧版本和未知版本风险确认。
-- `a445829c`：安装器和 CGI 兼容 CRLF，避免 token 肉眼一致但比较失败。
-- `47aae275`：兼容 uHTTPd 不转发自定义 header，前端和 CGI 支持 query token fallback。
-- `ca42aedc`：版本推进到 `2.8.0-nebula.3`。
-- `4edf421a`：记录 `v2.8.0-nebula.3` 发布日志哈希。
-- `36e21a8f`：GitHub Release workflow 自动上传 `router-updater.zip`。
-- `efc62d9d`：当前 `v2.8.0-nebula.3` Release 已补上传 `router-updater.zip` 并验证 latest 链接。
-- `fc86d6a1`：记录路由器实机前端按钮更新成功。
-- `73420c5c`、`f2ea79bd`：设置页独立新版本检查、自动检查与红点提示已发布到 `v2.8.0-nebula.4`。
-- `a7b7c67e` 对应的更新器状态轮询与阶段提示修复已随 `v2.8.0-nebula.4.2.0` 发布。
-- 设置页新版本检查已独立于 updater status，支持自动检查和红点提示。
+- 代理页三段视图：策略组 / 节点组 / 代理商（`PROXY_TAB_TYPE` 含 `STRATEGY`/`NODE`/`PROVIDER`）。
+- 策略组和节点组首屏不得等待 `/providers/proxies`；Provider 只在切到“代理商”时请求。
+- Provider 必须有：15s 独立超时、按后端 UUID 隔离缓存、缓存起屏、失败降级、并发去重、
+  代际校验、失败通知 60s 去重、`idle/loading/fresh/cached/stale/timeout/error` 状态机。
+- 节点组聚类排序：同前缀簇相邻，簇内 `故转 > 手动 > 自动 > 负载均衡`。
+- 搜索保留 NFKC、符号容错、域名 label 变体、多关键词 AND、规则反向映射、链路感知与高亮一致。
+- 规则直通保留链路代理商尾标、跳转规则；Provider 未加载时尾标允许缺省且不得触发请求。
+- 更新源必须指向 `boostemotion/nebuladash` Release，下载地址不匹配时禁用面板更新。
+- 路由器端更新器动作仅 `status/update/rollback`，A/B 分区，失败不切换。
+- 路由懒加载与 `manualChunks` 拆包不得被上游静态导入覆盖（上游入口 chunk 达 2.1 MB）。
+- `test/nebula-verify.mjs`（`pnpm test:nebula`）必须持续通过：它是上述约束的可执行规格。
 
 ## 下一步优先级
 
@@ -111,18 +103,16 @@ pnpm lint
 pnpm build
 ```
 
-> 当前开发机缺少 Git Bash，以上命令暂无法执行；环境修复后必须补跑。
+界面相关改动还需（需要本机 Chrome，或用 `CHROME_BIN` 指定）：
 
-路由器更新器改动还需要在可用 POSIX shell 环境运行：
+```bash
+pnpm test:nebula
+```
+
+路由器更新器改动还需要在可用 POSIX shell 环境（OpenWrt / Linux / WSL）运行：
 
 ```bash
 sh router-updater/smoke-test.sh
-```
-
-纯文档改动至少执行：
-
-```bash
-pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md
 ```
 
 `pnpm lint` 会自动修复文件，运行前后都要检查 `git status --short`。

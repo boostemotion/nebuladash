@@ -44,12 +44,12 @@
 
 **关键文件与实现点**
 
-| 位置                              | 职责                                                                       |
-| --------------------------------- | -------------------------------------------------------------------------- |
-| `src/composables/proxies.ts`      | `splitProxyGroupsByRole()`、`proxySections`、`isProxiesPageMounted` 首屏上限 |
-| `src/store/proxies.ts`            | `proxiesTabShow`、Provider 加载状态与缓存                                  |
-| `src/components/sidebar/ProxiesCtrl.tsx` | Tab 渲染、数量、Provider 状态徽标、切换 Tab 时触发 `fetchProxyProviders()` |
-| `src/views/ProxiesPage.vue`       | 分段渲染、按 section 选组件、滚动恢复、按需拉 Provider                     |
+| 位置                                     | 职责                                                                         |
+| ---------------------------------------- | ---------------------------------------------------------------------------- |
+| `src/composables/proxies.ts`             | `splitProxyGroupsByRole()`、`proxySections`、`isProxiesPageMounted` 首屏上限 |
+| `src/store/proxies.ts`                   | `proxiesTabShow`、Provider 加载状态与缓存                                    |
+| `src/components/sidebar/ProxiesCtrl.tsx` | Tab 渲染、数量、Provider 状态徽标、切换 Tab 时触发 `fetchProxyProviders()`   |
+| `src/views/ProxiesPage.vue`              | 分段渲染、按 section 选组件、滚动恢复、按需拉 Provider                       |
 
 **分组判定规则（`splitProxyGroupsByRole`）**
 
@@ -358,16 +358,16 @@ https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
 
 **端约定**
 
-| 项           | 值                                        |
-| ------------ | ----------------------------------------- |
-| 源码目录     | `router-updater/`                         |
-| 运行目录     | `/usr/share/nebuladash-updater/`          |
-| CGI 入口     | `/www/cgi-bin/nebuladash-updater`         |
-| 面板入口     | `/www/nebuladash`                         |
-| 分区         | `/www/nebuladash-a`、`/www/nebuladash-b`  |
-| 部署策略     | A/B 分区，验证 index.html / assets / manifest 后切 symlink |
-| 动作         | 仅 `status` / `update` / `rollback`       |
-| 认证         | header `X-NebulaDash-Token`，缺失回退 query `token` |
+| 项       | 值                                                         |
+| -------- | ---------------------------------------------------------- |
+| 源码目录 | `router-updater/`                                          |
+| 运行目录 | `/usr/share/nebuladash-updater/`                           |
+| CGI 入口 | `/www/cgi-bin/nebuladash-updater`                          |
+| 面板入口 | `/www/nebuladash`                                          |
+| 分区     | `/www/nebuladash-a`、`/www/nebuladash-b`                   |
+| 部署策略 | A/B 分区，验证 index.html / assets / manifest 后切 symlink |
+| 动作     | 仅 `status` / `update` / `rollback`                        |
+| 认证     | header `X-NebulaDash-Token`，缺失回退 query `token`        |
 
 **关键文件**
 
@@ -467,35 +467,35 @@ https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
 > 上游 3.x 覆盖本地能力时，默认**采用上游**，只在 OpenClash 慢后端这一不可替代点上保留自有实现。
 > 标 `[待核对]` 的项必须拿到上游最新代码后逐条确认。
 
-| #   | 能力                      | 上游现状                                   | 本地现状                        | 决策                                          |
-| --- | ------------------------- | ------------------------------------------ | ------------------------------- | --------------------------------------------- |
-| 1   | 代理页分段                | 3.9 移动端重构、Tab/SegmentedControl 重构  | 按角色三段（策略/节点/Provider） | **保留行为，采用上游控件与布局** `[待核对]`   |
-| 2   | Provider 按需加载+缓存+降级 | 无等价物                                  | 完整实现                        | **必须保留**                                  |
-| 3   | Provider 请求去重与代际校验 | 无                                        | `fetchGeneration` + promise 复用 | **必须保留**                                  |
-| 4   | Provider 状态可观测徽标     | 3.2 有 Provider 视觉重做，无状态机         | `idle/loading/fresh/cached/stale/timeout/error` | **保留状态机**，视觉用上游 `[待核对]`   |
-| 5   | 节点组聚类排序             | 无                                         | 完整实现                        | **必须保留**                                  |
-| 6   | 统一搜索内核               | 3.6 统一搜索/regex/节点模式                | NFKC+符号容错+AND+域名变体       | **以上游为骨架**，注入本地语义 `[待核对]`     |
-| 7   | 搜索模式切换               | 3.6 已有智能/节点/正则模式                 | 不做（智能搜索够用）            | **采用上游**（不必再自己实现模式开关）         |
-| 8   | 搜索高亮                   | 3.8 已有                                   | 已实现 `HighlightedText`        | **采用上游**，保留简化匹配一致性              |
-| 9   | 域名→规则→代理组反向映射    | 无                                         | 完整实现                        | **必须保留**                                  |
-| 10  | 规则页链路感知搜索          | 无                                         | 完整实现                        | **必须保留**                                  |
-| 11  | 规则直通/链路跳转/Provider 尾标 | 无                                    | 完整实现                        | **必须保留**                                  |
-| 12  | 规则按需加载               | 无                                         | 完整实现                        | **必须保留**                                  |
-| 13  | 代理文件夹                 | 3.7 已有文件夹管理+设置                    | 未做（原计划仅 spike）          | **直接采用上游**，不做本地 spike              |
-| 14  | 多后端标题                 | 3.8 已有                                   | 未做                            | **直接采用上游**                              |
-| 15  | 设置同步/导入导出增强       | 3.5 已有                                   | 仅废弃键清洗                    | **采用上游** + 并入本地废弃键清单             |
-| 16  | 移动端视口/软键盘          | 3.9/3.11 更完整                            | 部分实现                        | **采用上游**，仅保留 `shouldRestoreProxyScroll` |
-| 17  | 连接状态延迟统计           | `314afebb` 已有                            | 未做                            | **直接采用上游**                              |
-| 18  | 代理图标映射增强           | `357a9d52`（面向 sing-box assembly）       | 有 `iconReflectList`            | **待核对**：能共存就采用上游                  |
-| 19  | 后端 uptime               | `bed57f21`（依赖 sing-box `GetStartedAt`） | 未做                            | **不跟进**（Mihomo 无通用 startedAt）         |
-| 20  | sing-box native / goroutines / USB-IP / Tailscale / 终端 | 上游已有代码              | 未跟                            | **保留上游代码但不主动使用**，不得删除        |
-| 21  | 视觉体系（3.x 主题、动画） | 上游 3.0/3.9 已重构                        | 2.8 视觉                        | **采用上游**（用户插件类界面增强挪出主线）     |
-| 22  | 品牌/版本/更新源           | 指向 zashboard                            | 指向 nebuladash                 | **必须保留**（整体常量替换）                  |
-| 23  | 路由器更新器               | 无                                         | 完整实现                        | **必须保留**（整块搬运）                      |
-| 24  | 构建拆包/路由懒加载        | 静态导入为主                               | 手动拆包                        | **必须保留**（除非上游已拆包）`[待核对]`       |
-| 25  | 设置导入废弃键清洗         | 有更完整导入导出                           | 废弃键 + 存在性白名单            | **并入上游**                                  |
-| 26  | 设置页连接失败提示         | 未核对                                     | 已实现                          | **待核对**：上游若已有则丢弃本地               |
-| 27  | 一键启动脚本               | 无                                         | `start-za.ps1/.cmd`             | 搬运，低优先级                                |
+| #   | 能力                                                     | 上游现状                                   | 本地现状                                        | 决策                                            |
+| --- | -------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------- | ----------------------------------------------- |
+| 1   | 代理页分段                                               | 3.9 移动端重构、Tab/SegmentedControl 重构  | 按角色三段（策略/节点/Provider）                | **保留行为，采用上游控件与布局** `[待核对]`     |
+| 2   | Provider 按需加载+缓存+降级                              | 无等价物                                   | 完整实现                                        | **必须保留**                                    |
+| 3   | Provider 请求去重与代际校验                              | 无                                         | `fetchGeneration` + promise 复用                | **必须保留**                                    |
+| 4   | Provider 状态可观测徽标                                  | 3.2 有 Provider 视觉重做，无状态机         | `idle/loading/fresh/cached/stale/timeout/error` | **保留状态机**，视觉用上游 `[待核对]`           |
+| 5   | 节点组聚类排序                                           | 无                                         | 完整实现                                        | **必须保留**                                    |
+| 6   | 统一搜索内核                                             | 3.6 统一搜索/regex/节点模式                | NFKC+符号容错+AND+域名变体                      | **以上游为骨架**，注入本地语义 `[待核对]`       |
+| 7   | 搜索模式切换                                             | 3.6 已有智能/节点/正则模式                 | 不做（智能搜索够用）                            | **采用上游**（不必再自己实现模式开关）          |
+| 8   | 搜索高亮                                                 | 3.8 已有                                   | 已实现 `HighlightedText`                        | **采用上游**，保留简化匹配一致性                |
+| 9   | 域名→规则→代理组反向映射                                 | 无                                         | 完整实现                                        | **必须保留**                                    |
+| 10  | 规则页链路感知搜索                                       | 无                                         | 完整实现                                        | **必须保留**                                    |
+| 11  | 规则直通/链路跳转/Provider 尾标                          | 无                                         | 完整实现                                        | **必须保留**                                    |
+| 12  | 规则按需加载                                             | 无                                         | 完整实现                                        | **必须保留**                                    |
+| 13  | 代理文件夹                                               | 3.7 已有文件夹管理+设置                    | 未做（原计划仅 spike）                          | **直接采用上游**，不做本地 spike                |
+| 14  | 多后端标题                                               | 3.8 已有                                   | 未做                                            | **直接采用上游**                                |
+| 15  | 设置同步/导入导出增强                                    | 3.5 已有                                   | 仅废弃键清洗                                    | **采用上游** + 并入本地废弃键清单               |
+| 16  | 移动端视口/软键盘                                        | 3.9/3.11 更完整                            | 部分实现                                        | **采用上游**，仅保留 `shouldRestoreProxyScroll` |
+| 17  | 连接状态延迟统计                                         | `314afebb` 已有                            | 未做                                            | **直接采用上游**                                |
+| 18  | 代理图标映射增强                                         | `357a9d52`（面向 sing-box assembly）       | 有 `iconReflectList`                            | **待核对**：能共存就采用上游                    |
+| 19  | 后端 uptime                                              | `bed57f21`（依赖 sing-box `GetStartedAt`） | 未做                                            | **不跟进**（Mihomo 无通用 startedAt）           |
+| 20  | sing-box native / goroutines / USB-IP / Tailscale / 终端 | 上游已有代码                               | 未跟                                            | **保留上游代码但不主动使用**，不得删除          |
+| 21  | 视觉体系（3.x 主题、动画）                               | 上游 3.0/3.9 已重构                        | 2.8 视觉                                        | **采用上游**（用户插件类界面增强挪出主线）      |
+| 22  | 品牌/版本/更新源                                         | 指向 zashboard                             | 指向 nebuladash                                 | **必须保留**（整体常量替换）                    |
+| 23  | 路由器更新器                                             | 无                                         | 完整实现                                        | **必须保留**（整块搬运）                        |
+| 24  | 构建拆包/路由懒加载                                      | 静态导入为主                               | 手动拆包                                        | **必须保留**（除非上游已拆包）`[待核对]`        |
+| 25  | 设置导入废弃键清洗                                       | 有更完整导入导出                           | 废弃键 + 存在性白名单                           | **并入上游**                                    |
+| 26  | 设置页连接失败提示                                       | 未核对                                     | 已实现                                          | **待核对**：上游若已有则丢弃本地                |
+| 27  | 一键启动脚本                                             | 无                                         | `start-za.ps1/.cmd`                             | 搬运，低优先级                                  |
 
 **取舍总原则**
 
@@ -514,63 +514,63 @@ https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip
 
 ### 22.5.1 关键事实（含代码位置）
 
-| 事实 | 证据（`v3.30.0`） |
-| --- | --- |
+| 事实                                                  | 证据（`v3.30.0`）                                                                                                                                                |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Provider 仍与 `/proxies` **同时请求**，无超时、无缓存 | `src/assembly/driver/clash.ts:175-186` `Promise.all([fetchProxiesAPI(), fetchProxyProviderAPI()])`；`src/api/clash.ts:70` `fetchProxyProviderAPI()` 无 `timeout` |
-| 代理数据层已重写为多核驱动 | `src/assembly/driver/{clash,dae}.ts`、`src/assembly/capabilities.ts`；**sing-box 已移除**，新增 dae |
-| `src/store/proxies.ts` 只剩 12 行 | 仅 `proxiesFilter` / `proxiesTabShow` / `hiddenGroupMap`，数据层全部搬到 `src/assembly/proxies/*` |
-| 代理页只有**两段** | `src/constant/index.ts:140` `PROXY_TAB_TYPE = { PROXIES, PROVIDER }` |
-| 已有**虚拟滚动 + 列式渲染** | `src/views/ProxiesPage.vue` 用 `VirtualColumn`，`src/helper/proxies.ts` 的 `renderProxiesPageItems()` |
-| 已有**代理文件夹** | `src/store/proxy-folders.ts`、`src/components/proxies/folders/*` |
-| 已有**链路弹窗**（drill-in modal） | `src/helper/proxy-group-chain.ts` + `src/components/proxies/ProxyGroupChainModal.vue` |
-| 节点自带 `provider-name` | `src/assembly/proxies/actions.ts`：`proxy['provider-name'] ||= provider.name` |
-| 搜索 = 空白分词的正则 AND | `src/helper/search.ts` `toSearchRegexes()`：按 `/\s+/` 切分，每段 `new RegExp(token,'i')`，`regexes.every()` |
-| 搜索有模式切换（组名 / 全局节点） | `src/helper/proxy-search.ts`：`PROXY_SEARCH_MODE.GLOBAL/GROUP`，`proxyGroupContainsMatchingNode()` |
-| 搜索高亮已有 | `src/helper/search.ts` `getSearchTextParts()` |
-| **无节点组聚类排序** | 全库 `git grep -i cluster` 在 `src/` 无结果 |
-| **规则搜索无链路感知** | `src/store/rules.ts` `renderRules` 只 `testAny([type, payload, proxy])` |
-| **无域名 label 变体、无 NFKC、无符号容错** | `toSearchRegexes()` 无任何规范化预处理 |
-| 滚动恢复已有 | `src/helper/proxies-scroll.ts` |
-| 启动即拉 `/rules` | `src/assembly/session.ts` 后端变化时直接 `fetchRules()` |
-| 路由**全部静态导入** | `src/router/index.ts` 顶部 import 8 个页面 |
-| **vite.config 无 manualChunks** | 上游未做拆包（新增 echarts + three.js 后包体更大） |
-| 构建工具链已升级 | `vite ^8.1.5`、`typescript ~6.0.3`、`@types/node ^26`、新增 `eventsource-parser` / `@types/three` / `mmdb-lib` |
-| 自带测试环境 | `test/`：`mock-server.mjs`、`mock-dae-server.mjs`、`verify.mjs`、`bench.mjs` |
+| 代理数据层已重写为多核驱动                            | `src/assembly/driver/{clash,dae}.ts`、`src/assembly/capabilities.ts`；**sing-box 已移除**，新增 dae                                                              |
+| `src/store/proxies.ts` 只剩 12 行                     | 仅 `proxiesFilter` / `proxiesTabShow` / `hiddenGroupMap`，数据层全部搬到 `src/assembly/proxies/*`                                                                |
+| 代理页只有**两段**                                    | `src/constant/index.ts:140` `PROXY_TAB_TYPE = { PROXIES, PROVIDER }`                                                                                             |
+| 已有**虚拟滚动 + 列式渲染**                           | `src/views/ProxiesPage.vue` 用 `VirtualColumn`，`src/helper/proxies.ts` 的 `renderProxiesPageItems()`                                                            |
+| 已有**代理文件夹**                                    | `src/store/proxy-folders.ts`、`src/components/proxies/folders/*`                                                                                                 |
+| 已有**链路弹窗**（drill-in modal）                    | `src/helper/proxy-group-chain.ts` + `src/components/proxies/ProxyGroupChainModal.vue`                                                                            |
+| 节点自带 `provider-name`                              | `src/assembly/proxies/actions.ts`：`proxy['provider-name']                                                                                                       |     | = provider.name` |
+| 搜索 = 空白分词的正则 AND                             | `src/helper/search.ts` `toSearchRegexes()`：按 `/\s+/` 切分，每段 `new RegExp(token,'i')`，`regexes.every()`                                                     |
+| 搜索有模式切换（组名 / 全局节点）                     | `src/helper/proxy-search.ts`：`PROXY_SEARCH_MODE.GLOBAL/GROUP`，`proxyGroupContainsMatchingNode()`                                                               |
+| 搜索高亮已有                                          | `src/helper/search.ts` `getSearchTextParts()`                                                                                                                    |
+| **无节点组聚类排序**                                  | 全库 `git grep -i cluster` 在 `src/` 无结果                                                                                                                      |
+| **规则搜索无链路感知**                                | `src/store/rules.ts` `renderRules` 只 `testAny([type, payload, proxy])`                                                                                          |
+| **无域名 label 变体、无 NFKC、无符号容错**            | `toSearchRegexes()` 无任何规范化预处理                                                                                                                           |
+| 滚动恢复已有                                          | `src/helper/proxies-scroll.ts`                                                                                                                                   |
+| 启动即拉 `/rules`                                     | `src/assembly/session.ts` 后端变化时直接 `fetchRules()`                                                                                                          |
+| 路由**全部静态导入**                                  | `src/router/index.ts` 顶部 import 8 个页面                                                                                                                       |
+| **vite.config 无 manualChunks**                       | 上游未做拆包（新增 echarts + three.js 后包体更大）                                                                                                               |
+| 构建工具链已升级                                      | `vite ^8.1.5`、`typescript ~6.0.3`、`@types/node ^26`、新增 `eventsource-parser` / `@types/three` / `mmdb-lib`                                                   |
+| 自带测试环境                                          | `test/`：`mock-server.mjs`、`mock-dae-server.mjs`、`verify.mjs`、`bench.mjs`                                                                                     |
 
 ### 22.5.2 核对后的最终取舍
 
-| # | 能力 | 上游 v3.30.0 | 决策 |
-| --- | --- | --- | --- |
-| 1 | 代理页「策略组/节点组/代理商」三段 | 只有 PROXIES/PROVIDER 两段 | **保留本地行为**，但改成挂在上游 `renderProxiesPageItems` + `VirtualColumn` 上 |
-| 2 | 首屏 16 条上限 | 上游用虚拟滚动，更优 | **丢弃本地**，采用上游 |
-| 3 | Provider 按需加载 | 无（`Promise.all` 一起拉） | **必须保留**（最高价值） |
-| 4 | Provider 独立超时 | 无 | **必须保留** |
-| 5 | Provider 缓存起屏 / 旧缓存降级 | 无 | **必须保留** |
-| 6 | Provider 失败通知去重 | 无 | **必须保留**（未加载不阻塞） |
-| 7 | Provider 状态机徽标 | 无 | **保留**，视觉用上游 badge |
-| 8 | 节点→Provider 映射 | 已有 `provider-name` | **丢弃本地 `proxyNodeProviderMap`**，改用上游字段 |
-| 9 | 节点组聚类排序 | 无 | **必须保留**（次高价值） |
-| 10 | 搜索 NFKC / 符号容错 | 无 | **保留**：作为上游 `toSearchRegexes` 的预处理层 |
-| 11 | 搜索域名 label 变体 | 无 | **保留**：作为上游 search 的变体扩展 |
-| 12 | 多关键词 AND | **已有**（正则 every） | 采用上游；`|` 保持上游正则 OR 语义（重基线第④组已定案：空格/逗号/顿号才是 AND 分隔符） |
-| 13 | 搜索模式切换 | **已有**（GLOBAL/GROUP） | **采用上游**，删除本地“不做模式”决策 |
-| 14 | 搜索高亮 | **已有** | 采用上游 `getSearchTextParts()` |
-| 15 | 域名→规则→代理组反向映射 | 无 | **必须保留**（依赖上游启动即拉的 rules，实现反而更简单） |
-| 16 | 规则页链路感知搜索 | 无 | **必须保留** |
-| 17 | 规则直通链路展开 | **已有 modal** | **采用上游 modal**，只在上游 modal 内追加：跳转规则、Provider 尾标 |
-| 18 | 链路跨分段定位 | 无分段概念（上游两段） | 随 #1 一起重做 |
-| 19 | 规则按需加载 | 连接就绪后拉取，存在竞态 | **保留按需补拉兜底**（重基线第④组实测修正：上游并非稳定在启动阶段拉到规则） |
-| 20 | 滚动位置恢复 | **已有** | 采用上游 |
-| 21 | 代理文件夹 | **已有** | 采用上游 |
-| 22 | 移动端视口 / overscroll / 弹窗高度 | **已有且更完整** | 采用上游 |
-| 23 | 后端可达性诊断 / 会话提示 | **已有**（`use-backend-reachability`、`assembly/session`） | 采用上游；本地只补 `backendConnectionFailed` 文案差异 |
-| 24 | 设置导入废弃键清洗 | 已有 `auto-import-settings` + 确认弹窗 | 并入上游（废弃键清单保留） |
-| 25 | 构建拆包 + 路由懒加载 | **上游已退化**（全静态导入、无 manualChunks） | **必须保留**（上游包体因 echarts/three.js 更大） |
-| 26 | 品牌 / 版本格式 / 更新源保护 | 指向 `zashboard` | **必须保留**（常量整体替换） |
-| 27 | 路由器更新器 | 无 | **必须保留**（整块搬运） |
-| 28 | 发布治理（release:check / release.yml） | 无 | **必须保留** |
-| 29 | sing-box native / uptime | **已移除 sing-box**，改为 dae/honk 驱动 | 本地强制“不跟进”已自然失效，无需处理 |
-| 30 | 新增上游能力（Earth 地球视图、Taildrop、自定义 CSS、toast、SegmentedControl、规则/日志表格视图、连接分组与过滤） | 已有 | **直接获得**，不投入适配成本 |
+| #   | 能力                                                                                                             | 上游 v3.30.0                                               | 决策                                                                           |
+| --- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 1   | 代理页「策略组/节点组/代理商」三段                                                                               | 只有 PROXIES/PROVIDER 两段                                 | **保留本地行为**，但改成挂在上游 `renderProxiesPageItems` + `VirtualColumn` 上 |
+| 2   | 首屏 16 条上限                                                                                                   | 上游用虚拟滚动，更优                                       | **丢弃本地**，采用上游                                                         |
+| 3   | Provider 按需加载                                                                                                | 无（`Promise.all` 一起拉）                                 | **必须保留**（最高价值）                                                       |
+| 4   | Provider 独立超时                                                                                                | 无                                                         | **必须保留**                                                                   |
+| 5   | Provider 缓存起屏 / 旧缓存降级                                                                                   | 无                                                         | **必须保留**                                                                   |
+| 6   | Provider 失败通知去重                                                                                            | 无                                                         | **必须保留**（未加载不阻塞）                                                   |
+| 7   | Provider 状态机徽标                                                                                              | 无                                                         | **保留**，视觉用上游 badge                                                     |
+| 8   | 节点→Provider 映射                                                                                               | 已有 `provider-name`                                       | **丢弃本地 `proxyNodeProviderMap`**，改用上游字段                              |
+| 9   | 节点组聚类排序                                                                                                   | 无                                                         | **必须保留**（次高价值）                                                       |
+| 10  | 搜索 NFKC / 符号容错                                                                                             | 无                                                         | **保留**：作为上游 `toSearchRegexes` 的预处理层                                |
+| 11  | 搜索域名 label 变体                                                                                              | 无                                                         | **保留**：作为上游 search 的变体扩展                                           |
+| 12  | 多关键词 AND                                                                                                     | **已有**（正则 every）                                     | 采用上游；`                                                                    | ` 保持上游正则 OR 语义（重基线第④组已定案：空格/逗号/顿号才是 AND 分隔符） |
+| 13  | 搜索模式切换                                                                                                     | **已有**（GLOBAL/GROUP）                                   | **采用上游**，删除本地“不做模式”决策                                           |
+| 14  | 搜索高亮                                                                                                         | **已有**                                                   | 采用上游 `getSearchTextParts()`                                                |
+| 15  | 域名→规则→代理组反向映射                                                                                         | 无                                                         | **必须保留**（依赖上游启动即拉的 rules，实现反而更简单）                       |
+| 16  | 规则页链路感知搜索                                                                                               | 无                                                         | **必须保留**                                                                   |
+| 17  | 规则直通链路展开                                                                                                 | **已有 modal**                                             | **采用上游 modal**，只在上游 modal 内追加：跳转规则、Provider 尾标             |
+| 18  | 链路跨分段定位                                                                                                   | 无分段概念（上游两段）                                     | 随 #1 一起重做                                                                 |
+| 19  | 规则按需加载                                                                                                     | 连接就绪后拉取，存在竞态                                   | **保留按需补拉兜底**（重基线第④组实测修正：上游并非稳定在启动阶段拉到规则）    |
+| 20  | 滚动位置恢复                                                                                                     | **已有**                                                   | 采用上游                                                                       |
+| 21  | 代理文件夹                                                                                                       | **已有**                                                   | 采用上游                                                                       |
+| 22  | 移动端视口 / overscroll / 弹窗高度                                                                               | **已有且更完整**                                           | 采用上游                                                                       |
+| 23  | 后端可达性诊断 / 会话提示                                                                                        | **已有**（`use-backend-reachability`、`assembly/session`） | 采用上游；本地只补 `backendConnectionFailed` 文案差异                          |
+| 24  | 设置导入废弃键清洗                                                                                               | 已有 `auto-import-settings` + 确认弹窗                     | 并入上游（废弃键清单保留）                                                     |
+| 25  | 构建拆包 + 路由懒加载                                                                                            | **上游已退化**（全静态导入、无 manualChunks）              | **必须保留**（上游包体因 echarts/three.js 更大）                               |
+| 26  | 品牌 / 版本格式 / 更新源保护                                                                                     | 指向 `zashboard`                                           | **必须保留**（常量整体替换）                                                   |
+| 27  | 路由器更新器                                                                                                     | 无                                                         | **必须保留**（整块搬运）                                                       |
+| 28  | 发布治理（release:check / release.yml）                                                                          | 无                                                         | **必须保留**                                                                   |
+| 29  | sing-box native / uptime                                                                                         | **已移除 sing-box**，改为 dae/honk 驱动                    | 本地强制“不跟进”已自然失效，无需处理                                           |
+| 30  | 新增上游能力（Earth 地球视图、Taildrop、自定义 CSS、toast、SegmentedControl、规则/日志表格视图、连接分组与过滤） | 已有                                                       | **直接获得**，不投入适配成本                                                   |
 
 ### 22.5.3 一句话结论
 
