@@ -22,6 +22,40 @@
 
 ## 2026-11-01
 
+### release: v3.30.0-nebula.2
+
+- 提交：本提交 + tag `v3.30.0-nebula.2`
+- 类型：发布
+- 目的：把 `--http1.1` 更新器修复与 Provider 搜索字段补进正式发布包，
+  让路由器上重装 `router-updater.zip` 时不再需要手改脚本。
+
+行为变化：
+
+- `package.json` 版本推进到 `3.30.0-nebula.2`。
+- 该 Release 的 `router-updater.zip` 含 `curl -L --http1.1 --fail`，
+  解决部分路由器上 HTTP/2 + TLS 会话复用到 `release-assets.githubusercontent.com`
+  握手失败（`curl: (35)`）的问题。
+- 同时包含 Provider 搜索字段增强（测试 URL / 更新时间 / 类型 / 订阅信息）。
+
+验证：
+
+- `pnpm release:check` → 期望 tag `v3.30.0-nebula.2`
+- `pnpm test` → 71 项通过
+- `pnpm type-check` / `pnpm lint` / `pnpm build` → 通过
+- 发布后确认 `latest/download/dist.zip`、`latest/download/router-updater.zip` 均 200
+- 解包核对 `router-updater.zip` 内 `updater.sh` 含 `--http1.1`
+
+后续注意：
+
+- 路由器上已安装的 `/usr/share/nebuladash-updater/updater.sh` 是手改过的版本；
+  重装（`sh install.sh`）会用新包里的脚本覆盖，`config` 文件不会被覆盖（token 不变）。
+- 面板内“更新 NebulaDash”按钮只更新面板静态资源，**不会**更新更新器脚本本身，
+  更新器脚本升级需要重新跑一次 `install.sh`。
+
+---
+
+## 2026-11-01
+
 ### feat(search)+docs: 补齐 Provider 搜索字段与仓库文档品牌化
 
 - 分支：`rebase/upstream-v3.30.0`

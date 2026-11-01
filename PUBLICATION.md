@@ -52,9 +52,10 @@ Release 工作流带一步 `Audit tracked public files`，命中上述禁项会�
 版本格式：`<上游基线版本>-nebula.<轮次>[.<功能>[.<修复>]]`
 
 - `3.30.0-nebula.1`：基于上游 v3.30.0 的第一轮 NebulaDash 发布
+- `3.30.0-nebula.2`：同基线的第二轮，修复更新器下载 TLS 兼容并补齐 Provider 搜索字段
 - `nebula.1` 表示大功能轮次，`.1.2` 表示该轮次下的第 2 个小功能增量，`.1.2.3` 为 bugfix 计数
 - 纯 `3.30.0` 这类官方风格版本号禁止使用，避免用户误判为 Zashboard 官方发布
-- Release tag 必须等于 `v<package.json version>`，例如 `v3.30.0-nebula.1`
+- Release tag 必须等于 `v<package.json version>`，例如 `v3.30.0-nebula.2`
 
 `pnpm release:check` 会强制以上约束。
 

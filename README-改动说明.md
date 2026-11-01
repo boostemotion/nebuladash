@@ -2,7 +2,7 @@
 
 本文件说明当前版本相对官方 Zashboard 的具体改动，供审阅与回归使用。
 
-- 当前版本：`3.30.0-nebula.1`
+- 当前版本：`3.30.0-nebula.2`
 - 上游基线：Zashboard `v3.30.0`（`bf4f00b`）
 - 本地补丁规模：`src/` 范围约 2900 行改动 / 19 个新文件
 - 旧实现（基线 2.8.0 的独立版本）：tag `legacy/nebula-2.8.0`
@@ -200,7 +200,7 @@ pnpm release:check
 pnpm test:nebula   # 22 项（需 Chrome）
 ```
 
-以上在 `3.30.0-nebula.1` 上全部通过。
+以上在 `3.30.0-nebula.2` 上全部通过。
 
 ## 手动实测清单（建议，路由器实机）
 
@@ -243,4 +243,4 @@ pnpm test:nebula   # 22 项（需 Chrome）
   TLS 握手失败（`curl: (35)`）
 - 处理：下载改为 `curl -L --http1.1`，更新成功，`active` 切到 `a` 分区
 - 结果：`three-*.js` 存在、`interactive-widget` 存在、`assets` 350 个，
-  面板显示 `NebulaDash 3.30.0-nebula.1`
+  面板显示 `NebulaDash 3.30.0-nebula.2`
