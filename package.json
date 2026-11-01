@@ -25,6 +25,7 @@
     "test:nebula": "node test/nebula-verify.mjs",
     "test:setup": "node test/setup.mjs",
     "test:verify": "node test/verify.mjs",
+    "zip:dist": "node test/zip-dist.mjs dist dist.zip",
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {

@@ -22,6 +22,42 @@
 
 ## 2026-06-29
 
+### chore(tools): 无 zip 环境下的本地打包脚本
+
+- 分支：`rebase/upstream-v3.30.0`
+- 提交：本提交
+- 类型：本地工具 / 实测准备
+- 目的：开发机（Git Bash）没有 `zip` 命令，无法按 CI 的方式产出 `dist.zip`，
+  而路由器实测需要可直接上传的构建包。
+
+涉及文件：
+
+- `test/zip-dist.mjs`（新增）
+- `package.json`（新增 `pnpm zip:dist`）
+
+行为变化：
+
+- `pnpm build && pnpm zip:dist` 可在无 zip 命令的机器上产出 deflate 压缩的
+  `dist.zip`（365 个文件，约 9.2 MB），已被 `unzip -l` 校验可正常读取。
+- CI 的 `.github/workflows/release.yml` 仍使用系统 `zip`，不依赖本脚本。
+
+验证：
+
+- `node test/zip-dist.mjs dist /d/b1497/Downloads/nebuladash-test.zip` → 写出 365 个文件
+- `unzip -l` 校验目录结构正确
+- `pnpm test` → 64 项通过
+- `pnpm lint` → No issues found
+
+后续注意：
+
+- 该脚本只做 store/deflate，不支持 ZIP64 与符号链接；产物用于面板静态资源足够，
+  但不要用它替代发布流程里的 `zip -qr`。
+- 重基线分支 `rebase/upstream-v3.30.0` 已推送到 origin，等待路由器实测后切主线。
+
+---
+
+## 2026-06-29
+
 ### feat(misc): 重基线第⑧组 — 设置导入键清洗与本地启动脚本
 
 - 分支：`rebase/upstream-v3.30.0`
