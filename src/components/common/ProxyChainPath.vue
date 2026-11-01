@@ -63,6 +63,15 @@
           </span>
         </template>
       </template>
+      <!-- NebulaDash: 链路末尾标出最终节点所属代理商，便于确认实际出口来源 -->
+      <template v-if="showProvider && finalProviderName">
+        <ChevronRightIcon class="proxy-chain-separator" />
+        <span class="proxy-chain-node proxy-chain-node-terminal">
+          <span class="badge badge-sm badge-outline border-base-content/20 whitespace-nowrap">
+            {{ $t('proxyProvider') }}: {{ finalProviderName }}
+          </span>
+        </span>
+      </template>
       <template v-if="showLatency && latency !== NOT_CONNECTED">
         <span
           :class="latencyColor"
@@ -95,6 +104,8 @@ const props = withDefaults(
     collapsed?: boolean
     showNowNode?: boolean
     showLatency?: boolean
+    /** NebulaDash: 是否在链路末尾显示最终节点所属代理商 */
+    showProvider?: boolean
     interactive?: boolean
     filter?: string
   }>(),
@@ -103,6 +114,7 @@ const props = withDefaults(
     collapsed: false,
     showNowNode: false,
     showLatency: false,
+    showProvider: false,
     interactive: true,
     filter: '',
   },
@@ -117,6 +129,17 @@ const proxyChains = computed(() => getProxyGroupChains(props.proxy))
 const proxyNode = computed(() => proxyMap.value[props.proxy])
 const latency = computed(() => getLatencyByName(props.proxy, props.proxy))
 const latencyColor = computed(() => getColorForLatency(Number(latency.value)))
+
+/**
+ * NebulaDash: 最终出口节点所属代理商。
+ * 优先用节点自带的 `provider-name`（由 fetchProxies 打标），未加载 Provider 时为空，
+ * 不会为了显示尾标额外触发 Provider 请求。
+ */
+const finalProviderName = computed(() => {
+  const finalNode = proxyMap.value[getNowProxyNodeName(props.proxy)]
+
+  return finalNode?.['provider-name'] ?? ''
+})
 
 const handleWheel = (event: WheelEvent) => {
   if (!pathRef.value) return

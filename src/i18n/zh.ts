@@ -134,6 +134,8 @@ const zh: LANG_MESSAGE = {
   providerStatusError: '代理提供商加载失败',
   providerLoadTimeoutTip: '代理提供商请求超时，已保留缓存数据。',
   providerLoadErrorTip: '代理提供商加载失败，已保留缓存数据。',
+  ruleShortcut: '规则直通',
+  goToRules: '跳转规则',
   dashboardUpgradeBlocked:
     '后端 UI 下载地址未指向 NebulaDash Release ZIP，已禁用面板更新。要求地址：',
   reloadConfigs: '重载配置',

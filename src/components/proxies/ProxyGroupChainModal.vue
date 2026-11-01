@@ -12,8 +12,17 @@
           :selected="selectedProxy"
           :show-now-node="true"
           :show-latency="true"
+          :show-provider="true"
           @update:selected="selectedProxy = $event"
         />
+        <div class="mt-2 flex items-center gap-2">
+          <button
+            class="btn btn-xs btn-ghost"
+            @click="openRulesShortcut"
+          >
+            {{ $t('goToRules') }}
+          </button>
+        </div>
       </div>
       <div
         class="flex flex-1 flex-col overflow-y-auto"
@@ -37,8 +46,23 @@ import {
 import { PROXIES_PARENT_CLASS } from '@/helper/utils'
 import { ref, watch } from 'vue'
 import { proxyMap } from '@/assembly/proxies'
+import { ROUTE_NAME, RULE_TAB_TYPE } from '@/constant'
+import { rulesFilter, rulesTabShow } from '@/store/rules'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const selectedProxy = ref('')
+
+/**
+ * NebulaDash: 从链路弹窗直接跳到规则页，并带入当前代理组名作为筛选词，
+ * 便于从“这个组最终走哪”快速定位到“哪些规则指向它”。
+ */
+const openRulesShortcut = () => {
+  rulesTabShow.value = RULE_TAB_TYPE.RULES
+  rulesFilter.value = proxyGroupChainTarget.value
+  closeProxyGroupChain()
+  void router.push({ name: ROUTE_NAME.rules })
+}
 
 watch(
   () => proxyGroupChainModalOpen.value,

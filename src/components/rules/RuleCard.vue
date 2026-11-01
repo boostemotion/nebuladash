@@ -76,6 +76,7 @@
             :collapsed="isCollapsed"
             :show-now-node="displayNowNodeInRule"
             :show-latency="displayLatencyInRule"
+            :show-provider="true"
             :filter="rulesFilter"
             :interactive="!isCollapsed"
             @update:selected="selected = $event"

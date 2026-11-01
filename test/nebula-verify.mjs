@@ -221,6 +221,51 @@ try {
   })()
   check('规则就绪后出现节点组', nodeTabCount > 0, `节点组 ${nodeTabCount}`)
 
+  section('规则直通：链路弹窗与代理商标尾')
+  await page.evaluate(`
+    (() => {
+      const tab = Array.from(document.querySelectorAll('[role="tab"]')).find((el) =>
+        /策略组|Strategy/i.test(el.textContent),
+      )
+      tab?.click()
+    })()
+  `)
+  await sleep(800)
+
+  const openedChain = await page.evaluate(`
+    (() => {
+      const card = document.querySelector('[data-proxy-page-item="${RULE_GROUP}"]')
+      if (!card) return false
+      // 策略组卡片头部的“规则直通”按钮
+      const button = card.querySelector('[data-proxy-rule-shortcut]')
+      if (!button) return false
+      button.click()
+      return true
+    })()
+  `)
+  await sleep(1200)
+  const dialogOpen = await page.evaluate(`
+    (() => {
+      const box = document.querySelector('.modal.modal-open .modal-box')
+      const text = box ? box.innerText : ''
+      return text.includes('跳转规则') || text.includes('Go to rules')
+    })()
+  `)
+  check('可以打开链路弹窗', openedChain === true && dialogOpen === true, `opened=${openedChain} dialog=${dialogOpen}`)
+
+  const chainText = await page.evaluate(`
+    (() => {
+      const box = document.querySelector('.modal.modal-open .modal-box')
+      return box ? box.innerText : ''
+    })()
+  `)
+  check(
+    '链路末尾显示所属代理商',
+    /代理提供商|Proxy provider/.test(chainText),
+    JSON.stringify(String(chainText).slice(0, 160)),
+  )
+  check('弹窗内提供“跳转规则”', /跳转规则|Go to rules/.test(chainText))
+
   section('规则页：链路感知搜索')
   await page.goto(`${(await page.evaluate('location.origin'))}/#/rules`)
   await sleep(1500)

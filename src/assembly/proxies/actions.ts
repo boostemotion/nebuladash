@@ -5,6 +5,7 @@ import { showNotification } from '@/helper/notification'
 import {
   getCachedProviderLoadStatus,
   getProviderFailureStatus,
+  isValidProxyDataCache,
   PROVIDER_CACHE_FRESH_DURATION,
   PROVIDER_FAILURE_NOTIFICATION_DEDUPE,
   shouldNotifyProviderFailure,
@@ -118,9 +119,19 @@ const applyProviders = (providers: ProxyProvider[]) => {
  * 只读取缓存，不触发任何网络请求。
  */
 export const hydrateProxiesFromCache = () => {
-  lastProxyData = cachedProxyData.value
+  // 只接受形状正确的缓存，避免旧版本遗留的脏数据直接进入渲染。
+  if (cachedProxyData.value && isValidProxyDataCache(cachedProxyData.value)) {
+    lastProxyData = cachedProxyData.value as { proxies: Record<string, Proxy> }
+  } else {
+    lastProxyData = null
+    cachedProxyData.value = null
+  }
 
-  const hasCachedProviders = cachedProxyProviders.value.length > 0
+  const cachedProviders = Array.isArray(cachedProxyProviders.value)
+    ? cachedProxyProviders.value
+    : []
+
+  const hasCachedProviders = cachedProviders.length > 0
   const providerCacheStatus = getCachedProviderLoadStatus({
     hasCachedProviders,
     fetchedAt: cachedProxyProviderMeta.value?.fetchedAt ?? 0,
@@ -133,13 +144,13 @@ export const hydrateProxiesFromCache = () => {
     providerCacheStatus ?? cachedProxyProviderMeta.value?.status ?? 'idle'
 
   if (lastProxyData) {
-    applyProxyData(lastProxyData, cachedProxyProviders.value)
+    applyProxyData(lastProxyData, cachedProviders)
     return
   }
 
   proxyMap.value = {}
   proxyGroupList.value = []
-  proxyProviederList.value = cachedProxyProviders.value
+  proxyProviederList.value = cachedProviders
 }
 
 /**

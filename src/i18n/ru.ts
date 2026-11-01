@@ -135,6 +135,8 @@ const ru: LANG_MESSAGE = {
   providerStatusError: 'Ошибка загрузки провайдеров',
   providerLoadTimeoutTip: 'Запрос провайдеров прокси превысил время ожидания. Данные из кэша сохранены.',
   providerLoadErrorTip: 'Не удалось загрузить провайдеров прокси. Данные из кэша сохранены.',
+  ruleShortcut: 'Цепочка правил',
+  goToRules: 'Перейти к правилам',
   dashboardUpgradeBlocked:
     'Обновление панели отключено: адрес загрузки UI в бэкенде не указывает на ZIP-релиз NebulaDash. Требуется:',
   reloadConfigs: 'Перезагрузить конфигурации',

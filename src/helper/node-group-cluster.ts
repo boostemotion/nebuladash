@@ -234,6 +234,10 @@ export const sortNodeGroupsByVariantCluster = ({
   })
 }
 
+/** 单个代理组是否是“策略组”（按类型判定，供卡片级 UI 使用）。 */
+export const isProxyStrategyGroup = (type: string | undefined) =>
+  Boolean(type && STRATEGY_PROXY_TYPES.has(type.toLowerCase()))
+
 /**
  * 把代理组拆成“策略组”和“节点组”。
  *

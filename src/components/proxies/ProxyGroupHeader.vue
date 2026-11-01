@@ -12,6 +12,15 @@
     >
       {{ proxyGroup.type }} · {{ proxiesCount }}
     </span>
+    <!-- NebulaDash: 规则直通——展开完整链路（含最终代理商）并提供跳转规则 -->
+    <button
+      v-if="isStrategyGroup"
+      class="btn btn-xs btn-ghost shrink-0"
+      data-proxy-rule-shortcut
+      @click.stop="openChain"
+    >
+      {{ $t('ruleShortcut') }}
+    </button>
     <ProxyGroupFilter :group-name="name" />
     <VisibilityToggle
       v-if="manageHiddenGroup"
@@ -47,9 +56,15 @@ import { checkTruncation } from '@/helper/tooltip'
 import { useTooltip } from '@/composables/use-tooltip'
 import { prettyBytesHelper } from '@/helper/utils'
 import { proxyMap } from '@/assembly/proxies'
-import { manageHiddenGroup, proxyGroupIconMargin, proxyGroupIconSize } from '@/store/settings'
+import {
+  manageHiddenGroup,
+  proxyGroupIconMargin,
+  proxyGroupIconSize,
+} from '@/store/settings'
+import { openProxyGroupChain } from '@/helper/proxy-group-chain'
 import { twMerge } from 'tailwind-merge'
 import { computed } from 'vue'
+import { isProxyStrategyGroup } from '@/helper/node-group-cluster'
 import { useI18n } from 'vue-i18n'
 import VisibilityToggle from '../common/VisibilityToggle.vue'
 import LatencyTag from './LatencyTag.vue'
@@ -70,6 +85,10 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { getShortcutKey } = useKeyboardShortcuts()
 const { showTip } = useTooltip()
+
+/** NebulaDash: 只有策略组卡片才提供“规则直通”。 */
+const isStrategyGroup = computed(() => isProxyStrategyGroup(proxyMap.value[props.name]?.type))
+const openChain = () => openProxyGroupChain(props.name)
 const proxyGroup = computed(() => proxyMap.value[props.name])
 
 const downloadTotal = computed(() => getDownloadSpeedByProxyGroup(props.name))

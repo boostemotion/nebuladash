@@ -85,6 +85,24 @@ export const shouldNotifyProviderFailure = ({
   return lastNotifiedAt <= 0 || now - lastNotifiedAt >= dedupeMs
 }
 
+/**
+ * 校验读回来的代理缓存形状。
+ *
+ * 旧版本曾因序列化器推断失败把缓存写成 `"[object Object]"`，这里显式拒绝非对象数据，
+ * 避免把字符串当成缓存直接渲染（会抛 `Cannot read properties of undefined`）。
+ */
+export const isValidProxyDataCache = (
+  value: unknown,
+): value is { proxies: Record<string, unknown> } => {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const proxies = (value as { proxies?: unknown }).proxies
+
+  return typeof proxies === 'object' && proxies !== null
+}
+
 /** Provider 缓存新鲜期：30 分钟内视为“缓存数据”，超过视为“旧缓存”。 */
 export const PROVIDER_CACHE_FRESH_DURATION = 30 * 60 * 1000
 

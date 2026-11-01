@@ -1,5 +1,9 @@
 <template>
-  <div class="flex flex-1 items-center gap-1 truncate">
+  <!-- NebulaDash: data-proxy-group-now 供回归脚本定位“当前节点”入口 -->
+  <div
+    class="flex flex-1 items-center gap-1 truncate"
+    data-proxy-group-now
+  >
     <template v-if="proxyGroup.now">
       <Component
         class="text-base-content/40 h-3.5 w-3.5 shrink-0 outline-none"

@@ -6,6 +6,7 @@ import {
   getProviderFailureStatus,
   getProxyCacheKey,
   getProxyCacheKeysForBackend,
+  isValidProxyDataCache,
   shouldNotifyProviderFailure,
   type ProxyCacheKind,
 } from './proxy-cache.ts'
@@ -134,4 +135,14 @@ test('allows provider failure notifications after the dedupe window', () => {
     }),
     true,
   )
+})
+
+test('rejects malformed cached proxy payloads', () => {
+  assert.equal(isValidProxyDataCache(null), false)
+  assert.equal(isValidProxyDataCache(undefined), false)
+  assert.equal(isValidProxyDataCache('[object Object]'), false)
+  assert.equal(isValidProxyDataCache({}), false)
+  assert.equal(isValidProxyDataCache({ proxies: null }), false)
+  assert.equal(isValidProxyDataCache({ proxies: [] }), true)
+  assert.equal(isValidProxyDataCache({ proxies: { GLOBAL: {} } }), true)
 })

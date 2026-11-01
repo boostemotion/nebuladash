@@ -1,4 +1,5 @@
 import { can } from '@/assembly/backend'
+import { StorageSerializers } from '@vueuse/core'
 import { useStorage } from '@/composables/use-storage'
 import { NOT_CONNECTED, PROXY_TYPE, TEST_URL } from '@/constant'
 import { getProxyCacheKey, type ProviderCacheMeta, type ProviderLoadStatus } from '@/helper/proxy-cache'
@@ -24,17 +25,30 @@ export const proxyProviederList = ref<ProxyProvider[]>([])
 export const proxyProviderLoadStatus = ref<ProviderLoadStatus>('idle')
 export const hasLoadedProxyProviders = ref(false)
 
+/*
+ * NebulaDash: 显式指定序列化器。
+ *
+ * vueuse 会根据默认值推断序列化器，默认值为 `null` 时无法推断，会退化成 String(),
+ * 结果把代理缓存写成 `"[object Object]"`，再读回来就成了字符串。
+ * 这三项必须显式使用 object 序列化器。
+ */
 export const cachedProxyData = useStorage<{ proxies: Record<string, Proxy> } | null>(
   () => getProxyCacheKey('data', activeUuid.value),
   null,
+  localStorage,
+  { serializer: StorageSerializers.object },
 )
 export const cachedProxyProviders = useStorage<ProxyProvider[]>(
   () => getProxyCacheKey('providers', activeUuid.value),
   [],
+  localStorage,
+  { serializer: StorageSerializers.object },
 )
 export const cachedProxyProviderMeta = useStorage<ProviderCacheMeta | null>(
   () => getProxyCacheKey('provider-meta', activeUuid.value),
   null,
+  localStorage,
+  { serializer: StorageSerializers.object },
 )
 
 export const proxyProviderLastUpdatedAt = computed(

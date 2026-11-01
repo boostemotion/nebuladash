@@ -133,6 +133,8 @@ const en = {
   providerStatusError: 'Provider error',
   providerLoadTimeoutTip: 'Proxy provider request timed out. Cached data is kept.',
   providerLoadErrorTip: 'Failed to load proxy providers. Cached data is kept.',
+  ruleShortcut: 'Rule chain',
+  goToRules: 'Go to rules',
   dashboardUpgradeBlocked:
     'Dashboard upgrade is disabled because the backend UI download URL does not point to a NebulaDash release ZIP. Expected:',
   reloadConfigs: 'Reload configs',

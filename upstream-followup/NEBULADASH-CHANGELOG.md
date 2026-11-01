@@ -22,6 +22,66 @@
 
 ## 2026-06-29
 
+### feat(rules): 重基线第⑤组 — 规则直通、链路代理商尾标与跳转规则
+
+- 分支：`rebase/upstream-v3.30.0`
+- 类型：重基线重放（第⑤组 / 共 8 组）
+- 目的：在上游已有的链路弹窗（drill-in modal）基础上补 NebulaDash 的“规则直通”入口与
+  最终代理商尾标，而不是另做一套链路 UI。
+
+涉及文件：
+
+- `src/components/proxies/ProxyGroupHeader.vue`（新增“规则直通”按钮）
+- `src/components/proxies/ProxyGroupChainModal.vue`（代理商尾标 + 跳转规则）
+- `src/components/common/ProxyChainPath.vue`（`showProvider` 尾标）
+- `src/components/rules/RuleCard.vue`（规则卡片链路同样显示代理商尾标）
+- `src/components/proxies/ProxyGroupNow.vue`（`data-proxy-group-now` 测试锚点）
+- `src/helper/node-group-cluster.ts`（`isProxyStrategyGroup`）
+- `src/i18n/{en,zh,zh-tw,ru}.ts`（`ruleShortcut` / `goToRules`）
+
+行为变化：
+
+- 策略组卡片头部新增“规则直通”按钮，打开上游链路弹窗。
+- 弹窗链路末尾显示 `代理提供商: xxx`，取自节点自带的 `provider-name`；
+  Provider 未加载时该尾标自动缺省，**不会触发 Provider 请求**。
+- 弹窗内新增“跳转规则”：切到规则页并把当前组名作为筛选词，随后关闭弹窗。
+- 规则卡片链路同样显示代理商尾标。
+
+顺带修复（重要）：
+
+- **代理缓存序列化 bug**：`useStorage` 以 `null` 为默认值时 vueuse 推断不出序列化器，
+  会退化成 `String()`，把 `cache/proxy-data/<uuid>` 写成字面量 `"[object Object]"`；
+  再读回来是字符串，`applyProxyData` 里 `proxyData.proxies[GLOBAL]` 直接抛
+  `Cannot read properties of undefined (reading 'GLOBAL')`。
+  现已为 `cachedProxyData` / `cachedProxyProviders` / `cachedProxyProviderMeta` 显式指定
+  `StorageSerializers.object`，并新增 `isValidProxyDataCache()` 校验，
+  脏缓存会被丢弃而不是进入渲染。
+
+验证：
+
+- `pnpm test` → 61 项通过（新增 1 项缓存形状校验）
+- `pnpm type-check` → 通过
+- `pnpm lint` → No issues found
+- `pnpm build` → 通过
+- `pnpm test:nebula` → **18/18 通过**，新增覆盖：
+  - 策略组卡片可见“规则直通”按钮并能打开链路弹窗
+  - 弹窗链路末尾出现 `代理提供商: provider-2`
+  - 弹窗内存在“跳转规则”
+- `pnpm test:verify`（上游自带）→ 虚拟滚动 7 项仍全部通过
+
+后续注意：
+
+- 上游的链路弹窗内联展示下游代理组面板，已经覆盖了旧版“跨分段定位展开卡片”的需求，
+  因此不再实现“切分段 + 滚动定位”，避免与虚拟滚动重复造轮子。
+- 尾标数据来自 `provider-name`，上游已在 `applyProxyData` 打标（`||=`），无需本地映射表。
+- `ProxyGroupHeader` 的“规则直通”按钮只在 `isProxyStrategyGroup(type)` 时出现，
+  与三段视图的“策略组”判定保持同一套类型集合。
+- 若后续上游把 `useStorage` 的默认值推断改掉，仍需保留显式序列化器，别回退成 `null` 默认值。
+
+---
+
+## 2026-06-29
+
 ### feat(search): 重基线第④组 — 搜索规范化、域名变体、规则反向映射与链路感知
 
 - 分支：`rebase/upstream-v3.30.0`
