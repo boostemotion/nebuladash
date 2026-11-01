@@ -22,6 +22,59 @@
 
 ## 2026-06-29
 
+### feat(provider): 重基线第②组 — Provider 按需加载 / 独立超时 / 缓存降级 / 状态机
+
+- 分支：`rebase/upstream-v3.30.0`
+- 提交：`e197910`
+- 类型：重基线重放（第②组 / 共 8 组）
+- 目的：恢复 NebulaDash 的核心差异化能力。上游 v3.30.0 仍然在 `driver/clash.ts` 里用
+  `Promise.all([fetchProxiesAPI(), fetchProxyProviderAPI()])` 同时请求，且
+  `fetchProxyProviderAPI` 没有超时，OpenClash 多 Provider 场景下会拖死整个代理页。
+
+涉及文件：
+
+- `src/api/clash.ts`、`src/assembly/driver/{types,clash}.ts`
+- `src/assembly/proxies/{state,actions}.ts`、`src/assembly/session.ts`
+- `src/components/controls/ProxiesCtrl.tsx`、`src/store/setup.ts`
+- `src/i18n/{en,zh,zh-tw,ru}.ts`
+- 新增 `src/helper/proxy-cache.ts` + `src/helper/proxy-cache.spec.ts`
+
+行为变化：
+
+- `/providers/proxies` 使用独立的 15s 超时。
+- `ProxiesDriver.fetch(options?)` 默认只请求 `/proxies`；新增可选 `fetchProviders()`。
+  dae 驱动不实现 `fetchProviders`，走 `fetch({ includeProviders: true })` 兜底。
+- 新增 `hydrateProxiesFromCache()`：切换后端时先用该后端 UUID 的缓存起屏，不发请求。
+- 新增 `resetProxyState()`：切换后端时重置内存状态（不动缓存）。
+- 新增 `fetchProxyProviders(force?)`：并发去重、代际校验、Force 刷新、失败降级、60s 通知去重。
+- 状态机：`idle / loading / fresh / cached / stale / timeout / error`，30 分钟内为 `cached`，
+  超过为 `stale`。
+- 代理页切到“代理商”标签才触发 Provider 请求；新增状态徽标（含耗时与最近更新时间）。
+- 分段控件不再因 Provider 数量为 0 而隐藏（改为 `can('proxyProviderUpdate')` 兜底），
+  避免懒加载导致用户进不了“代理商”标签。
+- 开启“按提供商分组”时会自动补拉 Provider（该分组依赖节点上的 `provider-name`）。
+- 删除后端时清理该后端的 `cache/proxy-data|proxy-providers|proxy-provider-meta`。
+
+验证：
+
+- `pnpm test` → 31 项通过（新增 12 项 proxy-cache 用例）
+- `pnpm type-check` → 通过
+- `pnpm lint` → No issues found
+- `pnpm build` → 通过，入口 chunk 88.47 kB
+
+后续注意：
+
+- 上游 `applyProxyData` 会用 `proxy['provider-name'] ||= provider.name` 给节点打标，
+  NebulaDash 不再需要自己的 `proxyNodeProviderMap`，规则直通尾标直接读该字段。
+- `fetchProxies()` 现在只保证 `/proxies`，任何依赖 Provider 列表的 UI（代理商标签、
+  按 Provider 分组）都必须显式调用 `fetchProxyProviders()`。
+- `hydrateProxiesFromCache()` 在 `assembly/session.ts` 的后端切换入口调用，顺序必须是
+  `resetProxyState()` → `hydrateProxiesFromCache()` → 网络刷新。
+
+---
+
+## 2026-06-29
+
 ### feat(infra): 重基线第①组 — 品牌、版本治理、构建拆包、路由懒加载
 
 - 分支：`rebase/upstream-v3.30.0`（基线 `v3.30.0` @ `bf4f00b`）
