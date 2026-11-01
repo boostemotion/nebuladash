@@ -58,7 +58,7 @@ import { loadConfigs } from '@/assembly/config'
 import { notifyActionPending, showNotification } from '@/helper/notification'
 import { notifyRequestError } from '@/helper/request-error'
 import { fetchConfigs } from '@/assembly/config'
-import { fetchProxies } from '@/assembly/proxies'
+import { fetchProxies, invalidateProxyProviders } from '@/assembly/proxies'
 import { fetchRules } from '@/assembly/rules'
 import { onMounted, ref } from 'vue'
 import DialogWrapper from '../../common/DialogWrapper.vue'
@@ -76,6 +76,9 @@ const forceUpdate = ref(false)
 const isUpdating = ref(false)
 
 const reloadAll = () => {
+  // NebulaDash: 重载配置 / 重启内核后 Provider 列表本身可能变化，
+  // 必须让“已加载”标记失效，否则代理商标签会一直显示旧列表。
+  invalidateProxyProviders()
   fetchConfigs()
   fetchRules()
   fetchProxies()

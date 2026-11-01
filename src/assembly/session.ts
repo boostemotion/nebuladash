@@ -7,7 +7,12 @@ import { fetchDaeRuntime } from './dae'
 import { driver } from './driver'
 import { initLogs, stopLogs } from './logs'
 import { initSatistic, stopSatistic } from './overview'
-import { fetchProxies, hydrateProxiesFromCache, resetProxyState } from './proxies'
+import {
+  fetchProxies,
+  hydrateProxiesFromCache,
+  invalidateProxyProviders,
+  resetProxyState,
+} from './proxies'
 import { fetchRules } from './rules'
 import { probeActiveBackend } from './version'
 
@@ -19,6 +24,8 @@ let refreshTimer: ReturnType<typeof setTimeout> | undefined
 const scheduleRefresh = () => {
   clearTimeout(refreshTimer)
   refreshTimer = setTimeout(() => {
+    // 代际变化通常意味着配置重载：Provider 列表可能变了，先让标记失效。
+    invalidateProxyProviders()
     fetchProxies().catch(() => {})
     fetchRules().catch(() => {})
     fetchConfigs().catch(() => {})

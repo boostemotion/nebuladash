@@ -22,6 +22,61 @@
 
 ## 2026-11-01
 
+### fix(provider): 同类“数据源未刷新”问题全面排查
+
+- 提交：本提交
+- 类型：代码审查 / 同类缺陷修复
+- 背景：Provider 更新按钮失效暴露的是同一类问题——把 `fetchProxies()` 的语义从
+  「同时拉 `/proxies` + `/providers/proxies`」改成「只拉 `/proxies`」后，
+  所有依赖旧副作用的调用点都静默失效。
+
+审查结论（按调用点逐个核对）：
+
+| 位置                                    | 原行为                     | 问题                                                                    | 处理                                |
+| --------------------------------------- | -------------------------- | ----------------------------------------------------------------------- | ----------------------------------- |
+| `latency.ts` 单节点测速                 | 测完 `fetchProxies()`      | Provider 节点的延迟存在 Provider 数据里，界面不更新                     | 加 `scheduleProxyProvidersResync()` |
+| `latency.ts` 批量测速                   | 同上                       | 同上                                                                    | 同上（去抖，避免每个节点各拉一次）  |
+| `latency.ts` 组测速                     | 同上                       | 同上                                                                    | 同上                                |
+| `helper/backend-actions.ts` `reloadAll` | 只刷 `/proxies`            | 重载配置 / 重启内核后 Provider 列表可能变化，代理商标签会一直显示旧列表 | 先 `invalidateProxyProviders()`     |
+| `UpdateConfigModal.vue` `reloadAll`     | 同上                       | 同上                                                                    | 同上                                |
+| `UpgradeCoreModal.vue` `reloadAll`      | 同上                       | 同上                                                                    | 同上                                |
+| `assembly/session.ts` 代际变化刷新      | 只刷 `/proxies`            | 配置重载后 Provider 列表过期                                            | `invalidateProxyProviders()`        |
+| `handlerProxySelect`                    | select 后 `fetchProxies()` | 只改 `now`，不涉及 Provider 数据                                        | 无需处理                            |
+| `ProxiesPage` / `HomePage` 挂载刷新     | `fetchProxies()`           | 切到代理商标签会自行按需拉取                                            | 无需处理                            |
+| `dae.ts`                                | `fetchProxies()`           | dae 驱动的 `fetch()` 本身返回 providers，已在 actions 内合并            | 无需处理                            |
+
+新增能力：
+
+- `invalidateProxyProviders()`：只让“已加载”标记失效，保留缓存用于展示，
+  下次进入代理商标签强制重拉。
+- `scheduleProxyProvidersResync(delayMs = 800)`：合并式强制重拉，
+  避免批量测速时对每个节点各触发一次全量请求。
+- `ProxyProvider.vue` 健康检查按钮加 `disabled` 与 `data-provider-healthcheck` 锚点。
+
+验证：
+
+- `pnpm test` → 73 项通过
+- `pnpm type-check` / `pnpm lint` / `pnpm build` → 通过
+- `pnpm test:nebula` → **29/29 通过**，新增两项：
+  - Provider 卡片上存在健康检查按钮
+  - 健康检查后会重新拉取 `/providers/proxies`（请求数 3 → 4）
+- `pnpm test:verify` → 14/14 通过
+
+后续注意：
+
+- 判定规则：任何**会改变 Provider 数据**的操作（更新订阅、健康检查、批量测速、
+  配置重载、内核重启、代际变化）之后，都要么调用组合动作，要么显式
+  `invalidateProxyProviders()` / `scheduleProxyProvidersResync()`；
+  只调 `fetchProxies()` 是不够的。
+- `scheduleProxyProvidersResync` 仅在 Provider 数据已加载时生效，
+  未加载不会因为测速而偷偷发起 Provider 请求。
+- 新增类似按钮时，请同时补 `data-provider-*` 锚点与 `test:nebula` 断言，
+  否则这类“请求成功但界面不变”的缺陷无法被自动化发现。
+
+---
+
+## 2026-11-01
+
 ### fix(provider): 单个 Provider 更新按钮点了没反应
 
 - 提交：本提交

@@ -7,7 +7,7 @@ import { notifyRequestError } from '@/helper/request-error'
 import { i18n } from '@/i18n'
 import { independentLatencyTest, IPv6test, speedtestMode, speedtestTimeout } from '@/store/settings'
 import pLimit from 'p-limit'
-import { fetchProxies } from './actions'
+import { fetchProxies, scheduleProxyProvidersResync } from './actions'
 import {
   getHistoryByName,
   getLatencyByName,
@@ -72,6 +72,8 @@ export const proxyLatencyTest = async (
     })
   } finally {
     await fetchProxies()
+    // Provider 节点的延迟写在 Provider 数据里，只刷 /proxies 界面不会变。
+    scheduleProxyProvidersResync()
   }
 }
 
@@ -130,6 +132,7 @@ const testLatencyOneByOneWithTip = async (
   )
 
   await fetchProxies().catch(() => {})
+  scheduleProxyProvidersResync()
 
   showNotification({
     content: 'testFinishedResultTip',
@@ -193,6 +196,7 @@ export const proxyGroupLatencyTest = async (proxyGroupName: string) => {
     return
   } finally {
     await fetchProxies()
+    scheduleProxyProvidersResync()
   }
 
   const total = all.length

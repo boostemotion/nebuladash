@@ -13,7 +13,9 @@
         <div class="flex items-center gap-1.5">
           <button
             v-if="can('proxyProviderHealthCheck')"
+            data-provider-healthcheck
             class="btn btn-circle btn-ghost btn-sm z-30"
+            :disabled="isHealthChecking"
             @click.stop="healthCheckClickHandler"
           >
             <span

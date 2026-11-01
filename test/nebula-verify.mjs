@@ -230,6 +230,35 @@ try {
   )
   check('更新按钮会停止转圈', updateStillSpinning === false)
 
+  section('单个 Provider 健康检查按钮')
+  const beforeHealthCheck = (
+    await page.evaluateJson(`JSON.stringify(window.__nebulaProviderRequests ?? [])`)
+  ).length
+
+  const clickedHealthCheck = await page.evaluate(`
+    (() => {
+      const button = document.querySelector('[data-provider-healthcheck]')
+      if (!button) return false
+      button.click()
+      return true
+    })()
+  `)
+  check('Provider 卡片上存在健康检查按钮', clickedHealthCheck === true)
+
+  const healthRefreshed = await waitFor(
+    async () =>
+      (await page.evaluateJson(`JSON.stringify(window.__nebulaProviderRequests ?? [])`)).length >
+      beforeHealthCheck,
+    { timeout: 15000, interval: 200 },
+  )
+  check(
+    '健康检查后会重新拉取 Provider 数据（延迟才会刷新）',
+    healthRefreshed !== null,
+    `请求数 ${beforeHealthCheck} → ${
+      (await page.evaluateJson(`JSON.stringify(window.__nebulaProviderRequests ?? [])`)).length
+    }`,
+  )
+
   section('搜索：域名 -> 规则 -> 代理组反向映射')
   await page.evaluate(`
     (() => {

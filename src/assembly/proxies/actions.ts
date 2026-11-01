@@ -355,6 +355,38 @@ export const updateProxyProvider = (name: string) => driver().proxies.updateProv
 
 export const proxyProviderHealthCheck = (name: string) => driver().proxies.healthCheckProvider(name)
 
+let providerResyncTimer: ReturnType<typeof setTimeout> | undefined
+
+/**
+ * 让“已加载”标记失效，但不丢缓存数据。
+ *
+ * 用于“后端配置被重载 / 内核重启 / 代际变化”这类场景：Provider 列表本身可能变了，
+ * 下次进入代理商标签必须重新拉取，否则会一直显示旧列表。
+ */
+export const invalidateProxyProviders = () => {
+  hasLoadedProxyProviders.value = false
+
+  if (proxyProviderLoadStatus.value === 'fresh') {
+    proxyProviderLoadStatus.value = 'cached'
+  }
+}
+
+/**
+ * 合并式重拉 Provider 数据（默认 800ms 内只拉一次）。
+ *
+ * 批量测速会对每个节点各触发一次刷新，逐次全量重拉会打爆后端，
+ * 因此统一走这里做去抖。
+ */
+export const scheduleProxyProvidersResync = (delayMs = 800) => {
+  if (!hasLoadedProxyProviders.value) return
+
+  clearTimeout(providerResyncTimer)
+  providerResyncTimer = setTimeout(() => {
+    providerResyncTimer = undefined
+    void fetchProxyProviders(true).catch(() => {})
+  }, delayMs)
+}
+
 /** 更新单个 Provider 的订阅，然后同步代理与 Provider 数据。 */
 export const refreshProxyProvider = async (name: string) => {
   await updateProxyProvider(name)

@@ -6,7 +6,12 @@ import {
   reloadConfigs,
   updateGeoData,
 } from '@/assembly/config'
-import { fetchProxies, flushSmartGroupWeights, hasSmartGroup } from '@/assembly/proxies'
+import {
+  fetchProxies,
+  flushSmartGroupWeights,
+  hasSmartGroup,
+  invalidateProxyProviders,
+} from '@/assembly/proxies'
 import { fetchRules } from '@/assembly/rules'
 import { restartCore } from '@/assembly/version'
 import { BACKEND_ITEM_KEYS } from '@/config/settings-items'
@@ -43,6 +48,9 @@ export const showUpdateConfigModal = ref(false)
 export const showDaeConfigModal = ref(false)
 
 const reloadAll = () => {
+  // NebulaDash: 重载配置 / 重启内核后 Provider 列表本身可能变化，
+  // 必须让“已加载”标记失效，否则代理商标签会一直显示旧列表。
+  invalidateProxyProviders()
   fetchConfigs()
   fetchRules()
   fetchProxies()
