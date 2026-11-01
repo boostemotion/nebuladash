@@ -98,6 +98,34 @@ jobs:
           git push origin HEAD:main
           git push origin "${{ steps.bump.outputs.tag }}"
 
+      # 失败时把诊断信息推到 ci-diagnostics 分支，便于无 UI 权限时排查。
+      - name: Collect failure diagnostics
+        if: failure()
+        continue-on-error: true
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: |
+          mkdir -p .ci
+          {
+            echo "== chrome =="
+            "$CHROME_BIN" --version 2>&1 || echo 'chrome not found'
+            echo "== node/pnpm =="
+            node --version
+            pnpm --version
+            echo "== build =="
+            pnpm build 2>&1 | tail -30 || true
+            echo "== test:nebula =="
+            pnpm test:nebula 2>&1 | tail -120 || true
+            echo "== test:verify =="
+            pnpm test:verify 2>&1 | tail -120 || true
+          } > .ci/last-failure.txt 2>&1
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout -B ci-diagnostics
+          git add -f .ci/last-failure.txt
+          git commit -m "ci: failure diagnostics for ${{ github.sha }}" || true
+          git push -f origin ci-diagnostics || true
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
