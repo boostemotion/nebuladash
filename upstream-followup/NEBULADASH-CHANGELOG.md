@@ -22,6 +22,48 @@
 
 ## 2026-06-29
 
+### feat(infra): 重基线第①组 — 品牌、版本治理、构建拆包、路由懒加载
+
+- 分支：`rebase/upstream-v3.30.0`（基线 `v3.30.0` @ `bf4f00b`）
+- 提交：`06e7544`
+- 类型：重基线重放（第①组 / 共 8 组）
+- 目的：在官方 v3.30.0 基线上恢复 NebulaDash 身份与发布治理，同时修复上游的包体回退。
+
+涉及文件：
+
+- `package.json`、`index.html`、`vite.config.ts`、`tsconfig.app.json`
+- `src/router/index.ts`、`src/assembly/version.ts`
+- `src/components/settings/general/{GeneralSettings,ZashboardSettings}.vue`
+- `src/i18n/{en,zh,zh-tw,ru}.ts`、`src/types/index.d.ts`
+- 新增 `src/helper/{release-version,release-preflight,ui-update-source}.ts` 及对应 `.spec.ts`、`tools/release-preflight.ts`
+
+行为变化：
+
+- 包名 `nebuladash`，版本 `3.30.0-nebula.1`；新增 `pnpm test` 与 `pnpm release:check`。
+- PWA manifest / 页面标题 / 路由标题回落统一为 NebulaDash。
+- 路由页面全部动态导入；`manualChunks` 拆分 three / echarts / zrender / table / drag / icons / vue-vendor / vendor。
+- 面板更新检查改为 `boostemotion/nebuladash` Release + 语义化版本比较（不再用“tag 不相等”判断）。
+- 后端 `external-ui-download-url` 不指向 NebulaDash Release ZIP 时，设置页隐藏“更新面板”和“自动更新面板”，并显示要求地址。
+- `checkUIUpdate` 在更新源不可信时不会触发自动更新。
+
+验证：
+
+- `pnpm test` → 19 项通过
+- `pnpm type-check` → 通过
+- `pnpm lint` → 通过
+- `pnpm build` → 通过；入口 chunk 从 **2167.82 kB 降到 88.44 kB**，`three`(886 kB)/`echarts`(551 kB) 成为独立懒加载 chunk
+
+后续注意：
+
+- `zashboardVersion` 已重命名为 `dashboardVersion`，同步上游时注意该标识。
+- `tsconfig.app.json` 必须继续排除 `src/**/*.spec.ts`，否则 `node:test` 类型会进入应用编译。
+- 上游仍保留 `src/components/settings/general/ZashboardSettings.vue` 这个文件名，仅改内容，未改名以减少后续 merge 冲突。
+- 组件内仍用 `$t('dashboardSettings')` 等上游 key，未做全量品牌化文案替换。
+
+---
+
+## 2026-06-29
+
 ### docs: 上游审计完成，确认以 v3.30.0 为重建基线
 
 - 提交：当前工作区未提交（`main` @ `2901f60c`）
