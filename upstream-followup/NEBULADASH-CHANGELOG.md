@@ -22,6 +22,49 @@
 
 ## 2026-11-01
 
+### docs: 记录 v3.30.0-nebula.2 路由器端到端验证
+
+- 提交：本提交
+- 类型：实测确认 / 文档回写
+- 目的：记录从 GitHub Release 到路由器 A/B 分区的完整升级链路已在真实设备跑通，
+  便于后续排查回归时对照。
+
+实测环境：
+
+- 设备：ImmortalWrt-798x-24.10（aarch64），OpenClash
+- 面板入口：`http://192.168.6.1/nebuladash/`（uhttpd，非 9090）
+- 更新器：`/usr/share/nebuladash-updater/updater.sh`，CGI `/cgi-bin/nebuladash-updater`
+
+链路验证结果：
+
+1. `v3.30.0-nebula.1` 首次更新成功（当时下载走旧脚本，需手改 `--http1.1` 才通）。
+2. 重装 `router-updater.zip`（取自 `v3.30.0-nebula.2`）→ `install.sh` 保留 `config`
+   （token 不变），`updater.sh` 已含 `curl -L --http1.1 --fail`。
+3. `updater.sh update` → `{"ok":true,"status":"ok","active":"b"}`。
+4. 分区校验：`readlink /www/nebuladash` → `/www/nebuladash-b`；
+   `grep -rho '3\.30\.0-nebula\.[0-9]*' /www/nebuladash-b/assets/*.js` → `3.30.0-nebula.2`。
+5. 面板设置页显示 `NebulaDash 3.30.0-nebula.2`；三段标签（策略组 / 节点组 / 代理商）正常。
+6. 设置页「检查更新器」通过。
+
+已知环境差异：
+
+- 该路由器上 `wget` 可直接下载成功，`curl` 默认 HTTP/2 会在
+  `release-assets.githubusercontent.com` 握手失败（`curl: (35)`）。
+  更新器统一走 curl + `--http1.1`。
+- GitHub REST API 在本机与路由器网络下都会返回 403（速率限制），
+  发布确认改用 `releases/latest` 跳转与 `releases/download/<tag>/<asset>` 直链。
+
+后续注意：
+
+- 面板内“更新 NebulaDash”只更新静态资源，不更新更新器脚本；脚本升级需重跑 `install.sh`。
+- 尚未执行 `router-updater/smoke-test.sh`（需要 `zip` + POSIX 环境），
+  后续改更新器核心逻辑时补跑。
+- 15 秒 Provider 超时阈值仍待按真实 `/providers/proxies` 耗时观察后调整。
+
+---
+
+## 2026-11-01
+
 ### release: v3.30.0-nebula.2
 
 - 提交：本提交 + tag `v3.30.0-nebula.2`
