@@ -69,12 +69,18 @@ const REQUEST_LOG = `
   })()
 `
 
+/**
+ * 往搜索框里输入。
+ * 优先用稳定锚点 `[data-proxy-search] input`，避免依赖会随界面语言变化的 placeholder。
+ */
 const typeIntoSearch = async (page, placeholderPattern, text) => {
   return await page.evaluate(`
     (() => {
-      const input = Array.from(document.querySelectorAll('input[type="text"]')).find((el) =>
-        ${placeholderPattern}.test(el.placeholder || ''),
-      )
+      const input =
+        document.querySelector('[data-proxy-search] input') ||
+        Array.from(document.querySelectorAll('input[type="text"]')).find((el) =>
+          ${placeholderPattern}.test(el.placeholder || ''),
+        )
       if (!input) return false
       input.focus()
       const setter = Object.getOwnPropertyDescriptor(

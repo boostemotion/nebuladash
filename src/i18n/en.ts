@@ -126,6 +126,7 @@ const en = {
   noExpire: 'No expiry',
   updated: 'Updated',
   upgradeDashboard: 'Upgrade dashboard',
+  providerRequestTimeout: 'Provider request timeout (s)',
   providerStatusCached: 'Cached',
   providerStatusStale: 'Old cache',
   providerStatusFresh: 'Fresh',

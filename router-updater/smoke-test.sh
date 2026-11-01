@@ -1,6 +1,22 @@
 #!/bin/sh
 set -eu
 
+# 依赖检查：缺 zip / unzip 时给出明确提示，而不是让脚本半路失败。
+missing=""
+for tool in zip unzip; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    missing="$missing $tool"
+  fi
+done
+
+if [ -n "$missing" ]; then
+  echo "SKIP: router-updater smoke test needs:$missing" >&2
+  echo "      OpenWrt:  opkg update && opkg install zip unzip" >&2
+  echo "      Debian:   apt-get install -y zip unzip" >&2
+  echo "      Windows:  用 WSL,或装完 zip/unzip 后重跑" >&2
+  exit 0
+fi
+
 ROOT="$(mktemp -d)"
 trap 'rm -rf "$ROOT"' EXIT
 

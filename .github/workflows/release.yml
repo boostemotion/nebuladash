@@ -55,29 +55,16 @@ jobs:
           pnpm test
           pnpm type-check
 
-      - name: Build release archives
-        shell: bash
+      - name: Verify proxy page behaviour (headless Chrome)
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
         run: |
-          zip -qr "router-updater.zip" router-updater
+          pnpm build
+          pnpm test:nebula
+          pnpm test:verify
 
-          build_archive() {
-            local command="$1"
-            local archive="$2"
-            rm -rf dist
-            pnpm run "${command}"
-            (
-              cd dist
-              zip -qr "../${archive}" .
-            )
-          }
-
-          build_archive build dist.zip
-          build_archive build:no-fonts dist-no-fonts.zip
-          build_archive build:cdn-fonts dist-cdn-fonts.zip
-          build_archive build:firasans-only dist-firasans-only.zip
-          build_archive build:misans-only dist-misans-only.zip
-          build_archive build:pingfang-only dist-pingfang-only.zip
-          build_archive build:sarasa-only dist-sarasa-only.zip
+      - name: Build release archives
+        run: sh tools/build-archives.sh
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2

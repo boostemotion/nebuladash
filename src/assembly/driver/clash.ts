@@ -38,6 +38,7 @@ import {
   upgradeUIAPI,
 } from '@/api/clash'
 import { proxyMap } from '@/assembly/proxies/state'
+import { providerRequestTimeoutSeconds } from '@/store/settings'
 import { PROXY_TYPE } from '@/constant'
 import type { ClashConnectionRawMessage, Connection, Log, ProxyProvider } from '@/types'
 import { head } from 'lodash'
@@ -184,7 +185,7 @@ export const clashDriver: Driver = {
       if (options?.includeProviders) {
         const [proxyRes, providerRes] = await Promise.all([
           fetchProxiesAPI(),
-          fetchProxyProviderAPI(),
+          fetchProxyProviderAPI(Math.max(1, providerRequestTimeoutSeconds.value) * 1000),
         ])
 
         return {
@@ -198,7 +199,9 @@ export const clashDriver: Driver = {
       return { proxies: proxyRes.data.proxies, providers: [] }
     },
     fetchProviders: async () => {
-      const providerRes = await fetchProxyProviderAPI()
+      const providerRes = await fetchProxyProviderAPI(
+        Math.max(1, providerRequestTimeoutSeconds.value) * 1000,
+      )
 
       return filterProxyProviders(providerRes.data.providers)
     },

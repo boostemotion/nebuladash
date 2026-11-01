@@ -32,6 +32,7 @@ import {
   manageHiddenGroup,
   minProxyCardWidth,
   nodeClusterVariants,
+  providerRequestTimeoutSeconds,
   proxyCardSize,
   proxySortType,
   twoColumnProxyGroup,
@@ -330,7 +331,10 @@ export default defineComponent({
         ? `${t('searchProxyNode')} | Regex`
         : `${t('searchProxyGroup')} | Regex`
       const searchInput = (
-        <div class={['relative w-32 flex-1', isLargeCtrlsBar.value && 'max-w-80']}>
+        <div
+          class={['relative w-32 flex-1', isLargeCtrlsBar.value && 'max-w-80']}
+          data-proxy-search
+        >
           <button
             class="btn btn-circle btn-ghost btn-xs absolute top-1/2 left-1 z-20 h-6 min-h-6 w-6 -translate-y-1/2 p-0"
             title={
@@ -444,6 +448,16 @@ export default defineComponent({
                       {t('reset')}
                     </button>
                   </div>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-item-label">{t('providerRequestTimeout')}</div>
+                  <input
+                    class="input input-sm w-20"
+                    type="number"
+                    min={1}
+                    step={1}
+                    v-model={providerRequestTimeoutSeconds.value}
+                  />
                 </div>
                 <div class="setting-item col-span-full">
                   <div class="setting-item-label">{t('nodeClusterVariants')}</div>

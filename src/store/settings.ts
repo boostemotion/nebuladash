@@ -323,6 +323,15 @@ export const twoColumnProxyGroup = useStorage('config/two-columns', true)
  * 每项是正则片段，用于识别节点组名尾部的“模式”后缀（例如 手动 / 自动 / 故转）。
  * 列表顺序同时决定簇内排序优先级。
  */
+/**
+ * NebulaDash: `/providers/proxies` 的独立超时（秒）。
+ * OpenClash 多 Provider 下该接口可能十几秒才返回，默认 15s；网络更慢时可调高。
+ */
+export const providerRequestTimeoutSeconds = useStorage(
+  'config/provider-request-timeout-seconds',
+  15,
+)
+
 export const nodeClusterVariants = useStorage<string[]>('config/node-cluster-variants', [
   '故转|故障转移|fallback',
   '手动|manual',

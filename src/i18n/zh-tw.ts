@@ -127,6 +127,7 @@ const zhTW: LANG_MESSAGE = {
   noExpire: '不限時',
   updated: '更新於',
   upgradeDashboard: '升級面板',
+  providerRequestTimeout: '代理提供商請求逾時（秒）',
   providerStatusCached: '快取資料',
   providerStatusStale: '舊快取',
   providerStatusFresh: '剛更新',

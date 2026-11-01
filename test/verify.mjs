@@ -26,6 +26,13 @@ const { values } = parseArgs({
   },
 })
 
+// 搜索框定位：优先稳定锚点，placeholder 只作兜底（会随界面语言变化）。
+const SEARCH_INPUT_EXPR = `(
+  document.querySelector('[data-proxy-search] input') ||
+  document.querySelector('input[placeholder*="earch"]') ||
+  document.querySelector('input[placeholder*="搜索"]')
+)`
+
 const groups = Number(values.groups)
 const results = []
 
@@ -162,7 +169,8 @@ try {
   await page.scrollTo(0)
   await sleep(500)
   await page.evaluate(`(() => {
-    const input = document.querySelector('input[placeholder*="earch"]')
+    const input = ${SEARCH_INPUT_EXPR}
+    if (!input) throw new Error('search input not found')
     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
     setter.call(input, 'Group-01')
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -180,7 +188,8 @@ try {
   )
 
   await page.evaluate(`(() => {
-    const input = document.querySelector('input[placeholder*="earch"]')
+    const input = ${SEARCH_INPUT_EXPR}
+    if (!input) throw new Error('search input not found')
     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
     setter.call(input, '')
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -329,7 +338,7 @@ try {
       return originalScrollTo.apply(this, args)
     }
 
-    const input = document.querySelector('input[placeholder*="earch"]')
+    const input = ${SEARCH_INPUT_EXPR}
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set
     setter.call(input, '${SELECTOR_GROUP}')
     input.dispatchEvent(new Event('input', { bubbles: true }))

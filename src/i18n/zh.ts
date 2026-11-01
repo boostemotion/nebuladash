@@ -127,6 +127,7 @@ const zh: LANG_MESSAGE = {
   noExpire: '不限时',
   updated: '更新于',
   upgradeDashboard: '升级面板',
+  providerRequestTimeout: '代理提供商请求超时（秒）',
   providerStatusCached: '缓存数据',
   providerStatusStale: '旧缓存',
   providerStatusFresh: '刚更新',

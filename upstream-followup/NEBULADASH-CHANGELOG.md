@@ -22,6 +22,56 @@
 
 ## 2026-11-01
 
+### fix: 收尾修复五个遗留槽点
+
+- 提交：本提交
+- 类型：槽点修复 / CI 补强
+
+修复列表：
+
+1. **Provider 超时从硬编码改为可配置**
+   新增设置项 `config/provider-request-timeout-seconds`（默认 15 秒），
+   在代理页设置对话框内以“代理提供商请求超时（秒）”暴露。
+   `fetchProxyProviderAPI(timeoutMs)` 接受参数，clash 驱动从设置读取。
+
+2. **`pnpm test:verify` 长期失败的 `Illegal invocation` 已修**
+   根因不是产品代码，而是测试脚本用 `input[placeholder*="earch"]` 定位搜索框：
+   中文环境下 placeholder 是“搜索代理组”，选择器返回 null。
+   现在产品侧加稳定锚点 `[data-proxy-search]`，脚本优先用它、placeholder 仅作兜底。
+   **结果：从“7 项后报错”变为 14/14 全过**（新增覆盖搜索、展开节点卡片、延迟刷新、自动滚动）。
+
+3. **CI 之前不跑浏览器回归**
+   两个发布工作流都新增 headless Chrome 步骤（`CHROME_BIN=/usr/bin/google-chrome`）：
+   先 `pnpm build`，再跑 `test:nebula` 与 `test:verify`。
+
+4. **两条发布链路的构建脚本重复且产物不一致**
+   抽出 `tools/build-archives.sh`，`release.yml` 与 `auto-release.yml` 共用；
+   并且 auto-release 从只构建 3 个变体改为全部 7 种字体变体，与手动 tag 路径一致。
+
+5. **`router-updater/smoke-test.sh` 在缺 `zip`/`unzip` 时半路失败**
+   改为启动前检查依赖，缺失时打印安装提示并 `exit 0`（SKIP），不再抛难懂的报错。
+
+验证：
+
+- `pnpm test` → 71 项通过
+- `pnpm type-check` / `pnpm lint` / `pnpm build` → 通过
+- `pnpm test:nebula` → 22/22 通过
+- `pnpm test:verify` → **14/14 通过**（此前永远在 8 项左右中断）
+- `sh router-updater/smoke-test.sh` → 本机缺 zip，输出 SKIP 提示并正常退出
+- `sh -n tools/build-archives.sh` → 语法通过
+- `pnpm release:check` → 通过
+
+后续注意：
+
+- Provider 超时设置只影响 `/providers/proxies`，不影响 `/proxies` 与测速接口。
+- `[data-proxy-search]` 是测试锚点，重构代理工具栏时不要删。
+- `tools/build-archives.sh` 需要 `zip` 命令，Windows 本机无法直接跑，用 WSL 或交给 CI。
+- CI 增加浏览器步骤后单次发布耗时上升，属预期；如需加快可只保留 `dist.zip` 变体。
+
+---
+
+## 2026-11-01
+
 ### ci: 推送 main 自动发版（auto-release）
 
 - 提交：本提交

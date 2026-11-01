@@ -128,6 +128,7 @@ const ru: LANG_MESSAGE = {
   noExpire: 'Нет',
   updated: 'Обновлено',
   upgradeDashboard: 'Обновить панель до новой версии',
+  providerRequestTimeout: 'Таймаут запроса провайдеров (с)',
   providerStatusCached: 'Из кэша',
   providerStatusStale: 'Устаревший кэш',
   providerStatusFresh: 'Обновлено',

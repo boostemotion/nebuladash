@@ -62,6 +62,14 @@ jobs:
           pnpm test
           pnpm type-check
 
+      - name: Verify proxy page behaviour (headless Chrome)
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: |
+          pnpm build
+          pnpm test:nebula
+          pnpm test:verify
+
       - name: Bump version
         id: bump
         run: |
@@ -76,24 +84,7 @@ jobs:
         run: pnpm release:check
 
       - name: Build release archives
-        shell: bash
-        run: |
-          zip -qr "router-updater.zip" router-updater
-
-          build_archive() {
-            local command="$1"
-            local archive="$2"
-            rm -rf dist
-            pnpm run "${command}"
-            (
-              cd dist
-              zip -qr "../${archive}" .
-            )
-          }
-
-          build_archive build dist.zip
-          build_archive build:no-fonts dist-no-fonts.zip
-          build_archive build:cdn-fonts dist-cdn-fonts.zip
+        run: sh tools/build-archives.sh
 
       - name: Commit version bump and tag
         run: |

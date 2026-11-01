@@ -180,7 +180,7 @@ pnpm release:check # 发布前检查
 
 # 需要本机 Chrome，或用 CHROME_BIN 指定
 pnpm test:nebula   # NebulaDash 专属回归（三段视图 / Provider 按需加载 / 搜索 / 规则直通 / 更新源）
-pnpm test:verify   # 上游虚拟滚动回归
+pnpm test:verify   # 上游虚拟滚动与交互回归（14 项）
 pnpm test:bench    # 上游性能基准
 ```
 
@@ -198,7 +198,8 @@ Windows 下也可以使用启动脚本：
 - 触发条件：改动落在 `src/` / `router-updater/` / `tools/` / `.github/workflows/` /
   `index.html` / `vite.config.ts` / `package.json`
 - 工作流：`.github/workflows/auto-release.yml`
-- 内容：递增 patch 版本 → `eslint` / `test` / `type-check` → 构建 → 提交版本号并打 tag → 发布 Release
+- 内容：递增 patch 版本 → `eslint` / `test` / `type-check` → `test:nebula` / `test:verify`
+  （headless Chrome）→ 构建 7 种字体变体 → 提交版本号并打 tag → 发布 Release
 - 构建失败不会推送 tag，不会留下空发布
 
 面板和路由器更新器都读 `releases/latest`，所以 **CI 变绿后就能在面板里点“更新 NebulaDash”**。
