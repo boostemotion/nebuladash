@@ -18,6 +18,8 @@ const result = validateReleasePreflight({
   tagName,
 })
 
+result.warnings.forEach((warning) => console.warn(`- ${warning}`))
+
 if (result.errors.length) {
   console.error('Release preflight failed:')
   result.errors.forEach((error) => console.error(`- ${error}`))

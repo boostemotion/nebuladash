@@ -36,6 +36,10 @@ const getBuildTime = (): string => {
 // See src/assets/load-fonts.ts for what each value loads.
 const font = process.env.FONT || 'all'
 
+// 版本号来源：优先 APP_VERSION（由发布工作流按 tag 注入），否则用 package.json。
+// 这样 CI 不需要把版本号提交回仓库，本地也就不会和远端分叉。
+const appVersion = process.env.APP_VERSION || version
+
 // NebulaDash: OpenClash routers are low-resource devices, so large third-party
 // dependencies are split out of the entry chunk and the PWA precache is capped.
 // Keep these groups in sync with `NEBULADASH-FEATURE-INVENTORY.md` §16.
@@ -56,7 +60,7 @@ const getManualChunk = (id: string): string | undefined => {
 // https://vite.dev/config/
 export default defineConfig({
   define: {
-    __APP_VERSION__: JSON.stringify(version),
+    __APP_VERSION__: JSON.stringify(appVersion),
     __COMMIT_ID__: JSON.stringify(getGitCommitId()),
     __BUILD_TIME__: JSON.stringify(getBuildTime()),
     __FONT__: JSON.stringify(font),

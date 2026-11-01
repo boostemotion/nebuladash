@@ -22,6 +22,46 @@
 
 ## 2026-11-01
 
+### ci: 版本号改由 tag 决定，发版不再回写仓库
+
+- 提交：本提交
+- 类型：发布链路修正
+- 问题：auto-release 会递增版本并**提交回 main**，导致本地与远端分叉，
+  每次发版后都要 `git pull`，否则下次 push 被拒。
+- 根因：把 `package.json` 的 `version` 当成了版本来源，于是必须改写文件。
+
+修复：
+
+- 新增 `tools/next-version.mjs`：只计算并打印下一个版本，不写文件
+  （支持基于上一个 tag 或 `package.json`），替代原来的 `tools/bump-version.mjs`（已删除）。
+- `vite.config.ts`：`__APP_VERSION__` 优先取 `APP_VERSION` 环境变量，否则回落 `package.json`。
+- auto-release：按 `git describe --tags --abbrev=0 --match 'v*-nebula.*'` 递增，
+  构建时注入 `APP_VERSION`，**只创建 tag、不提交任何文件**。
+- release.yml（手动 tag 路径）同样注入 `APP_VERSION=${github.ref_name}`，
+  保证界面显示的版本与 tag 一致。
+- `validateReleasePreflight`：tag 为唯一真相；`package.json` 版本与 tag 不一致时
+  只返回 `warnings`，不再判为错误。单测同步更新（新增 warnings 断言，共 73 项）。
+
+验证：
+
+- `node tools/next-version.mjs v3.30.0-nebula.4` → `3.30.0-nebula.5`
+- `APP_VERSION=3.30.0-nebula.99 pnpm build` → 产物中出现该版本号（注入生效）
+- 默认构建 → 产物中仍是 `package.json` 的 `3.30.0-nebula.3`
+- `RELEASE_TAG=v3.30.0-nebula.99 pnpm release:check` → 输出警告并通过
+- `pnpm test` → 73 项通过；`type-check` / `eslint` / `test:nebula`(22) 通过
+
+后续注意：
+
+- 不要再让工作流向 main 提交文件；需要同步的只有 tag 与 Release。
+- 手动发版时若希望界面版本与 `package.json` 一致，记得自己改版本号；
+  不改也能发，只是会多一条警告。
+- `APP_VERSION` 必须是不带 `v` 前缀的版本号；`release.yml` 里来自 `github.ref_name`，
+  自动发版里来自 `tools/next-version.mjs` 的输出。
+
+---
+
+## 2026-11-01
+
 ### fix(ci): 修掉 CI 里的本地化断言（auto-release 失败根因）
 
 - 提交：本提交

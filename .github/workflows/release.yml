@@ -65,6 +65,8 @@ jobs:
           pnpm test:verify
 
       - name: Build release archives
+        env:
+          APP_VERSION: ${{ github.ref_name }}
         run: sh tools/build-archives.sh
 
       - name: Publish GitHub Release

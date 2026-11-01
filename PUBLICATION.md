@@ -59,6 +59,10 @@ Release 工作流带一步 `Audit tracked public files`，命中上述禁项会�
 
 `pnpm release:check` 会强制以上约束。
 
+版本号的唯一真相是 Release tag。自动发版按上一个 tag 递增并在构建时注入 `APP_VERSION`，
+不修改也不提交 `package.json`；因此 `package.json` 的版本允许落后于最新 tag，
+`release:check` 在这种情况下只输出警告。
+
 ## 上下载地址约定
 
 - 面板更新源固定：`https://github.com/boostemotion/nebuladash/releases/latest/download/dist.zip`
