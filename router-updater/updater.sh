@@ -81,7 +81,9 @@ download_release() {
     file://*) cp "${RELEASE_URL#file://}" "$zip_path" ;;
     *)
       if command -v curl >/dev/null 2>&1; then
-        curl -L --fail -o "$zip_path" "$RELEASE_URL"
+        # OpenWrt 上部分路由器的 HTTP/2 + TLS 会话复用到 release-assets 域名会握手失败，
+        # 强制 HTTP/1.1 后稳定。
+        curl -L --http1.1 --fail -o "$zip_path" "$RELEASE_URL"
       else
         wget -O "$zip_path" "$RELEASE_URL"
       fi

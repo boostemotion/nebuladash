@@ -20,6 +20,46 @@
 
 ---
 
+## 2026-11-01
+
+### fix(updater): 下载 Release 时强制 HTTP/1.1
+
+- 分支：`rebase/upstream-v3.30.0`
+- 提交：本提交
+- 类型：路由器实测修复
+- 目的：ImmortalWrt（aarch64, curl 8.12.1 / OpenSSL 3.0.16）上执行
+  `updater.sh update` 时，`github.com` 的 302 跳转到 `release-assets.githubusercontent.com`
+  后 TLS 握手失败：`curl: (35) TLS connect error: error:00000000:lib(0)::reason(0)`，
+  导致 `dist.zip` 下载不到、解压报 `cannot find or open .../work/dist.zip`。
+
+涉及文件：
+
+- `router-updater/updater.sh`
+
+行为变化：
+
+- 下载改为 `curl -L --http1.1 --fail`，绕过 HTTP/2 + TLS 会话复用在部分路由器上的兼容问题。
+- 实测同一地址 `--http1.1` 与 `-4` 均可成功（9,628,929 字节），未改动下载地址与校验逻辑。
+
+验证（路由器实测）：
+
+- 修改后 `updater.sh update` → `{"ok":true,"status":"ok","message":"Updated NebulaDash","active":"a"}`
+- `readlink /www/nebuladash` → `/www/nebuladash-a`
+- `ls /www/nebuladash/assets | grep -c '^three-'` → `1`（新版 3.x 基线标志）
+- `grep -c 'interactive-widget' /www/nebuladash/index.html` → `1`
+- `ls /www/nebuladash/assets | wc -l` → `350`
+- `bash -n router-updater/updater.sh` → 通过
+
+后续注意：
+
+- 已装在路由器上的 `/usr/share/nebuladash-updater/updater.sh` 需重新执行 `install.sh`
+  或手动同步该改动，仓库更新不会自动生效。
+- 若某些固件的 curl 不支持 `--http1.1`，回退方案是给 `RELEASE_URL` 用 `file://` 前缀
+  （脚本原生支持），先自行把 zip 落到 `/tmp`。
+- 该修复要等下一个 Release 的 `router-updater.zip` 才会随包分发。
+
+---
+
 ## 2026-06-29
 
 ### chore(tools): 无 zip 环境下的本地打包脚本
