@@ -195,6 +195,41 @@ try {
   `)
   check('显示 Provider 状态徽标', Boolean(statusBadge), statusBadge)
 
+  section('单个 Provider 更新按钮')
+  const providerRequestsBefore = (
+    await page.evaluateJson(`JSON.stringify(window.__nebulaProviderRequests ?? [])`)
+  ).length
+
+  const clickedUpdate = await page.evaluate(`
+    (() => {
+      const button = document.querySelector('[data-provider-update]')
+      if (!button) return false
+      button.click()
+      return true
+    })()
+  `)
+  check('Provider 卡片上存在更新按钮', clickedUpdate === true)
+
+  const refreshed = await waitFor(
+    async () =>
+      (await page.evaluateJson(`JSON.stringify(window.__nebulaProviderRequests ?? [])`)).length >
+      providerRequestsBefore,
+    { timeout: 15000, interval: 200 },
+  )
+  check(
+    '更新后会重新拉取 Provider 数据（否则界面无变化）',
+    refreshed !== null,
+    `请求数 ${providerRequestsBefore} → ${
+      (await page.evaluateJson(`JSON.stringify(window.__nebulaProviderRequests ?? [])`)).length
+    }`,
+  )
+
+  await sleep(1200)
+  const updateStillSpinning = await page.evaluate(
+    `Boolean(document.querySelector('[data-provider-update].animate-spin'))`,
+  )
+  check('更新按钮会停止转圈', updateStillSpinning === false)
+
   section('搜索：域名 -> 规则 -> 代理组反向映射')
   await page.evaluate(`
     (() => {

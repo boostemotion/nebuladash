@@ -22,6 +22,50 @@
 
 ## 2026-11-01
 
+### fix(provider): 单个 Provider 更新按钮点了没反应
+
+- 提交：本提交
+- 类型：路由器实测问题修复
+- 现象：代理商标签里每个 Provider 卡片右侧的「更新」按钮，点击后图标转两圈就停，
+  既没有更新成功的效果，也没有错误提示。
+- 根因：Provider 数据改为按需加载后，`fetchProxies()` 只拉 `/proxies` 不再带 Provider；
+  而 `ProxyProvider.vue` 与「更新全部」按钮在 `PUT /providers/proxies/<name>` 之后
+  仍然只调用 `fetchProxies()`。请求其实成功了，但界面数据源没重新拉，
+  所以节点、延迟、`updatedAt` 全都不变，看起来像失效。
+
+修复：
+
+- `assembly/proxies/actions.ts` 新增组合动作，统一在 Provider 变更后同步两份数据：
+  - `refreshProxyProvider(name)`：更新订阅 → `fetchProxies()` → `fetchProxyProviders(true)`
+  - `healthCheckProxyProvider(name)`：健康检查 → 同上
+  - `refreshAllProxyProviders(names)`：批量更新 → 同上
+- `ProxyProvider.vue` 改用这两个动作；更新按钮加 `disabled` 与 `data-provider-update` 锚点。
+- `ProxiesCtrl` 的「更新全部 Provider」改用 `refreshAllProxyProviders`，
+  并在失败时仍做一次同步（`finally` 里收尾转圈状态）。
+- `test/mock-server.mjs` 支持 `PUT /providers/proxies/<name>`（刷新 `updatedAt` 并返回 204），
+  否则浏览器回归测不到这条链路。
+
+验证：
+
+- `pnpm test` → 73 项通过
+- `pnpm type-check` / `pnpm lint` / `pnpm build` → 通过
+- `pnpm test:nebula` → **27/27 通过**，新增三项：
+  - Provider 卡片上存在更新按钮
+  - 更新后会重新拉取 `/providers/proxies`（请求数 1 → 2）
+  - 更新按钮会停止转圈
+- `pnpm test:verify` → 14/14 通过
+
+后续注意：
+
+- 任何“改动了 Provider 数据”的操作（更新订阅、健康检查、批量更新）之后，
+  都必须同时刷新 `/proxies` 与 `/providers/proxies`，不要只调 `fetchProxies()`。
+- `fetchProxyProviders(true)` 会强制重拉，注意不要在循环里对每个 Provider 各调一次。
+- Provider 卡片上的健康检查按钮走同样的组合动作，回归时一并验证。
+
+---
+
+## 2026-11-01
+
 ### fix(proxies): 文件夹与三段视图冲突导致白板
 
 - 提交：本提交

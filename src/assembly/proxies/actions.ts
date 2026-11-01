@@ -11,8 +11,8 @@ import {
   shouldNotifyProviderFailure,
 } from '@/helper/proxy-cache'
 import { notifyRequestError } from '@/helper/request-error'
-import { activeUuid } from '@/store/setup'
 import { automaticDisconnection, iconReflectList, IPv6test } from '@/store/settings'
+import { activeUuid } from '@/store/setup'
 
 import type { Proxy, ProxyProvider } from '@/types'
 import { last } from 'lodash'
@@ -339,9 +339,39 @@ export const handlerProxySelect = async (proxyGroupName: string, proxyName: stri
   }
 }
 
+/**
+ * NebulaDash: Provider 更新/健康检查的组合动作。
+ *
+ * Provider 数据是独立按需加载的，所以“更新订阅”“Provider 测速”之后必须
+ * 强制重拉 `/providers/proxies`，否则界面上的节点、延迟、更新时间都不会变，
+ * 表现为“按钮转两圈就没了、也没报错”。
+ */
+const syncAfterProviderChange = async () => {
+  await fetchProxies()
+  await fetchProxyProviders(true)
+}
+
 export const updateProxyProvider = (name: string) => driver().proxies.updateProvider(name)
 
 export const proxyProviderHealthCheck = (name: string) => driver().proxies.healthCheckProvider(name)
+
+/** 更新单个 Provider 的订阅，然后同步代理与 Provider 数据。 */
+export const refreshProxyProvider = async (name: string) => {
+  await updateProxyProvider(name)
+  await syncAfterProviderChange()
+}
+
+/** 对单个 Provider 做健康检查，然后同步延迟与 Provider 数据。 */
+export const healthCheckProxyProvider = async (name: string) => {
+  await proxyProviderHealthCheck(name)
+  await syncAfterProviderChange()
+}
+
+/** 更新全部 Provider 的订阅，然后同步数据。 */
+export const refreshAllProxyProviders = async (names: string[]) => {
+  await Promise.all(names.map((name) => updateProxyProvider(name)))
+  await syncAfterProviderChange()
+}
 
 export const fetchSmartWeights = () => driver().proxies.fetchSmartWeights()
 

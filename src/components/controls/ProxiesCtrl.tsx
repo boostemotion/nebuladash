@@ -9,7 +9,7 @@ import {
   proxyProviderLoadStatus,
   proxyProviderRequestDurationMs,
   proxyProviederList,
-  updateProxyProvider,
+  refreshAllProxyProviders,
 } from '@/assembly/proxies'
 import { useCtrlsBar } from '@/composables/use-ctrls-bar'
 import { PROXY_SORT_TYPE, PROXY_TAB_TYPE, ROUTE_NAME, SETTINGS_MENU_KEY } from '@/constant'
@@ -73,13 +73,11 @@ export default defineComponent({
       if (isUpgrading.value) return
       isUpgrading.value = true
       try {
-        await Promise.all(
-          proxyProviederList.value.map((provider) => updateProxyProvider(provider.name)),
-        )
-        await fetchProxies()
-        isUpgrading.value = false
+        await refreshAllProxyProviders(proxyProviederList.value.map((provider) => provider.name))
       } catch {
+        // 单个 Provider 更新失败时仍然同步一次，尽量展示部分结果。
         await fetchProxies()
+      } finally {
         isUpgrading.value = false
       }
     }

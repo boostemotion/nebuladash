@@ -27,9 +27,11 @@
           </button>
           <button
             v-if="proxyProvider.vehicleType !== 'Inline' && can('proxyProviderUpdate')"
+            data-provider-update
             :class="
               twMerge('btn btn-circle btn-ghost btn-sm z-30', isUpdating ? 'animate-spin' : '')
             "
+            :disabled="isUpdating"
             @click.stop="updateProviderClickHandler"
           >
             <ArrowPathIcon class="h-3.5 w-3.5 opacity-60" />
@@ -69,12 +71,11 @@
 
 <script setup lang="ts">
 import { can } from '@/assembly/backend'
-import { proxyProviderHealthCheck, updateProxyProvider } from '@/assembly/proxies'
+import { healthCheckProxyProvider, refreshProxyProvider } from '@/assembly/proxies'
 import { useBounceOnVisible } from '@/composables/use-bounce-on-visible'
 import { useRenderProxyList } from '@/composables/use-render-proxy-list'
 import { notifyRequestError } from '@/helper/request-error'
 import { fromNow, prettyBytesHelper } from '@/helper/utils'
-import { fetchProxies } from '@/assembly/proxies'
 import { proxyProviederList } from '@/assembly/proxies'
 import { ArrowPathIcon, BoltIcon } from '@heroicons/vue/24/outline'
 import dayjs from 'dayjs'
@@ -144,8 +145,7 @@ const healthCheckClickHandler = async () => {
 
   isHealthChecking.value = true
   try {
-    await proxyProviderHealthCheck(props.name)
-    await fetchProxies()
+    await healthCheckProxyProvider(props.name)
   } catch (e) {
     notifyRequestError(e)
   } finally {
@@ -158,8 +158,7 @@ const updateProviderClickHandler = async () => {
 
   isUpdating.value = true
   try {
-    await updateProxyProvider(props.name)
-    await fetchProxies()
+    await refreshProxyProvider(props.name)
   } catch (e) {
     notifyRequestError(e)
   } finally {

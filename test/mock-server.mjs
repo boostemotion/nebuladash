@@ -217,6 +217,17 @@ export const createMockServer = async ({
       return json(res, { proxies })
     }
     if (pathname === '/providers/proxies') return json(res, { providers })
+
+    // NebulaDash: 更新单个 Provider 订阅。真实内核会刷新 updatedAt，
+    // mock 也保留这个语义，否则测不到「更新后界面数据变化」。
+    const providerUpdateMatch = pathname.match(/^\/providers\/proxies\/([^/]+)$/)
+    if (providerUpdateMatch && req.method === 'PUT') {
+      const name = decodeURIComponent(providerUpdateMatch[1])
+      if (providers[name]) providers[name].updatedAt = new Date().toISOString()
+      res.writeHead(204, CORS)
+      res.end()
+      return
+    }
     if (pathname === '/providers/rules') return json(res, { providers: {} })
     if (pathname === '/rules') return json(res, { rules })
 
