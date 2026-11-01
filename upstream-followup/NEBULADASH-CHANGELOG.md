@@ -22,6 +22,84 @@
 
 ## 2026-06-29
 
+### docs: 上游审计完成，确认以 v3.30.0 为重建基线
+
+- 提交：当前工作区未提交（`main` @ `2901f60c`）
+- 类型：上游审计 / 基线定案
+- 目的：上游已从上次审计点 `9150a53e` 推进到 `v3.30.0`（207 个新提交，369 文件，+34252/−19586），需重新核对本地特色是否仍具独占价值，并把原取舍表中所有 `[待核对]` 项定案。
+
+涉及文件：
+
+- `upstream-followup/NEBULADASH-FEATURE-INVENTORY.md`（新增 §22.5 实测核对结果）
+- `upstream-followup/REBASELINE-PLAN.md`（新增 §1.5 基线事实，基线定为 `v3.30.0`，前置条件全部解除）
+- `upstream-followup/UPSTREAM-FEATURES.md`（审计点重置，旧盘点降为历史）
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 无运行时代码改动。
+- 重放清单从 8 组/多项降为 **7 项必需重写**：三段视图、聚类排序、Provider 层、搜索预处理层、域名反查、规则链路搜索、品牌与发布治理。
+- 明确丢弃的本地实现：`proxyNodeProviderMap`（改上游 `provider-name`）、首屏 16 条上限（改上游虚拟滚动）、规则按需加载（上游启动即拉）、滚动恢复、搜索高亮、搜索模式、移动端视口。
+- 明确上游仍未解决的问题（本地存在的理由）：`Promise.all` 同时拉 provider、provider 无超时、无缓存/降级/去重、无聚类排序、规则搜索无链路感知、无搜索文本规范化、路由全静态导入且无拆包。
+
+验证：
+
+- `git fetch upstream --tags` → 得到 `v3.30.0`
+- `git rev-list --count 9150a53e..upstream/main` → 207
+- `git diff --stat v3.11.0..v3.30.0` → 369 files, +34252/−19586
+- 代码级核对：`src/assembly/driver/clash.ts`、`src/api/clash.ts`、`src/helper/search.ts`、`src/helper/proxies.ts`、`src/store/rules.ts`、`src/router/index.ts`、`vite.config.ts`
+
+后续注意：
+
+- 重基线前仍需确认三个决策：①公开仓库历史形态（推荐采用上游历史，以换取普通 `git merge`）②版本号起点（建议 `3.30.0-nebula.1`）③旧线 tag 保留为 `legacy/nebula-2.8.0`。
+- 上游工具链已升级到 `vite ^8.1.5` / `typescript ~6.0.3`，重基线后本地 node 需保持 24+（当前 v24.18.1 可用）。
+- 上游已移除 sing-box 并新增 dae 驱动，旧文档中“sing-box native 不跟进”的决策已自然失效。
+- `upstream` 远程 push URL 已设为 `DISABLED`，防止误推。
+- **上游构建实测（worktree `../nebuladash-baseline` @ `v3.30.0`）**：`pnpm type-check` 通过，`pnpm build` 成功；但产物为单 chunk `index-*.js` **2167.82 kB**（gzip 738 kB），另有 `earth-renderer-*.js` 906 kB；PWA precache **318 项 / 10856 KiB**。说明本地“路由懒加载 + manualChunks + PWA 体积控制”在重基线后依然必要，且比 2.8.0 时代更关键。
+
+---
+
+## 2026-06-29
+
+### docs: 记录本地特色清单并切换到“重基线”升级策略
+
+- 提交：当前工作区未提交（工作区状态：`main` @ `2901f60c`，比 `origin/main` 无差异）
+- 类型：策略变更 / 文档基建
+- 目的：放弃“逐个上游提交选择性移植”的维护方式。该方式在上游 3.x 把代理页、连接、日志重构进 `assembly/*` 分层后，每轮都要重复适配，成本随上游提交量线性增长；而本地 `main` 与 `upstream/main` 无 merge-base，差异只能靠人工 diff 维持。改为“以官方最新版本为基线重建 + 按清单重放本地特色”，之后上游跟进可恢复为普通 `git merge upstream/main`。
+
+涉及文件：
+
+- `upstream-followup/NEBULADASH-FEATURE-INVENTORY.md`（新增）
+- `upstream-followup/REBASELINE-PLAN.md`（新增）
+- `upstream-followup/AI-HANDOFF.md`
+- `upstream-followup/NEBULADASH-CHANGELOG.md`
+
+行为变化：
+
+- 无运行时代码改动，纯文档与策略变更。
+- 新增 22 条本地特色规格，每条包含“不可回归的约束 / 关键文件 / 存储键 / i18n key / 与上游冲突点”。
+- 新增重复功能取舍表（27 项），默认原则改为“上游有的优先用上游，只在 OpenClash 慢后端等上游无等价物的点上保留本地实现”。
+- 新增重放依赖顺序（8 组）与每阶段的固定回归清单。
+- 新增重基线执行流程（备份 → 建上游基线分支 → 分组重放 → 差异复核 → 发布 → 切主线）与回退路径。
+- 明确下一步 `origin/main` 形态需要决策（采用上游历史后可 `merge upstream/main`，但仓库将包含上游历史，需同步 `PUBLICATION.md`）。
+
+验证：
+
+- 本次未执行构建验证（环境缺 Git Bash，`pnpm`/`git` 均不可用）。纯文档改动按基线要求应执行：
+  `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md`
+  该命令待环境恢复后补跑。
+
+后续注意：
+
+- **环境阻塞**：本机未安装 Git for Windows，pi 的 shell 工具只认 Git Bash，导致 `git fetch`、`pnpm test/build` 全部无法执行。安装 Git 后需先补跑本次文档的 prettier 校验。
+- 重基线开始前必须先确认 `REBASELINE-PLAN.md` §3 的三个决策点（公开仓库历史形态、版本号起点、旧线保留方式）。
+- 重放阶段严禁整目录拷贝旧 `src/`；每组重放必须通过 `NEBULADASH-FEATURE-INVENTORY.md` §24 对应域的回归项。
+- 上游跟进流程文档（`NEBULADASH-ITERATION-PLAN.md` §11、`UPSTREAM-FEATURES.md` 的审计点）在重基线完成后需要按新基线重写，否则会继续引导后来者用旧的 cherry-pick 方式。
+
+---
+
+## 2026-06-29
+
 ### docs: record v2.8.0-nebula.4.2.0 release
 
 - 提交：`b11666ba`

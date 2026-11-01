@@ -4,6 +4,8 @@
 
 ## 当前状态
 
+- **升级策略已变更（2026-06-29）**：不再逐提交选择性移植，改为「以官方最新版本为基线重建 + 按清单重放本地特色」。重放的唯一依据是 `NEBULADASH-FEATURE-INVENTORY.md`，执行流程见 `REBASELINE-PLAN.md`。
+- **环境阻塞**：当前开发机未安装 Git for Windows，pi 的 shell 工具只认 Git Bash，`git` / `pnpm` 均无法执行。重基线开始前必须先装 Git。
 - 当前包版本：`2.8.0-nebula.4.2.0`
 - 上游代码基线：Zashboard `2.8.0`
 - 已对照的官方版本：Zashboard `3.11.0`（2026-06-24）
@@ -18,19 +20,23 @@
 - 远程约定：
   - `origin`：`boostemotion/nebuladash`，只推送 NebulaDash
   - `upstream`：`Zephyruso/zashboard`，只拉取官方更新
-- 当前维护策略：不追版本号，不全量 rebase，按价值选择性移植上游能力
-- 当前 `main` 与 `upstream/main` 无可用 merge-base；不要直接 `git rebase upstream/main` 或
-  `git merge upstream/main`
+- 当前维护策略（2026-06-29 起）：**以官方最新版为基线重建 + 按清单重放本地特色**。旧的“按价值选择性移植”已停止使用；已完成前的本地代码保留在 `legacy/nebula-2.8.0` tag（重建开始时创建）。
+- 当前 `main` 与 `upstream/main` 无可用 merge-base；**重基线完成前**不要直接 `git rebase upstream/main` 或
+  `git merge upstream/main`。重基线后可以恢复为普通 `git merge upstream/main`。
 
 ## 接手时先做
 
 1. 运行 `git status --short`，确认工作区是否已有用户改动。
-2. 阅读 `upstream-followup/NEBULADASH-CHANGELOG.md` 最新日期下的条目。
-3. 阅读 `upstream-followup/NEBULADASH-ITERATION-PLAN.md` 的“不可破坏的约束”“高冲突文件”和“固定回归清单”。
-4. 涉及公开发布或更新源时，再读 `PUBLICATION.md`。
-5. 涉及功能说明或用户文档时，再读 `README.md` 和 `README-改动说明.md`。
+2. 阅读 `upstream-followup/NEBULADASH-FEATURE-INVENTORY.md`（本地特色规格 + 重复功能取舍表）。
+3. 若本轮涉及上游基线变更，阅读 `upstream-followup/REBASELINE-PLAN.md`。
+4. 阅读 `upstream-followup/NEBULADASH-CHANGELOG.md` 最新日期下的条目。
+5. 阅读 `upstream-followup/NEBULADASH-ITERATION-PLAN.md` 的“不可破坏的约束”“高冲突文件”和“固定回归清单”。
+6. 涉及公开发布或更新源时，再读 `PUBLICATION.md`。
+7. 涉及功能说明或用户文档时，再读 `README.md` 和 `README-改动说明.md`。
 
 ## 必须保护的本地能力
+
+> 完整规格与验收标准见 `NEBULADASH-FEATURE-INVENTORY.md`。以下为必须重放、不得丢失的清单。
 
 - 代理页三段视图：策略组、节点组、代理商。
 - 策略组和节点组首屏不得等待 `/providers/proxies`。
@@ -65,18 +71,23 @@
 
 ## 下一步优先级
 
-1. 路由器空闲后，再做真实 OpenClash / Mihomo Provider 超时、缓存和后端切换回归。
-2. 多后端标题、连接状态延迟统计、代理图标映射等非视觉核心信息展示按需评估。
-3. rollback 实测降为低优先级：已有 A/B 和 SSH 手动修复路径，实际使用频率低；后续改更新器核心逻辑时再做破坏性实测。
+1. **安装 Git for Windows**，解除工具链阻塞（当前无法执行 `git` / `pnpm`）。
+2. 确认 `REBASELINE-PLAN.md` §3 的三个决策点（公开仓库历史形态、版本号起点、旧线保留方式）。
+3. 按 `REBASELINE-PLAN.md` 阶段 0-3 执行重基线。
+4. 重基线完成后，在真实 OpenClash / Mihomo 上做 Provider 超时、缓存和后端切换回归。
+5. rollback 实测降为低优先级：已有 A/B 和 SSH 手动修复路径，实际使用频率低。
 
 ## 当前明确不推进
 
-- 搜索模式切换：当前智能搜索已满足主要使用场景，新增模式会增加 UI 和维护成本。
-- 规则卡片动画、分段控件和纯界面交互增强：用户已有插件补界面，NebulaDash 主线优先轻量稳定。
-- 代理文件夹：只允许独立 spike，不直接进入 `main`。
+> 重基线后以下多数能力会由上游直接带进来，不需要再单独投入。
+
+- 搜索模式切换：重基线后直接采用上游 3.6+ 实现，不再自己设计。
+- 规则卡片动画、分段控件和纯界面交互增强：重基线后随上游 3.x 视觉体系一并获得，不再单独维护。
+- 代理文件夹：重基线后随上游 3.7 获得，不再需要本地 spike。
 - 后端 uptime 展示：上游 `bed57f21` 依赖 sing-box native gRPC `GetStartedAt`，当前
   OpenClash / Mihomo 主线没有通用 startedAt 来源，不做空 UI 移植。
-- Zashboard 3.x 全套视觉体系：不作为当前主线。
+- sing-box native / goroutines / USB-IP / Tailscale / 终端：随上游保留代码，但不投入适配与验证。
+- Zashboard 3.x 全套视觉体系：重基线后自动对齐，不再作为独立项目。
 
 ## 文档更新规范
 
@@ -99,6 +110,8 @@ pnpm type-check
 pnpm lint
 pnpm build
 ```
+
+> 当前开发机缺少 Git Bash，以上命令暂无法执行；环境修复后必须补跑。
 
 路由器更新器改动还需要在可用 POSIX shell 环境运行：
 

@@ -1,12 +1,44 @@
 # 上游新特性盘点
 
-基线：
+> **本文下方“v3.11.0 之后”的旧盘点（截至 2026-06-29 `9150a53e`）已过时，仅作历史记录保留。**
+> 最新审计结果见 `NEBULADASH-FEATURE-INVENTORY.md` §22.5。
 
-- 本地上游代码基线：Zashboard `2.8.0`
+## 当前审计基线（2026-06-29 更新）
+
+- 本地上游代码基线：Zashboard `2.8.0`（即将切换为 `3.30.0`）
 - 当前 NebulaDash 包版本：`2.8.0-nebula.4.2.0`
-- 上游最新发布：`3.11.0`
-- 已拉取的 `upstream/main`：`9150a53e`
-- 最近审计：2026-06-26，`git fetch upstream --tags` 后确认无新增 upstream commit
+- **上游最新 tag：`v3.30.0`**（2026-10-28）
+- `upstream/main`：`bf4f00b`
+- 相比旧审计点 `9150a53e` 新增 **207** 个提交
+- `v3.11.0..v3.30.0`：369 文件，+34252 / −19586
+- 策略已改为“以 v3.30.0 为基线重建”，见 `REBASELINE-PLAN.md`
+
+### 上游 v3.12–v3.30 主要新增（按提交标题整理）
+
+- 多核驱动：`src/assembly/driver/{clash,dae}`，**移除 sing-box**，新增 dae 支持
+- 代理页：虚拟滚动 + 列式布局、代理文件夹、链路弹窗、滚动到当前节点、拖拽与动画
+- 搜索：搜索模式（组名 / 全局节点）、正则 + 空白分词 AND、搜索高亮
+- 连接页：已关闭连接并入 All+过滤菜单、连接分组、展开/折叠全部、隐藏列搜索
+- 表格视图：规则与日志支持表格展示
+- 设置：设置页搜索与过渡、自定义 CSS、SegmentedControl 替代原生 Tab、SelectInput 替代原生 select
+- 后端：可达性检测与诊断、会话管理、连通性通知、同源后端自动连接、反向 DNS
+- 可视化：EarthRenderer + GeoIP worker 地球视图、流量按策略组聚合、延迟统计图表
+- 其他：Taildrop、app toast、后端 uptime、HonkStats、确认弹窗组件、自然排序
+- 工程：`test/` 测试环境（mock-server / verify / bench）、`scripts/gen-icon.mjs`、`FONT=` 环境变量构建
+
+### 上游仍未解决的问题（NebulaDash 的存在理由）
+
+- `/proxies` 与 `/providers/proxies` 仍用 `Promise.all` 同时请求（`src/assembly/driver/clash.ts`）
+- `/providers/proxies` 无超时（`src/api/clash.ts` `fetchProxyProviderAPI`）
+- 无 Provider 缓存、无降级、无失败通知去重
+- 无节点组聚类排序（全库无 `cluster` 相关代码）
+- 规则搜索无链路感知（`renderRules` 只匹配 `type/payload/proxy`）
+- 无搜索文本规范化（NFKC / 符号容错 / 域名 label 变体）
+- 路由全静态导入、`vite.config` 无 `manualChunks`
+
+---
+
+## 历史盘点（2026-06-26，基线 `9150a53e`）
 
 ## `v3.11.0` 之后的上游变更
 
