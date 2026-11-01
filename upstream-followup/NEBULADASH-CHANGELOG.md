@@ -22,6 +22,53 @@
 
 ## 2026-06-29
 
+### feat(misc): 重基线第⑧组 — 设置导入键清洗与本地启动脚本
+
+- 分支：`rebase/upstream-v3.30.0`
+- 类型：重基线重放（第⑧组 / 共 8 组，收尾）
+- 目的：补齐设置导入的历史键过滤与 Windows 本地启动脚本；其余收尾项由上游直接提供。
+
+涉及文件：
+
+- `src/helper/settings-keys.ts` + `.spec.ts`（新增）
+- `src/helper/utils.ts`（`applyDashboardSettingsToStorage` 改用过滤函数）
+- `start-za.ps1`、`start-za.cmd`（新增）
+
+行为变化：
+
+- 导入 / 从内核同步设置时忽略历史无效键：`config/icon-size`、
+  `config/icon-margin-right`、`config/use-large-proxy-group-icon`、
+  `config/singbox-channel`、`config/use-singbox`。
+- NebulaDash 自有键（`config/node-cluster-variants`、`config/router-updater-*`）
+  与 `config/import-settings-url` 均可正常导入。
+- 启动脚本要求 Node.js 22+（Zashboard 3.x 基线 + `vite ^8`），`-Check` 只做环境检查。
+
+未重放（由上游直接覆盖，已核实）：
+
+- **Setup 页连接失败提示**：上游 `describeProbeFailure()` + `probeBackend()` 已提供
+  分类型本地化提示（含 unauthorized），优于旧版“统一提示语”，因此不再重写。
+- **移动端视口 / overscroll / 弹窗高度**：上游 `use-overscroll-lock`、
+  动态视口高度与 `use-dialog-state` 已覆盖。
+- **滚动位置恢复**：上游 `helper/proxies-scroll.ts` 已覆盖（含锚点恢复）。
+
+验证：
+
+- `pnpm test` → 64 项通过（新增 3 项设置键用例）
+- `pnpm type-check` → 通过
+- `pnpm lint` → No issues found
+- `pnpm build` → 通过
+- `pnpm test:nebula` → 22/22 通过
+
+后续注意：
+
+- 新增“废弃键”时改 `src/helper/settings-keys.ts` 并同步其单测的数量断言。
+- 启动脚本里的 Node 版本下限跟随上游工具链，不要只写“20+”。
+- 上游已覆盖的三项（Setup 提示、移动端视口、滚动恢复）不要再用旧实现覆盖回去。
+
+---
+
+## 2026-06-29
+
 ### feat(release): 重基线第⑥⑦组 — 发布治理与路由器端自管理更新器
 
 - 分支：`rebase/upstream-v3.30.0`

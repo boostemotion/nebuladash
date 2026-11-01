@@ -1,6 +1,7 @@
 import { MIN_PROXY_CARD_WIDTH, PROXY_CARD_SIZE } from '@/constant'
 import type { Backend, BackendType } from '@/types'
 import { useMediaQuery } from '@vueuse/core'
+import { isDeprecatedSettingsKey } from './settings-keys'
 import dayjs from 'dayjs'
 import prettyBytes, { type Options } from 'pretty-bytes'
 
@@ -52,9 +53,10 @@ export const getDashboardSettingsFromStorage = () => {
 
 export const applyDashboardSettingsToStorage = (settings: Record<string, unknown>) => {
   for (const key in settings) {
-    if (key.startsWith('config/')) {
-      localStorage.setItem(key, settings[key] as string)
-    }
+    if (!key.startsWith('config/')) continue
+    if (isDeprecatedSettingsKey(key)) continue
+
+    localStorage.setItem(key, settings[key] as string)
   }
 }
 
