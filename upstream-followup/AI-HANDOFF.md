@@ -4,15 +4,20 @@
 
 ## 当前状态
 
-- **重基线进行中（2026-06-29）**：已完成「以官方 v3.30.0 为基线重建 + 按清单重放本地特色」全部 8 组。
-- 基线：`v3.30.0`（`bf4f00b`），dev 分支 `rebase/upstream-v3.30.0`
-- 包版本：`3.30.0-nebula.1`（Nebula 多级版本规则 `<上游版本>-nebula.<轮次>[.<功能>[.<修复>]]`）
-- 旧实现保留在 tag `legacy/nebula-2.8.0`（已推送 origin），可随时回退
-- 重基线后 `main` 将与上游共享历史，后续上游跟进恢复为普通 `git merge upstream/main`
-- 远程约定不变：`origin` 只推、`upstream` 只拉（push URL 已设为 `DISABLED`）
-- 当前 `nebuladash` 工作目录仍停留在旧 `main`（`legacy` 线），重基线在新分支完成，待切换
+- 代码基线：官方 Zashboard **`v3.30.0`**（`bf4f00b`），**与上游共享提交历史**
+- 本地形态：上游代码 + 约 3000 行补丁（19 个新文件）
+- 发布：推 `main` 即自动发版（`auto-release.yml`）；面板与路由器更新器都读 `releases/latest`
+- 版本号：`<上游版本>-nebula.<轮次>[.<功能>[.<修复>]]`，**由 tag 决定**
+  - 构建时注入 `APP_VERSION`，CI **不**把版本号写回 `package.json`
+  - 因此发版不会让本地与远端分叉，推完不需要 `git pull`
+  - `package.json` 的版本允许落后，`release:check` 只告警
+- 旧版独立实现保留在 tag `legacy/nebula-2.8.0`，可随时回退
+- 远程约定：`origin` 只推、`upstream` 只拉（push URL 已设为 `DISABLED`）
+- 上游跟进：`git merge upstream/main`（共享历史，见 `SOP.md`）
 
-## 重基线已完成的重放（8 组）
+## 重基线重放记录（已归档）
+
+> 仅为追溯用。当前能力清单以 `NEBULADASH-FEATURE-INVENTORY.md` 为准。
 
 | 组  | 内容                                                    | 提交      |
 | --- | ------------------------------------------------------- | --------- |
@@ -67,11 +72,11 @@
 
 ## 下一步优先级
 
-1. **安装 Git for Windows**，解除工具链阻塞（当前无法执行 `git` / `pnpm`）。
-2. 确认 `REBASELINE-PLAN.md` §3 的三个决策点（公开仓库历史形态、版本号起点、旧线保留方式）。
-3. 按 `REBASELINE-PLAN.md` 阶段 0-3 执行重基线。
-4. 重基线完成后，在真实 OpenClash / Mihomo 上做 Provider 超时、缓存和后端切换回归。
-5. rollback 实测降为低优先级：已有 A/B 和 SSH 手动修复路径，实际使用频率低。
+1. **真实环境回归**：Provider 两级超时是否合适（列表 15s / 测速更新 120s）、
+   节点组聚类是否符合直觉、搜索命中率、A/B 回滚实战一次。
+2. **上游跟进**：上游出新 tag 后按 `SOP.md` 执行 `git merge upstream/main`，
+   合并后必须过 `test:nebula` 与 `test:verify`。
+3. **可选增强**：Provider 缓存过期策略、多后端标题与三段视图共存。
 
 ## 当前明确不推进
 
@@ -98,25 +103,23 @@
 
 ## 验证基线
 
-代码改动至少执行：
-
 ```bash
-pnpm test
+pnpm test          # 73 项单元测试（node:test）
 pnpm type-check
 pnpm lint
 pnpm build
+pnpm release:check
+
+# 需要本机 Chrome，或用 CHROME_BIN 指定
+pnpm test:nebula   # 29 项：三段视图 / Provider 按需加载 / 更新与测速按钮 /
+                   # 反向映射 / 链路感知 / 规则直通 / 空状态 / 更新源保护
+pnpm test:verify   # 14 项：上游虚拟滚动与交互回归
 ```
 
-界面相关改动还需（需要本机 Chrome，或用 `CHROME_BIN` 指定）：
-
-```bash
-pnpm test:nebula
-```
-
-路由器更新器改动还需要在可用 POSIX shell 环境（OpenWrt / Linux / WSL）运行：
-
-```bash
-sh router-updater/smoke-test.sh
-```
+`test/nebula-verify.mjs` 依赖这些 DOM 锚点，改结构时同步更新脚本：
+`[role="tab"]`、`[data-proxy-page-item]`、`[data-proxy-group-now]`、
+`[data-proxy-rule-shortcut]`、`[data-proxy-search]`、`[data-provider-update]`、
+`[data-provider-healthcheck]`、`[data-router-updater-section]`、
+`.modal.modal-open .modal-box`、`.badge`。
 
 `pnpm lint` 会自动修复文件，运行前后都要检查 `git status --short`。

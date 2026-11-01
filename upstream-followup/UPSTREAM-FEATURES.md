@@ -1,185 +1,97 @@
-# 上游新特性盘点
+# 上游能力盘点与取舍
 
-> **本文下方“v3.11.0 之后”的旧盘点（截至 2026-06-29 `9150a53e`）已过时，仅作历史记录保留。**
-> 最新审计结果见 `NEBULADASH-FEATURE-INVENTORY.md` §22.5。
+> 审计基线：官方 `v3.30.0`（`bf4f00b`），2026-11-01。
+> 历史盘点见文末「历史审计记录」，不再作为决策依据。
 
-## 当前审计基线（2026-06-29 更新）
+## 一、当前基线
 
-- 本地上游代码基线：Zashboard `2.8.0`（即将切换为 `3.30.0`）
-- 当前 NebulaDash 包版本：`2.8.0-nebula.4.2.0`
-- **上游最新 tag：`v3.30.0`**（2026-10-28）
-- `upstream/main`：`bf4f00b`
-- 相比旧审计点 `9150a53e` 新增 **207** 个提交
-- `v3.11.0..v3.30.0`：369 文件，+34252 / −19586
-- 策略已改为“以 v3.30.0 为基线重建”，见 `REBASELINE-PLAN.md`
+| 项                     | 值                                                             |
+| ---------------------- | -------------------------------------------------------------- |
+| 上游最新 tag           | `v3.30.0`                                                      |
+| 本仓 `main` 与上游关系 | **共享历史**（`bf4f00b` 是祖先），可 `git merge upstream/main` |
+| 本地补丁规模           | `src/` 约 3000 行 / 19 个新文件                                |
+| 上游架构               | `src/assembly/` 分层 + `driver/{clash,dae}`；sing-box 已移除   |
 
-### 上游 v3.12–v3.30 主要新增（按提交标题整理）
+## 二、上游已覆盖（本地不再自己实现）
 
-- 多核驱动：`src/assembly/driver/{clash,dae}`，**移除 sing-box**，新增 dae 支持
-- 代理页：虚拟滚动 + 列式布局、代理文件夹、链路弹窗、滚动到当前节点、拖拽与动画
-- 搜索：搜索模式（组名 / 全局节点）、正则 + 空白分词 AND、搜索高亮
-- 连接页：已关闭连接并入 All+过滤菜单、连接分组、展开/折叠全部、隐藏列搜索
-- 表格视图：规则与日志支持表格展示
-- 设置：设置页搜索与过渡、自定义 CSS、SegmentedControl 替代原生 Tab、SelectInput 替代原生 select
-- 后端：可达性检测与诊断、会话管理、连通性通知、同源后端自动连接、反向 DNS
-- 可视化：EarthRenderer + GeoIP worker 地球视图、流量按策略组聚合、延迟统计图表
-- 其他：Taildrop、app toast、后端 uptime、HonkStats、确认弹窗组件、自然排序
-- 工程：`test/` 测试环境（mock-server / verify / bench）、`scripts/gen-icon.mjs`、`FONT=` 环境变量构建
+| 能力                                           | 上游版本   |
+| ---------------------------------------------- | ---------- |
+| 代理页虚拟滚动 / 列式布局                      | 3.x        |
+| 代理文件夹                                     | 3.7        |
+| 链路弹窗（drill-in modal）                     | 3.x        |
+| 搜索模式（组名 / 全局节点）与搜索高亮          | 3.6 / 3.8  |
+| 代理页滚动位置恢复                             | 3.x        |
+| 移动端视口 / overscroll lock / 弹窗高度        | 3.9 / 3.11 |
+| 后端可达性诊断与 Setup 失败提示                | 3.x        |
+| 设置同步 / 导入导出 / 重置                     | 3.5        |
+| 规则与日志表格视图、连接分组与过滤             | 3.2x       |
+| Earth 地球视图 / GeoIP / Taildrop / 自定义 CSS | 3.1x–3.2x  |
 
-### 上游仍未解决的问题（NebulaDash 的存在理由）
+## 三、上游没有、必须本地保留
 
-- `/proxies` 与 `/providers/proxies` 仍用 `Promise.all` 同时请求（`src/assembly/driver/clash.ts`）
-- `/providers/proxies` 无超时（`src/api/clash.ts` `fetchProxyProviderAPI`）
-- 无 Provider 缓存、无降级、无失败通知去重
-- 无节点组聚类排序（全库无 `cluster` 相关代码）
-- 规则搜索无链路感知（`renderRules` 只匹配 `type/payload/proxy`）
-- 无搜索文本规范化（NFKC / 符号容错 / 域名 label 变体）
-- 路由全静态导入、`vite.config` 无 `manualChunks`
+| 能力                                          | 为什么上游没有等价物                                      |
+| --------------------------------------------- | --------------------------------------------------------- |
+| Provider 按需加载 + 缓存 + 降级               | 上游 `Promise.all([/proxies, /providers/proxies])` 同时拉 |
+| 两级 Provider 超时 + 状态机 + 可观测徽标      | 上游无超时、无状态                                        |
+| 节点组聚类排序                                | 上游全库无聚类实现                                        |
+| 搜索 NFKC / 符号容错 / 域名 label 变体        | 上游只有正则 + 空白分词                                   |
+| 域名 → 规则 → 代理组反向映射                  | 上游无                                                    |
+| 规则页链路感知搜索                            | 上游只匹配 `type/payload/proxy`                           |
+| Provider 元数据搜索（测速 URL / 更新 / 订阅） | 上游只按名字或节点名过滤                                  |
+| 规则直通入口 + 最终代理商尾标 + 跳转规则      | 上游弹窗里没有这些                                        |
+| 更新源保护（防误装官方 Zashboard）            | 上游指向自己的仓库                                        |
+| 路由器端 A/B 更新器                           | 上游无                                                    |
+| 品牌 / 版本治理 / 自动发版                    | 上游用 release-please + PAT，链路不同                     |
+| 构建拆包（上游入口约 2167 kB，本地约 88 kB）  | 上游无 `manualChunks`、路由静态导入                       |
+
+详细规格与“不可回归的约束”见 `NEBULADASH-FEATURE-INVENTORY.md`。
+
+## 四、暂不投入
+
+- sing-box native / goroutines / USB-IP / Tailscale / 内置终端：随上游保留代码，不做适配验证
+- 后端 uptime：缺少通用 startedAt 来源
+- 纯视觉与动画增强：随上游即可
+
+## 五、下次审计怎么做
+
+```bash
+git fetch upstream --tags
+
+# 上次审计点之后的增量
+git log --oneline v3.30.0..upstream/main
+
+# 新版 tag 出现后
+git log --oneline v3.30.0..v3.x.y
+git diff --stat v3.30.0..v3.x.y -- src/
+```
+
+分类三步：
+
+1. **上游已提供** → 直接采用，删掉本地对应实现（并更新 `FEATURE-INVENTORY`）
+2. **与本地能力重叠但有价值** → 先看它的实现前提（是否依赖 `assembly/*` 新分层），
+   能融合就融合，不能就记理由
+3. **无关** → 只在本文记一行，不投入
+
+审计完成后必须更新：
+
+- 本文「当前基线」与分类表
+- `AI-HANDOFF.md` 的当前状态
+- `NEBULADASH-ITERATION-PLAN.md` 的优先级
+- `NEBULADASH-CHANGELOG.md` 一条审计记录
 
 ---
 
-## 历史盘点（2026-06-26，基线 `9150a53e`）
+## 历史审计记录
 
-## `v3.11.0` 之后的上游变更
+### 2026-06-29：`9150a53e`（= v3.11.0 + 11 提交）
 
-当前 `upstream/main` 相比 `v3.11.0` 多出 11 个提交。
+当时的结论（已过时，仅作背景）：
 
-### 已落地
+- 上游已把代理/连接/日志重构进 `assembly/*`，不能整文件覆盖
+- 建议逐个 cherry-pick / 手工移植
+- 随后被否掉：移植成本随上游提交量线性增长，改为重基线（见 `REBASELINE-PLAN.md`）
 
-- `83dda306`：设置项 label/select 宽度修复，本地已在 `2ce694691` 落地，对应
-  `src/assets/main.css` 的 `.setting-item-label` 和 `src/components/settings/ProxiesSettings.vue`
-  的 `customGlobalNode` 下拉宽度。
-- `6f65c3bf`：select 默认外观修复，本地已在 `2ce694691` 落地，对应
-  `src/assets/main.css` 的 `@utility select { appearance: none; }`。
+### 2026-06-29：决定以 `v3.30.0` 重基线
 
-### 可选择跟进
-
-- `314afebb`：连接状态延迟统计
-
-### 需要适配再跟进
-
-- `bed57f21`：后端 uptime 展示。上游实现依赖 sing-box native gRPC
-  `GetStartedAt` 和 `assembly/version.ts`，当前 OpenClash / Mihomo 主线没有通用 startedAt 来源；
-  不做空 UI 移植，除非后续明确接入 sing-box native 或发现 Mihomo 可用的启动时间字段。
-- `357a9d52`：代理图标映射增强，仅影响 sing-box assembly，若迁移需与本地 `iconReflectList` 和 Mihomo 代理页融合
-- `30825bd6`：连接快照接口，依赖上游 `assembly/connections/*` 分层，不能整文件覆盖
-- `7fa7c5b3` / `87182973`：日志订阅和日志等级处理分层，涉及 `store/logs.ts` 和 assembly 层，需单独评估
-
-### 暂不跟进
-
-- `f3e22af2`：sing-box Native gRPC 流共享
-- `9150a53e`：sing-box 连接关闭判断
-- USB/IP、Tailscale、终端、工具页等 3.x 工具链能力
-
-## 上游功能取舍
-
-### 3.11.0
-
-- sing-box native 后端与代理处理进一步重构（当前 OpenClash 主线不跟）
-- USB/IP 面板和服务端组件（当前主线不跟）
-- `SegmentedControl` 分段控件及多处 Tab 导航重构（当前主线不跟，已有插件补界面）
-- 连接处理和相关 UI 重构（当前主线不跟）
-- iOS 视口平移、输入框、Toggle 和主题对比度修复（仅保留稳定性修复评估，不跟视觉重构）
-
-### 3.10.0
-
-- sing-box native API 支持
-- goroutines tracking（依赖 sing-box native API，当前主线暂不跟）
-- 新中性色主题
-- Tailscale peer 复制增强
-
-### 3.9.0
-
-- 代理页顶部遮罩效果
-- sing-box 连接日志 UI
-- 规则卡片展开动画（当前主线不跟，界面交互收益不足）
-- 代理页移动端重构
-
-### 3.8.0
-
-- 键盘快捷键 `S`（当前主线不跟）
-- 多后端标题显示
-- 搜索高亮
-
-### 3.7.0
-
-- 代理文件夹管理
-- 文件夹模式相关设置与 UI
-
-### 3.6.0
-
-- 节点搜索模式（当前智能搜索够用，暂不做模式切换）
-- 统一搜索 / regex 匹配增强（暂不做显式搜索模式）
-- speedtest mode 设置
-
-### 3.5.x
-
-- provider 搜索优化
-- 设置同步 / 导入导出增强
-- 仪表板设置页重构
-- 连接搜索元数据增强
-
-### 3.4.0
-
-- 可配置快捷键
-- 后端切换快捷键
-- 禁用代理页文本选择
-
-### 3.2.0
-
-- provider / rule provider 视觉重做
-- sidebar 统计结构优化
-
-### 3.0.0
-
-- zashboard@3 主题体系
-- 重置设置
-- Apple 风格全新设计语言
-
-## 不应优先追的内容
-
-- 纯视觉微调
-- 主题数量扩充
-- 与当前 OpenClash 使用无直接收益的动画细节
-- 必须大范围改动才可落地的重构
-- 已由用户插件覆盖的界面体验类能力
-- 需要新增模式开关但当前智能搜索已满足使用的搜索功能
-
-## 同步方式结论
-
-- 当前 NebulaDash `main` 与 `upstream/main` 没有可用 merge-base，不能把 `git rebase upstream/main`
-  或 `git merge upstream/main` 作为默认同步方式。
-- 上游差异应以 tag 和单个 commit 为边界审计：先看 `v2.8.0...v3.11.0`，再看
-  `v3.11.0..upstream/main`。
-- 可移植内容优先手工补丁或小范围 cherry-pick；代理页、设置页、搜索、Provider、更新源和发布链路禁止整文件覆盖。
-- 因用户已明确搜索模式和界面插件类能力目前够用，审计时默认把这两类放入“不跟进/仅记录”。
-
-## 当前建议优先级
-
-### P1
-
-- 真实 OpenClash / Mihomo Provider 超时、缓存和后端切换回归
-- 多后端标题等非视觉核心信息展示，按需评估
-
-### P2
-
-- 路由器更新器 rollback 实测。已有 A/B 与手动修复路径，实际使用频率低，后续改更新器核心逻辑时再做破坏性实测。
-- 代理图标映射增强，需与本地 `iconReflectList` 融合
-- 后端 uptime 展示，需先确认 OpenClash / Mihomo 是否存在可靠启动时间来源；上游 `bed57f21`
-  只适用于 sing-box native startedAt。
-
-### P3
-
-- sing-box native 全量支持
-- zashboard@3 全视觉对齐
-
-## 当前不做
-
-- goroutines tracking
-  原因：不是 Mihomo 通用能力，主要依赖 sing-box native 状态流
-- 快捷键体系
-  原因：当前使用场景不需要
-- 搜索模式切换
-  原因：当前 NebulaDash 智能搜索已覆盖主要场景，新增模式会增加 UI 和维护成本
-- 规则卡片动画、分段控件和界面类交互增强
-  原因：用户已有插件补界面，NebulaDash 主线优先保持轻量稳定
+`v3.11.0..v3.30.0` 共 369 文件、+34252/−19586，207 个提交；
+逐提交移植已不可维护，因此改为“以官方最新版为基线 + 按清单重放本地特色”。

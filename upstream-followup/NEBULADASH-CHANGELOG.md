@@ -22,6 +22,69 @@
 
 ## 2026-11-01
 
+### docs: 文档重构（去重、纠偏、按职责分层）
+
+- 提交：本提交
+- 类型：文档优化
+- 目的：重基线之后文档仍停留在 2.8.0 时代（旧版本号、cherry-pick 流程、
+  与上游无 merge-base 的结论），容易误导后来者。
+
+改动：
+
+- `upstream-followup/README.md`：重写为文档索引 + 职责说明 + 维护约定。
+- `upstream-followup/SOP.md`：由“cherry-pick 逐项移植”改为“共享历史 + `git merge upstream/main`”，
+  补充高冲突文件判定要点、自动发版流程、`ci-diagnostics` 排查入口。
+- `upstream-followup/NEBULADASH-ITERATION-PLAN.md`：从 932 行压缩到约 150 行，
+  只保留当前约束、已完成能力、优先级、高冲突文件、回归清单与性能记录模板。
+- `upstream-followup/UPSTREAM-FEATURES.md`：审计基线更新到 `v3.30.0`，
+  分为“上游已覆盖 / 上游没有必须保留 / 暂不投入”，并给出下次审计步骤。
+- `upstream-followup/AI-HANDOFF.md`：当前状态改为“tag 决定版本、CI 不回写仓库”；
+  验证基线更新为 73 / 29 / 14 项；标注重基线记录为归档。
+- `upstream-followup/NEBULADASH-FEATURE-INVENTORY.md`：基线事实更新；
+  新增 §3.5 Provider 超时分级、§3.6 数据刷新契约、§3.7 文件夹与三段视图边界。
+- `upstream-followup/REBASELINE-PLAN.md`：顶部加“已完成”横幅与结果摘要，正文保留作背景。
+- `README.md` / `README-改动说明.md`：去掉硬编码版本号（改为指向 Releases）；
+  补充两级 Provider 超时、数据刷新约定、文件夹边界；
+  `README-改动说明.md` 新增第 12–14 节，验证计数更新为 73 / 29 / 14。
+- `PUBLICATION.md`：版本策略改为“tag 为唯一真相、CI 不回写 `package.json`”。
+- `NEBULADASH-CHANGELOG.md`：顶部新增“快速索引（最近 10 条）”，便于快速定位。
+
+验证：
+
+- `pnpm exec prettier --check README.md README-改动说明.md PUBLICATION.md upstream-followup/*.md` → 通过
+- `pnpm test` → 73 项通过；`pnpm exec eslint .` → 无问题
+- 交叉检查：`README/AI-HANDOFF/upstream-followup/README` 不再出现硬编码版本号；
+  `FEATURE-INVENTORY` 不再声明“基于 2.8.0 / 无 merge-base”
+
+后续注意：
+
+- 文档不再记录具体版本号，统一指向 `releases/latest`，避免每次发版都要改文档。
+- 版本号相关表述以 `PUBLICATION.md` 的“tag 为唯一真相”为准。
+- `SOP.md` 的合并流程依赖共享历史；若将来再次重基线，需要同步回写该节。
+
+---
+
+## 快速索引（最近 10 条）
+
+| 主题              | 说明                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| 文档优化          | 重构上游跟进 SOP、迭代计划、上游能力盘点；版本号改为“tag 为准”的表述                        |
+| Provider 测速超时 | healthcheck 固定 15s → 可配置（默认 120s）；更新订阅也纳入超时                              |
+| 刷新入口收敛      | 新增 `refreshProxyData()` / `invalidateProxyProviders()` / `scheduleProxyProvidersResync()` |
+| 同类刷新缺陷      | 单节点/批量/组测速、配置重载、内核重启、代际变化共 5 处                                     |
+| Provider 更新按钮 | 点完无反应（只刷了 `/proxies`）                                                             |
+| 文件夹冲突        | 内置文件夹与三段视图双重划分导致白板 + 空状态提示                                           |
+| 版本回写          | 改为 tag 决定版本，CI 不再向 `main` 提交                                                    |
+| 自动发版          | push `main` 即发版（auto-release），含 Chrome 回归与 7 变体构建                             |
+| 本地化断言        | 修 CI 英文环境下 uppercase 导致的断言失败                                                   |
+| 收尾槽点          | Provider 超时可配、`test:verify` 修复、CI 加浏览器回归、构建脚本复用                        |
+
+> 完整逐条记录见下方按日期排列的小节。
+
+---
+
+## 2026-11-01
+
 ### fix(provider): 单个 Provider 测速必超时（healthcheck 固定 15s）
 
 - 提交：本提交

@@ -2,7 +2,7 @@
 
 本文件说明当前版本相对官方 Zashboard 的具体改动，供审阅与回归使用。
 
-- 当前版本：`3.30.0-nebula.4`
+- 代码基线：官方 Zashboard `v3.30.0`（版本号见 Releases）
 - 上游基线：Zashboard `v3.30.0`（`bf4f00b`）
 - 本地补丁规模：`src/` 范围约 2900 行改动 / 19 个新文件
 - 旧实现（基线 2.8.0 的独立版本）：tag `legacy/nebula-2.8.0`
@@ -146,13 +146,50 @@
 
 关键文件：`src/helper/settings-keys.ts`、`src/helper/utils.ts`
 
-## 12. 工程与回归
+## 12. Provider 超时分级
+
+`/providers/proxies` 与单个 Provider 的重操作负载差异很大，因此拆成两个设置项：
+
+| 设置项                 | 存储键                                    | 默认  | 管什么                                  |
+| ---------------------- | ----------------------------------------- | ----- | --------------------------------------- |
+| Provider 请求超时      | `config/provider-request-timeout-seconds` | 15 s  | 拉取 Provider 列表                      |
+| Provider 测速/更新超时 | `config/provider-heavy-timeout-seconds`   | 120 s | 单个 Provider 的 healthcheck 与更新订阅 |
+
+`healthcheck` 会逐节点测速整个 Provider，节点多时必然超过 15 秒；
+固定 15 秒会导致“单个 Provider 测速必超时，但整体测速正常”。
+
+## 13. 数据刷新约定（防回归）
+
+`/proxies` 与 `/providers/proxies` 是两个独立数据源：
+
+- `fetchProxies()` **只拉 `/proxies`**
+- 任何会改变 Provider 数据的操作之后必须走
+  `refreshProxyProvider()` / `healthCheckProxyProvider()` / `refreshAllProxyProviders()`
+  / `invalidateProxyProviders()` / `scheduleProxyProvidersResync()`
+- 统一入口 `refreshProxyData()` = 拉代理 + （已加载时）去抖重拉 Provider
+- 批量测速用 800ms 去抖合并，避免对每个节点各发一次全量请求
+
+这类缺陷的表现是“请求成功、界面不更新、也不报错”，因此每个 Provider 按钮都带
+`data-provider-*` 锚点，并由 `pnpm test:nebula` 断言“点击后 `/providers/proxies` 请求数增加”。
+
+## 14. 代理文件夹与三段视图的边界
+
+上游的代理文件夹自带“策略组 / 节点组”两个内置文件夹，与 NebulaDash 三段视图是两套判定。
+两者叠加会出现“交集为空 → 白板”，因此：
+
+- 不再预置上游内置文件夹（存量会被一次性清理）
+- 文件夹 `AUTO` 模式只在存在**用户自建**文件夹时启用
+- 三段视图负责角色划分，文件夹只负责用户自己的归组
+- 交集为空时显示空状态提示，而不是白板
+
+## 15. 工程与回归
 
 - 新增 `pnpm test`（`node:test`，覆盖版本比较、发布预检、更新源、缓存、
-  聚类排序、搜索、Provider 搜索、设置键），共 71 项。
-- 新增 `pnpm test:nebula`（headless Chrome 行为回归，22 项）：
+  聚类排序、搜索、Provider 搜索、设置键），共 73 项。
+- 新增 `pnpm test:nebula`（headless Chrome 行为回归，29 项）：
   三段视图、首屏 0 次 Provider 请求、切换后恰好 1 次、状态徽标、
-  域名反向映射、角色拆分、链路弹窗与代理商尾标、跳转规则、设置页更新源保护。
+  Provider 更新/测速按钮会重拉数据、域名反向映射、角色拆分、
+  链路弹窗与代理商尾标、跳转规则、空状态提示、设置页更新源保护。
 - 新增 `pnpm zip:dist`：无 `zip` 命令环境下的本地打包。
 - 新增 `start-za.ps1` / `start-za.cmd`（要求 Node.js 22+）。
 
@@ -200,7 +237,7 @@ pnpm release:check
 pnpm test:nebula   # 22 项（需 Chrome）
 ```
 
-以上在 `3.30.0-nebula.4` 上全部通过。
+以上在 `3.30.0-nebula.10` 上全部通过。
 
 ## 手动实测清单（建议，路由器实机）
 
@@ -243,4 +280,4 @@ pnpm test:nebula   # 22 项（需 Chrome）
   TLS 握手失败（`curl: (35)`）
 - 处理：下载改为 `curl -L --http1.1`，更新成功，`active` 切到 `a` 分区
 - 结果：`three-*.js` 存在、`interactive-widget` 存在、`assets` 350 个，
-  面板显示 `NebulaDash 3.30.0-nebula.2`
+  面板显示版本号与 Release tag 一致

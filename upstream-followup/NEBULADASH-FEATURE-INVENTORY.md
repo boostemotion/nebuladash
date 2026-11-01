@@ -8,12 +8,13 @@
 - 判断某项能力是否已被上游覆盖，从而决定「采用上游 / 保留本地 / 舍弃」。
 - 上游同步后做回归时，用本文的约束逐条比对。
 
-**基线事实（2026-06-29 记录）**
+**基线事实（2026-11-01 更新）**
 
-- 当前包版本：`2.8.0-nebula.4.2.0`
-- 本地代码基线：Zashboard `2.8.0`
-- 与 `upstream/main` 无 merge-base，不能 merge/rebase
-- 本地能力不是「落后于上游」，而是代理页/搜索/Provider/更新治理四条线已经是独立实现
+- 代码基线：官方 Zashboard **`v3.30.0`**（`bf4f00b`），**与上游共享提交历史**
+- 当前版本号：由 Release tag 决定（见 GitHub Releases），`package.json` 允许落后
+- 上游跟进方式：`git merge upstream/main`（见 `SOP.md`）
+- 本文历史背景（“曾经基于 2.8.0、与上游无 merge-base、只能逐项移植”）已由重基线解决，
+  过程记录见 `REBASELINE-PLAN.md` 与 `NEBULADASH-CHANGELOG.md`
 
 **记录原则**
 
@@ -165,6 +166,52 @@ type ProviderCacheMeta = {
   断言“点击后 `/providers/proxies` 请求数增加”。
 
 ---
+
+## 3.5 Provider 超时分级 `[本地独有]`
+
+两个不同负载的请求必须用不同超时，且都可配置：
+
+| 设置项                 | 存储键                                    | 默认  | 管什么                                                                       |
+| ---------------------- | ----------------------------------------- | ----- | ---------------------------------------------------------------------------- |
+| Provider 请求超时      | `config/provider-request-timeout-seconds` | 15 s  | `GET /providers/proxies`                                                     |
+| Provider 测速/更新超时 | `config/provider-heavy-timeout-seconds`   | 120 s | `GET /providers/proxies/<name>/healthcheck`、`PUT /providers/proxies/<name>` |
+
+**为什么分开**：`healthcheck` 会**逐节点测速整个 Provider**，节点多时轻松超过 15 秒；
+更新订阅要下载整个 Provider。原先两者都固定 15 秒（更新订阅甚至无超时），
+表现为“单个 Provider 测速必超时、整体测速却正常”。
+
+约束：
+
+- 不要合并这两个设置项的语义
+- 更新订阅必须有超时，否则下载卡住会永久转圈
+
+关键文件：`src/api/clash.ts`、`src/store/settings.ts`、`src/assembly/driver/clash.ts`
+
+## 3.6 数据刷新契约（防“静默不更新”） `[本地独有]`
+
+`/proxies` 与 `/providers/proxies` 是两份独立数据源，`fetchProxies()` 只拉前者。
+
+任何会改变 Provider 数据的操作之后必须：
+
+- 单个 Provider：`refreshProxyProvider(name)` / `healthCheckProxyProvider(name)`
+- 批量：`refreshAllProxyProviders(names)`
+- 配置重载 / 内核重启 / 代际变化：`invalidateProxyProviders()`
+- 批量测速：`scheduleProxyProvidersResync()`（800 ms 去抖合并）
+- 不确定时：`refreshProxyData()`（拉代理 + 已加载时去抖重拉 Provider）
+
+失效表现：请求 200、界面不更新、**不报错**。因此每个 Provider 按钮都带
+`data-provider-*` 锚点，`test:nebula` 断言“点击后 `/providers/proxies` 请求数 +1”。
+
+## 3.7 代理文件夹与三段视图的边界 `[本地独有]`
+
+上游内置两个文件夹（策略组 / 节点组），用 `hasGroup` / `nodeOnly` 规则做**另一套**角色划分，
+与三段视图叠加会出现“交集为空 → 白板”。
+
+- 不再预置内置文件夹，存量一次性清理
+- 文件夹 `AUTO` 模式仅在存在用户自建文件夹时启用
+- 交集为空显示空状态提示（搜索无结果 / 文件夹冲突 / 确实无数据）
+
+关键文件：`src/store/proxy-folders.ts`、`src/views/ProxiesPage.vue`
 
 ## 4. 规则按需加载 `[本地独有]`
 

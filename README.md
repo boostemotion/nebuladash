@@ -13,7 +13,8 @@ NebulaDash 是基于 [Zashboard](https://github.com/Zephyruso/zashboard) 的轻�
 
 - 上游来源：`Zephyruso/zashboard`
 - 本仓地址：`boostemotion/nebuladash`
-- 当前版本：`3.30.0-nebula.4`（基线 Zashboard `v3.30.0`）
+- 代码基线：Zashboard `v3.30.0`
+- 最新版本：见 [Releases](https://github.com/boostemotion/nebuladash/releases/latest)
 - 技术栈：Vue 3 + Vite + TypeScript + Tailwind CSS / daisyUI
 - 架构：纯前端面板，浏览器直连 OpenClash / Mihomo API
 
@@ -35,13 +36,15 @@ NebulaDash 不是 Zashboard 官方版本。本分支会跟进上游更新，但�
 
 OpenClash 在多 Provider 下 `/providers/proxies` 常需十几秒甚至超时，上游会与 `/proxies` 一起请求并拖死首屏。
 
-- `/providers/proxies` 使用**独立 15 秒超时**。
+- 两级超时，都可在代理页设置里调：拉取 Provider 列表默认 **15 秒**，
+  单个 Provider 测速/更新默认 **120 秒**（healthcheck 会逐节点测速整个 Provider）。
 - Provider 数据**按需加载**，不再随应用启动或进入代理页请求。
 - 本地缓存按后端 UUID 隔离，可先用缓存起屏。
 - 请求并发去重 + 代际校验，切换后端后过期响应直接丢弃。
 - 失败/超时**保留旧缓存**，不清空页面，不抛未处理异常。
 - 失败通知 60 秒去重，避免慢接口刷屏。
 - 状态机 `idle / loading / fresh / cached / stale / timeout / error`，30 分钟内视为缓存数据、超过为旧缓存，界面上有状态徽标与耗时提示。
+- 更新订阅 / Provider 测速 / 配置重载之后会自动同步两份数据源，界面不会“点完没反应”。
 
 ### 节点组聚类排序
 
@@ -179,7 +182,7 @@ pnpm build
 pnpm release:check # 发布前检查
 
 # 需要本机 Chrome，或用 CHROME_BIN 指定
-pnpm test:nebula   # NebulaDash 专属回归（三段视图 / Provider 按需加载 / 搜索 / 规则直通 / 更新源）
+pnpm test:nebula   # NebulaDash 专属回归（29 项）
 pnpm test:verify   # 上游虚拟滚动与交互回归（14 项）
 pnpm test:bench    # 上游性能基准
 ```

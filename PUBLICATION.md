@@ -49,19 +49,21 @@ Release 工作流带一步 `Audit tracked public files`，命中上述禁项会�
 
 ## 版本号策略
 
-版本格式：`<上游基线版本>-nebula.<轮次>[.<功能>[.<修复>]]`
+版本格式：`<上游基线版本>-nebula.<轮次>[.<功能>[.<修复>]]`，例如
+`3.30.0-nebula.1`、`3.30.0-nebula.4.2.1`。
 
-- `3.30.0-nebula.1`：基于上游 v3.30.0 的第一轮 NebulaDash 发布
-- `3.30.0-nebula.2`：同基线的第二轮，修复更新器下载 TLS 兼容并补齐 Provider 搜索字段
-- `nebula.1` 表示大功能轮次，`.1.2` 表示该轮次下的第 2 个小功能增量，`.1.2.3` 为 bugfix 计数
-- 纯 `3.30.0` 这类官方风格版本号禁止使用，避免用户误判为 Zashboard 官方发布
-- Release tag 必须等于 `v<package.json version>`，例如 `v3.30.0-nebula.2`
+- `nebula.<轮次>` 表示一轮功能或一批修复；`.数.数` 为更细的功能/修复计数
+- 禁止使用纯 `<上游版本>`（如 `3.30.0`），避免被误认为官方发布
+- Release tag 必须形如 `v<version>`，并被 `pnpm release:check` 校验
 
-`pnpm release:check` 会强制以上约束。
+**版本号的唯一真相是 tag**：
 
-版本号的唯一真相是 Release tag。自动发版按上一个 tag 递增并在构建时注入 `APP_VERSION`，
-不修改也不提交 `package.json`；因此 `package.json` 的版本允许落后于最新 tag，
-`release:check` 在这种情况下只输出警告。
+- 自动发版按上一个 `v*-nebula.*` tag 递增，构建时注入 `APP_VERSION`
+- CI **不修改、不提交** `package.json`
+- 因此 `package.json` 的版本允许落后于最新 tag；此时 `release:check` 只输出警告
+- 好处：发版不会让本地仓库与远端分叉，推完无需 `git pull`
+
+`pnpm release:check` 会强制包名（`nebuladash`）与 tag 格式约束。
 
 ## 上下载地址约定
 
