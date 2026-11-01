@@ -44,6 +44,9 @@ export const launchChrome = async ({ port = 9222, headless = true, args = [] } =
       // 后台标签页会被降频,基准数据会失真
       '--disable-background-timer-throttling',
       '--disable-renderer-backgrounding',
+      // CI（容器 / root / 小 /dev/shm）里 Chrome 需要放宽 sandbox 与共享内存限制，
+      // 否则会直接启动失败，被误判成产品回归。
+      ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []),
       ...args,
       'about:blank',
     ].filter(Boolean),

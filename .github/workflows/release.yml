@@ -59,6 +59,7 @@ jobs:
         env:
           CHROME_BIN: /usr/bin/google-chrome
         run: |
+          echo "chrome: $("$CHROME_BIN" --version 2>&1 || echo 'NOT FOUND')"
           pnpm build
           pnpm test:nebula
           pnpm test:verify
