@@ -137,6 +137,22 @@ const ru: LANG_MESSAGE = {
   providerLoadErrorTip: 'Не удалось загрузить провайдеров прокси. Данные из кэша сохранены.',
   ruleShortcut: 'Цепочка правил',
   goToRules: 'Перейти к правилам',
+  routerUpdater: 'Обновление через роутер',
+  routerUpdaterEndpoint: 'Адрес обновлятора',
+  routerUpdaterToken: 'Токен обновлятора',
+  routerUpdaterCheck: 'Проверить обновлятор',
+  routerUpdaterUpdate: 'Обновить NebulaDash',
+  routerUpdaterRollback: 'Откатить NebulaDash',
+  routerUpdaterStatus: 'Состояние обновлятора',
+  routerUpdaterSuccess: 'Действие обновлятора выполнено',
+  routerUpdaterFailed: 'Не удалось выполнить действие обновлятора',
+  routerUpdaterTokenMissing: 'Требуется токен обновлятора',
+  routerUpdaterSameVersionConfirm:
+    'Удалённый релиз уже {version} и совпадает с текущей версией. Всё равно перезаписать?',
+  routerUpdaterDowngradeConfirm:
+    'Удалённый релиз {remote} старее текущего {current}. Всё равно понизить версию?',
+  routerUpdaterUnknownVersionConfirm:
+    'Не удалось определить версию удалённого релиза. Всё равно перезаписать панель?',
   dashboardUpgradeBlocked:
     'Обновление панели отключено: адрес загрузки UI в бэкенде не указывает на ZIP-релиз NebulaDash. Требуется:',
   reloadConfigs: 'Перезагрузить конфигурации',

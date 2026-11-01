@@ -135,6 +135,22 @@ const en = {
   providerLoadErrorTip: 'Failed to load proxy providers. Cached data is kept.',
   ruleShortcut: 'Rule chain',
   goToRules: 'Go to rules',
+  routerUpdater: 'Router updater',
+  routerUpdaterEndpoint: 'Updater endpoint',
+  routerUpdaterToken: 'Updater token',
+  routerUpdaterCheck: 'Check updater',
+  routerUpdaterUpdate: 'Update NebulaDash',
+  routerUpdaterRollback: 'Rollback NebulaDash',
+  routerUpdaterStatus: 'Updater status',
+  routerUpdaterSuccess: 'Router updater action succeeded',
+  routerUpdaterFailed: 'Router updater action failed',
+  routerUpdaterTokenMissing: 'Updater token is required',
+  routerUpdaterSameVersionConfirm:
+    'The remote release is already {version}, same as the current version. Overwrite anyway?',
+  routerUpdaterDowngradeConfirm:
+    'The remote release {remote} is older than the current {current}. Downgrade anyway?',
+  routerUpdaterUnknownVersionConfirm:
+    'Unable to confirm the remote release version. Overwrite the current panel anyway?',
   dashboardUpgradeBlocked:
     'Dashboard upgrade is disabled because the backend UI download URL does not point to a NebulaDash release ZIP. Expected:',
   reloadConfigs: 'Reload configs',

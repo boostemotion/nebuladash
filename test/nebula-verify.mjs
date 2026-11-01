@@ -289,6 +289,30 @@ try {
     `搜索词 ${RULE_DOWNSTREAM_NODE}`,
   )
 
+  section('设置页：更新源保护与路由器更新器')
+  await page.goto(`${(await page.evaluate('location.origin'))}/#/settings?section=generalSettings`)
+  await sleep(2000)
+
+  const settingsText = await page.evaluate('document.body.innerText')
+  check(
+    '显示路由器更新器区块',
+    /路由器更新器|Router updater/.test(settingsText),
+    '区块标题',
+  )
+  check(
+    '显示更新器地址与密钥',
+    /更新器地址|Updater endpoint/.test(settingsText) &&
+      /更新器密钥|Updater token/.test(settingsText),
+  )
+  check(
+    '后端下载地址非 NebulaDash 时给出禁用提示',
+    /未指向 NebulaDash|does not point to a NebulaDash/.test(settingsText),
+  )
+  check(
+    '禁用提示包含要求的 Release 地址',
+    settingsText.includes('github.com/boostemotion/nebuladash/releases/latest/download/dist.zip'),
+  )
+
   await page.close()
 } finally {
   await harness.close()

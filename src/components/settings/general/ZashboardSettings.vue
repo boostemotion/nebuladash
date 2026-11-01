@@ -30,12 +30,14 @@
 
     <StyleSettings />
     <GeneralSettings />
+    <RouterUpdaterSettings />
   </div>
 </template>
 
 <script setup lang="ts">
 import { dashboardVersion, isUIUpdateAvailable } from '@/assembly/version'
 import GeneralSettings from './GeneralSettings.vue'
+import RouterUpdaterSettings from './RouterUpdaterSettings.vue'
 import StyleSettings from './StyleSettings.vue'
 
 const commitId = __COMMIT_ID__

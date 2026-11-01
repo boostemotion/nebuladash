@@ -22,6 +22,60 @@
 
 ## 2026-06-29
 
+### feat(release): 重基线第⑥⑦组 — 发布治理与路由器端自管理更新器
+
+- 分支：`rebase/upstream-v3.30.0`
+- 类型：重基线重放（第⑥⑦组 / 共 8 组）
+- 目的：恢复 NebulaDash 自己的发布链路与可选的 OpenWrt 端更新器。
+
+涉及文件：
+
+- `.github/workflows/release.yml`（新增）
+- `.github/workflows/deploy.yml`（改写为显式禁用说明）
+- `router-updater/`（整块搬运：`updater.sh` / `install.sh` / `nebuladash-updater.cgi` / `smoke-test.sh` / `config.example` / `README.md`）
+- `src/helper/router-updater.ts`、`src/api/router-updater.ts`（新增）
+- `src/components/settings/general/RouterUpdaterSettings.vue`（新增）
+- `src/components/settings/general/ZashboardSettings.vue`、`src/store/settings.ts`
+- `src/i18n/{en,zh,zh-tw,ru}.ts`
+
+行为变化：
+
+- 发布只由 tag 触发：`release:check` → lint/test/type-check → 构建 7 种字体变体 ZIP +
+  `router-updater.zip` → 发布 Release。
+- 上游 `deploy.yml`（release-please + PAT + gh-pages 多字体分支矩阵）改为禁用占位，
+  避免误用上游发布链路。
+- 设置页“面板”分区新增“路由器更新器”：地址、密钥、检查、更新、回滚、状态文案。
+- 更新前做版本风险确认（远端更新 → 直接继续；同版本 / 更旧 / 无法确认 → 需要用户确认）。
+- 更新与回滚期间轮询 `status`，把下载 / 解压 / 切换分区阶段显示出来，成功后自动刷新页面。
+- 设置页后端 UI 下载地址不指向 NebulaDash Release ZIP 时，仍显示禁用提示与要求地址。
+
+验证：
+
+- `pnpm test` → 61 项通过
+- `pnpm type-check` → 通过
+- `pnpm lint` → No issues found
+- `pnpm build` → 通过
+- `pnpm release:check` → 通过，期望 tag `v3.30.0-nebula.1`
+- `bash -n` 校验 `router-updater/*.sh` 与 CGI 语法 → 全部通过
+- `pnpm test:nebula` → **22/22 通过**，新增设置页检查：
+  - 显示路由器更新器区块
+  - 显示更新器地址与密钥
+  - 后端下载地址非 NebulaDash 时给出禁用提示
+  - 禁用提示包含要求的 Release 地址
+
+后续注意：
+
+- `router-updater/smoke-test.sh` 需要 `zip` 与 POSIX 环境（OpenWrt / Linux / WSL）。
+  本机 Git Bash 没有 `zip`，因此只做了 `bash -n` 语法校验，未做完整跑通。
+- 上游 `deploy.yml` 已禁用；若将来需要 gh-pages 预览，另开工作流，不要恢复上游矩阵。
+- `router-updater/README.md` 里的路径约定（`/usr/share/nebuladash-updater/`、
+  `/www/cgi-bin/nebuladash-updater`、A/B 分区）保持不变，与既有路由器部署一致。
+- Release 工作流的 Node 版本为 24，与 `vite ^8` 要求一致；不要回退到 22。
+
+---
+
+## 2026-06-29
+
 ### feat(rules): 重基线第⑤组 — 规则直通、链路代理商尾标与跳转规则
 
 - 分支：`rebase/upstream-v3.30.0`

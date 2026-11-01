@@ -27,6 +27,7 @@ import {
   TEST_URL,
   type THEME,
 } from '@/constant'
+import { getDefaultRouterUpdaterEndpoint } from '@/helper/router-updater'
 import { getMinCardWidth, isMiddleScreen, isPreferredDark } from '@/helper/utils'
 import type { SourceIPLabel } from '@/types'
 import { computed } from 'vue'
@@ -190,6 +191,13 @@ export const customBackgroundURL = useStorage('config/custom-background-image', 
 export const customCSS = useStorage('config/custom-css', '')
 export const dashboardTransparent = useStorage('config/dashboard-transparent', 90)
 export const autoUpgradeDashboard = useStorage('config/auto-upgrade', false)
+// NebulaDash 路由器端自管理更新器
+export const routerUpdaterEndpoint = useStorage(
+  'config/router-updater-endpoint',
+  getDefaultRouterUpdaterEndpoint(window.location.href),
+)
+export const routerUpdaterToken = useStorage('config/router-updater-token', '')
+
 export const checkUpgradeCore = useStorage('config/check-upgrade-core', true)
 export const autoUpgradeCore = useStorage('config/auto-upgrade-core', false)
 export const swipeInPages = useStorage('config/swipe-in-pages', true)
