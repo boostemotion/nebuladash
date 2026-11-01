@@ -34,7 +34,7 @@ import LogsCard from '@/components/logs/LogsCard.vue'
 import LogsTable from '@/components/logs/LogsTable.vue'
 import { usePaddingForViews } from '@/composables/use-padding-for-views'
 import { LIST_DISPLAY_STYLE } from '@/constant'
-import { toSearchRegex } from '@/helper/search'
+import { toSearchRegex, toSmartSearchMatcher } from '@/helper/search'
 import { logFilter, logFilterEnabled, logFilterRegex, logTypeFilter } from '@/store/logs'
 import { logDisplayStyle } from '@/store/settings'
 import type { LogWithSeq } from '@/types'
@@ -48,7 +48,7 @@ const { padding } = usePaddingForViews({
 
 const renderLogs = computed(() => {
   let renderLogs = logs.value
-  const searchRegex = toSearchRegex(logFilter.value)
+  const searchRegex = toSmartSearchMatcher(logFilter.value)
 
   if (logFilter.value || logTypeFilter.value) {
     renderLogs = logs.value.filter((log) => {

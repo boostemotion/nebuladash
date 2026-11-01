@@ -127,6 +127,11 @@ export const createMockServer = async ({
   nodes = 60,
   connections = 300,
   providers: providerCount = 4,
+  /*
+   * NebulaDash: 允许传入假规则,用于验证「域名 -> 规则 -> 代理组」反向映射
+   * 与规则页链路感知搜索。默认空数组,保持上游原有行为。
+   */
+  rules = [],
 } = {}) => {
   const fixture = buildFixture({ groups, nodes, connections, providers: providerCount })
   const { proxies, providers, nodeNames, activeConnections } = fixture
@@ -213,7 +218,7 @@ export const createMockServer = async ({
     }
     if (pathname === '/providers/proxies') return json(res, { providers })
     if (pathname === '/providers/rules') return json(res, { providers: {} })
-    if (pathname === '/rules') return json(res, { rules: [] })
+    if (pathname === '/rules') return json(res, { rules })
 
     // 单节点测速会更新内核里的 history,随后页面重新 GET /proxies 才能看到排序变化。
     // mock 也保留这个语义,否则只能测到请求成功,覆盖不到「测速后重排」这条真实链路。

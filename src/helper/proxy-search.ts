@@ -1,6 +1,6 @@
 import { proxyMap, proxyProviederList } from '@/assembly/proxies'
 import { PROXY_SEARCH_MODE, PROXY_TAB_TYPE } from '@/constant'
-import { toSearchRegex } from '@/helper/search'
+import { toSmartSearchMatcher } from '@/helper/search'
 import { proxiesFilter, proxiesTabShow } from '@/store/proxies'
 import { proxyProviderSearchMode, proxySearchMode } from '@/store/settings'
 import { computed } from 'vue'
@@ -27,7 +27,7 @@ export const matchProxySearchKeyword = (name: string, keyword = proxySearchKeywo
     return true
   }
 
-  return toSearchRegex(normalizedKeyword)?.test(name) ?? true
+  return toSmartSearchMatcher(normalizedKeyword)?.test(name) ?? true
 }
 
 export const proxyGroupContainsMatchingNode = (groupName: string) => {

@@ -13,7 +13,11 @@ import {
 } from '@/assembly/proxies'
 import { useCtrlsBar } from '@/composables/use-ctrls-bar'
 import { PROXY_SORT_TYPE, PROXY_TAB_TYPE, ROUTE_NAME, SETTINGS_MENU_KEY } from '@/constant'
-import { proxyGroupRoleSplit, renderProxiesPageItems } from '@/helper/proxies'
+import {
+  ensureRulesLoadedForProxySearch,
+  proxyGroupRoleSplit,
+  renderProxiesPageItems,
+} from '@/helper/proxies'
 import { isProxyNodeSearchMode, toggleProxySearchMode } from '@/helper/proxy-search'
 import { getMinCardWidth } from '@/helper/utils'
 import { proxiesFilter, proxiesTabShow } from '@/store/proxies'
@@ -139,6 +143,11 @@ export default defineComponent({
      * NebulaDash: 只有切到“代理商”标签时才请求 `/providers/proxies`。
      * 策略组/节点组首屏不得等待该接口。
      */
+    // 搜索反向映射依赖 /rules：首次出现有效搜索词时补拉一次。
+    watch(proxiesFilter, (value) => {
+      if (value.trim()) ensureRulesLoadedForProxySearch()
+    })
+
     const handlerTabChange = (value: string) => {
       proxiesTabShow.value = value as PROXY_TAB_TYPE
 

@@ -23,7 +23,7 @@ import {
   getInboundUserFromConnection,
   getNetworkTypeFromConnection,
 } from '@/helper'
-import { toSearchRegex } from '@/helper/search'
+import { toSearchRegex, toSmartSearchMatcher } from '@/helper/search'
 import type { Connection } from '@/types'
 import { computed, ref } from 'vue'
 import {
@@ -108,7 +108,7 @@ export const isClosedConnection = (connection: Connection) =>
   closedConnectionIds.value.has(connection.id)
 
 const filterConnections = (items: readonly Connection[]) => {
-  const searchRegex = toSearchRegex(connectionFilter.value)
+  const searchRegex = toSmartSearchMatcher(connectionFilter.value)
   const hideRegex = quickFilterEnabled.value ? toSearchRegex(quickFilterRegex.value) : null
   const sourceIPs = sourceIPFilter.value
   const needSearchValues = Boolean(searchRegex || hideRegex)

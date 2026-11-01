@@ -18,6 +18,8 @@ export const startHarness = async ({
   groups = 150,
   nodes = 60,
   connections = 300,
+  // NebulaDash: 假规则,默认空数组
+  rules = [],
   appUrl,
   headless = true,
 } = {}) => {
@@ -25,7 +27,7 @@ export const startHarness = async ({
     throw new Error('dist/ 里没有构建产物,先跑 pnpm build(或用 --url 指到已经跑着的服务)')
   }
 
-  const mock = await createMockServer({ groups, nodes, connections })
+  const mock = await createMockServer({ groups, nodes, connections, rules })
   const app = appUrl ? { url: appUrl, close: () => {} } : await serveDirectory(DIST_DIR)
   const debuggingPort = await findFreePort()
   const chrome = await launchChrome({ port: debuggingPort, headless })

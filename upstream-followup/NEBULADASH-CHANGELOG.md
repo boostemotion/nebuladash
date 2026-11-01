@@ -22,6 +22,72 @@
 
 ## 2026-06-29
 
+### feat(search): 重基线第④组 — 搜索规范化、域名变体、规则反向映射与链路感知
+
+- 分支：`rebase/upstream-v3.30.0`
+- 类型：重基线重放（第④组 / 共 8 组）
+- 目的：在上游“空白分词 + 每段当正则 + AND”的搜索骨架上，补回 NebulaDash 的三层语义，
+  不另造一套搜索。
+
+涉及文件：
+
+- `src/helper/search.ts` + `.spec.ts`
+- `src/helper/proxy-search.ts`
+- `src/helper/proxies.ts`（反向映射 + 搜索时补拉 `/rules`）
+- `src/store/rules.ts`（链路感知）、`src/store/connections.ts`、`src/views/LogsPage.vue`
+- `src/components/controls/ProxiesCtrl.tsx`
+- `test/mock-server.mjs`、`test/lib/harness.mjs`、`test/nebula-verify.mjs`
+
+行为变化：
+
+- 新增 `toSmartSearchMatcher()`：多关键词 AND，每个关键词内部按
+  **正则 → NFKC 规范化包含 → 符号容错包含** 的顺序匹配，并展开域名 label 变体
+  （`google.com` 也能命中只写 `google` 的规则/组）。
+- `toSearchRegex()` 保持上游严格正则语义，继续用于“快速过滤正则”这类
+  用户显式提供正则的入口（连接页隐藏过滤、日志隐藏过滤）。
+- 主搜索入口（代理页 / 规则页 / 连接页 / 日志页）改用智能匹配。
+- 规则搜索新增链路感知：候选集为 `type / payload / proxy / 下游链路组名 / 最终出口节点名`。
+- 代理页搜索新增反向映射：命中的规则 → 该规则指向的代理组及其下游链路组一并显示，
+  即使它们被隐藏组过滤或组名不匹配。
+- 代理页首次出现有效搜索词时补拉一次 `/rules`（失败允许重试），不阻塞首屏。
+- `test/mock-server.mjs` 新增可选 `rules` 参数（默认空数组，不改变上游测试行为），
+  `test/lib/harness.mjs` 透传，用于真实回归反向映射与链路感知。
+
+关键取舍（与旧 NebulaDash 文档不同）：
+
+- **`|` 不再作为关键词分隔符**，继续沿用上游“每段当正则”的语义（`香港|故转` 是正则 OR）。
+  旧文档中“`香港|故转` 保持 AND”的条目作废，理由：同一串输入在不同页面被解释成
+  两种意思更容易出错，且会破坏上游用户依赖的正则写法。空格 / 逗号 / 顿号仍是 AND 分隔符。
+- 旧文档“上游启动即拉 `/rules`，因此不需要按需加载”的判断**不成立**：实测上游在
+  连接就绪后才会拉规则，且存在竞态；因此保留按需补拉的兜底。
+
+验证：
+
+- `pnpm test` → 60 项通过（新增 16 项搜索用例）
+- `pnpm type-check` → 通过
+- `pnpm lint` → No issues found
+- `pnpm build` → 通过
+- `pnpm test:nebula` → **15/15 通过**，新增覆盖：
+  - 搜索 `google.com` 显示规则指向的策略组 `Group-002`
+  - 无关组被过滤
+  - 规则就绪后出现节点组（39 个）
+  - 规则页搜索最终出口节点名 `Node-002` 能筛出上游规则
+- `pnpm test:verify`（上游自带）→ 前 7 项虚拟滚动检查全部通过；之后的
+  `Illegal invocation` 与本次改动无关（上游 pristine 基线同样报错）。
+
+后续注意：
+
+- `getSearchTextParts()` 现在先按原文直接匹配（正则 / 规范化变体），无命中再回退到
+  符号容错的区间映射，保证高亮与实际匹配原因一致。
+- 反向映射与链路感知都依赖 `/rules`。若后端规则接口不可用，搜索自动退化为
+  组名/节点名匹配，不会报错。
+- 角色拆分基于“搜索过滤后的代理组”：搜索态下节点组数量为 0 属预期，清空搜索后恢复。
+- 上游若将来把 `|` 从正则改为分隔符，需要重新评估本条取舍。
+
+---
+
+## 2026-06-29
+
 ### feat(proxies): 重基线第③组 — 代理页三段视图与节点组聚类排序
 
 - 分支：`rebase/upstream-v3.30.0`
