@@ -13,7 +13,7 @@ NebulaDash 是基于 [Zashboard](https://github.com/Zephyruso/zashboard) 的轻�
 
 - 上游来源：`Zephyruso/zashboard`
 - 本仓地址：`boostemotion/nebuladash`
-- 当前版本：`3.30.0-nebula.2`（基线 Zashboard `v3.30.0`）
+- 当前版本：`3.30.0-nebula.3`（基线 Zashboard `v3.30.0`）
 - 技术栈：Vue 3 + Vite + TypeScript + Tailwind CSS / daisyUI
 - 架构：纯前端面板，浏览器直连 OpenClash / Mihomo API
 

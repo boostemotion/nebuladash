@@ -1,6 +1,6 @@
 {
   "name": "nebuladash",
-  "version": "3.30.0-nebula.2",
+  "version": "3.30.0-nebula.3",
   "description": "NebulaDash - a Zashboard fork optimized for OpenClash / Mihomo",
   "license": "MIT",
   "type": "module",
@@ -25,8 +25,8 @@
     "test:nebula": "node test/nebula-verify.mjs",
     "test:setup": "node test/setup.mjs",
     "test:verify": "node test/verify.mjs",
-    "zip:dist": "node test/zip-dist.mjs dist dist.zip",
-    "type-check": "vue-tsc --build --force"
+    "type-check": "vue-tsc --build --force",
+    "zip:dist": "node test/zip-dist.mjs dist dist.zip"
   },
   "dependencies": {
     "@eslint/plugin-kit": "^0.7.2",
