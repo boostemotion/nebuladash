@@ -22,6 +22,48 @@
 
 ## 2026-11-01
 
+### fix(ci): 修掉 CI 里的本地化断言（auto-release 失败根因）
+
+- 提交：本提交
+- 类型：CI 修复
+- 现象：`auto-release` 连续失败，`latest` 停在 `nebula.3`；无 GitHub UI 权限读日志。
+
+排查手段（保留为长期能力）：
+
+- 在 auto-release 增加 `if: failure()` 步骤，把 `chrome --version`、`pnpm build`、
+  `test:nebula`、`test:verify` 的输出写入 `.ci/last-failure.txt` 并推到
+  `ci-diagnostics` 分支，本地 `git show origin/ci-diagnostics:.ci/last-failure.txt` 即可读。
+
+根因：
+
+- 不是产品缺陷，也不是 Chrome 启动问题（CI 里 chrome 156 正常，`test:verify` 14/14 全过）。
+- 失败断言是 `test:nebula` 的「显示路由器更新器区块」：英文环境下区块标题被 CSS
+  `text-transform: uppercase` 渲染成 `ROUTER UPDATER`，断言用的是
+  `/路由器更新器|Router updater/` 大小写敏感匹配，本地中文环境不会暴露。
+
+修复：
+
+- `RouterUpdaterSettings.vue` 区块加稳定锚点 `[data-router-updater-section]`。
+- 测试改为优先断言锚点存在，文本断言一律加 `i` 标志；其余中英混合断言同步改为大小写不敏感。
+- `test/nebula-verify.mjs` 新增 `--lang=<locale>`，可固定界面语言复现 CI（默认英文）行为。
+
+验证：
+
+- `node test/nebula-verify.mjs --lang=en-US` → 22/22（模拟 CI 英文环境）
+- `pnpm test:nebula`（本地中文）→ 22/22
+- `pnpm test` → 71 项通过
+- `pnpm exec eslint .` / `pnpm type-check` / `pnpm build` → 通过
+
+后续注意：
+
+- 界面文本断言必须大小写不敏感，或优先用 `data-*` 锚点：多处标题有 `uppercase` 样式。
+- 新增的 CI 失败诊断步骤会推 `ci-diagnostics` 分支，属预期；排查完可删该分支。
+- 本地默认语言与 CI（英文）不同，验证 UI 断言时建议用 `--lang=en-US` 再跑一遍。
+
+---
+
+## 2026-11-01
+
 ### fix: 收尾修复五个遗留槽点
 
 - 提交：本提交

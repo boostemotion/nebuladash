@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col text-sm">
-    <div class="settings-section-label">{{ $t('routerUpdater') }}</div>
+    <div
+      class="settings-section-label"
+      data-router-updater-section
+    >
+      {{ $t('routerUpdater') }}
+    </div>
     <div class="settings-grid">
       <div class="setting-item max-sm:flex-col max-sm:items-start! max-sm:py-3">
         <div class="setting-item-label">{{ $t('routerUpdaterEndpoint') }}</div>

@@ -13,14 +13,15 @@
  * 这几条是 NebulaDash 的核心差异化能力，也是上游同步时最容易被覆盖的地方。
  */
 import { parseArgs } from 'node:util'
-import { startHarness } from './lib/harness.mjs'
 import { sleep, waitFor } from './lib/cdp.mjs'
+import { startHarness } from './lib/harness.mjs'
 
 const { values } = parseArgs({
   options: {
     groups: { type: 'string', default: '40' },
     nodes: { type: 'string', default: '20' },
     url: { type: 'string' },
+    lang: { type: 'string' },
     headful: { type: 'boolean', default: false },
   },
 })
@@ -52,6 +53,9 @@ const harness = await startHarness({
   appUrl: values.url,
   headless: !values.headful,
 })
+
+// 可选：固定界面语言，便于在本地复现 CI（默认英文）下的断言。
+const languageSettings = values.lang ? { 'config/language': values.lang } : {}
 
 // 记录所有命中 /providers/proxies 的请求
 const REQUEST_LOG = `
@@ -107,7 +111,7 @@ const renderedItemNames = async (page) =>
   `)
 
 try {
-  const page = await harness.openProxiesPage()
+  const page = await harness.openProxiesPage({ settings: languageSettings })
 
   // 在应用脚本之前注入请求记录钩子，然后重载，确保首屏请求也被记录
   await page.call('Page.addScriptToEvaluateOnNewDocument', { source: REQUEST_LOG })
@@ -129,9 +133,9 @@ try {
   const tabTexts = tabs.join(' ')
   check(
     '标签包含策略组 / 节点组 / 代理商',
-    /策略组|Strategy/i.test(tabTexts) &&
+    /策略组|strategy/i.test(tabTexts) &&
       /节点组|Node/i.test(tabTexts) &&
-      /代理提供商|Proxy provider/i.test(tabTexts),
+      /代理提供商|proxy provider/i.test(tabTexts),
     tabTexts,
   )
 
@@ -139,14 +143,18 @@ try {
   const requestsBefore = await page.evaluateJson(
     `JSON.stringify(window.__nebulaProviderRequests ?? [])`,
   )
-  check('首屏未请求 /providers/proxies', requestsBefore.length === 0, `实际 ${requestsBefore.length} 次`)
+  check(
+    '首屏未请求 /providers/proxies',
+    requestsBefore.length === 0,
+    `实际 ${requestsBefore.length} 次`,
+  )
 
   check('策略组标签已有卡片', (await renderedItems(page)) > 0, `${await renderedItems(page)} 张`)
 
   const clicked = await page.evaluate(`
     (() => {
       const tab = Array.from(document.querySelectorAll('[role="tab"]')).find((el) =>
-        /代理提供商|Proxy provider/i.test(el.textContent),
+        /代理提供商|proxy provider/i.test(el.textContent),
       )
       if (!tab) return false
       tab.click()
@@ -171,7 +179,11 @@ try {
     requestsAfter.length === 1,
     `实际 ${requestsAfter.length} 次`,
   )
-  check('Provider 标签已渲染列表', (await renderedItems(page)) > 0, `${await renderedItems(page)} 项`)
+  check(
+    'Provider 标签已渲染列表',
+    (await renderedItems(page)) > 0,
+    `${await renderedItems(page)} 项`,
+  )
 
   const statusBadge = await page.evaluate(`
     (() => {
@@ -187,7 +199,7 @@ try {
   await page.evaluate(`
     (() => {
       const tab = Array.from(document.querySelectorAll('[role="tab"]')).find((el) =>
-        /策略组|Strategy/i.test(el.textContent),
+        /策略组|strategy/i.test(el.textContent),
       )
       tab?.click()
     })()
@@ -231,7 +243,7 @@ try {
   await page.evaluate(`
     (() => {
       const tab = Array.from(document.querySelectorAll('[role="tab"]')).find((el) =>
-        /策略组|Strategy/i.test(el.textContent),
+        /策略组|strategy/i.test(el.textContent),
       )
       tab?.click()
     })()
@@ -257,7 +269,11 @@ try {
       return text.includes('跳转规则') || text.includes('Go to rules')
     })()
   `)
-  check('可以打开链路弹窗', openedChain === true && dialogOpen === true, `opened=${openedChain} dialog=${dialogOpen}`)
+  check(
+    '可以打开链路弹窗',
+    openedChain === true && dialogOpen === true,
+    `opened=${openedChain} dialog=${dialogOpen}`,
+  )
 
   const chainText = await page.evaluate(`
     (() => {
@@ -270,10 +286,10 @@ try {
     /代理提供商|Proxy provider/.test(chainText),
     JSON.stringify(String(chainText).slice(0, 160)),
   )
-  check('弹窗内提供“跳转规则”', /跳转规则|Go to rules/.test(chainText))
+  check('弹窗内提供“跳转规则”', /跳转规则|go to rules/i.test(chainText))
 
   section('规则页：链路感知搜索')
-  await page.goto(`${(await page.evaluate('location.origin'))}/#/rules`)
+  await page.goto(`${await page.evaluate('location.origin')}/#/rules`)
   await sleep(1500)
 
   const typedRules = await typeIntoSearch(page, /search|搜索/i, RULE_DOWNSTREAM_NODE)
@@ -289,30 +305,31 @@ try {
       `),
     { timeout: 10000, interval: 200 },
   )
-  check(
-    '搜索下游节点名能筛出上游规则',
-    ruleVisible !== null,
-    `搜索词 ${RULE_DOWNSTREAM_NODE}`,
-  )
+  check('搜索下游节点名能筛出上游规则', ruleVisible !== null, `搜索词 ${RULE_DOWNSTREAM_NODE}`)
 
   section('设置页：更新源保护与路由器更新器')
-  await page.goto(`${(await page.evaluate('location.origin'))}/#/settings?section=generalSettings`)
+  await page.goto(`${await page.evaluate('location.origin')}/#/settings?section=generalSettings`)
   await sleep(2000)
 
   const settingsText = await page.evaluate('document.body.innerText')
+  // 区块标题在英文下会被 CSS uppercase 成 "ROUTER UPDATER"，
+  // 因此优先用稳定锚点，文本断言一律大小写不敏感。
+  const hasUpdaterSection = await page.evaluate(
+    `Boolean(document.querySelector('[data-router-updater-section]'))`,
+  )
   check(
     '显示路由器更新器区块',
-    /路由器更新器|Router updater/.test(settingsText),
+    hasUpdaterSection || /路由器更新器|router updater/i.test(settingsText),
     '区块标题',
   )
   check(
     '显示更新器地址与密钥',
-    /更新器地址|Updater endpoint/.test(settingsText) &&
-      /更新器密钥|Updater token/.test(settingsText),
+    /更新器地址|updater endpoint/i.test(settingsText) &&
+      /更新器密钥|updater token/i.test(settingsText),
   )
   check(
     '后端下载地址非 NebulaDash 时给出禁用提示',
-    /未指向 NebulaDash|does not point to a NebulaDash/.test(settingsText),
+    /未指向 NebulaDash|does not point to a nebuladash/i.test(settingsText),
   )
   check(
     '禁用提示包含要求的 Release 地址',
