@@ -128,6 +128,7 @@ const zh: LANG_MESSAGE = {
   updated: '更新于',
   upgradeDashboard: '升级面板',
   providerRequestTimeout: '代理提供商请求超时（秒）',
+  providerHeavyTimeout: 'Provider 测速/更新超时（秒）',
   emptySearchTitle: '没有匹配的代理',
   emptySearchDetail: '试试减少关键词或换个写法。',
   emptyFolderTitle: '当前文件夹在这个标签下没有内容',

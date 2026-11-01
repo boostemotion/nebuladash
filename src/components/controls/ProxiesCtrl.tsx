@@ -32,6 +32,7 @@ import {
   manageHiddenGroup,
   minProxyCardWidth,
   nodeClusterVariants,
+  providerHeavyTimeoutSeconds,
   providerRequestTimeoutSeconds,
   proxyCardSize,
   proxySortType,
@@ -455,6 +456,16 @@ export default defineComponent({
                     min={1}
                     step={1}
                     v-model={providerRequestTimeoutSeconds.value}
+                  />
+                </div>
+                <div class="setting-item">
+                  <div class="setting-item-label">{t('providerHeavyTimeout')}</div>
+                  <input
+                    class="input input-sm w-20"
+                    type="number"
+                    min={5}
+                    step={5}
+                    v-model={providerHeavyTimeoutSeconds.value}
                   />
                 </div>
                 <div class="setting-item col-span-full">

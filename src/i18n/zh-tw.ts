@@ -128,6 +128,7 @@ const zhTW: LANG_MESSAGE = {
   updated: '更新於',
   upgradeDashboard: '升級面板',
   providerRequestTimeout: '代理提供商請求逾時（秒）',
+  providerHeavyTimeout: 'Provider 測速/更新逾時（秒）',
   emptySearchTitle: '沒有符合的代理',
   emptySearchDetail: '試試減少關鍵字或換個寫法。',
   emptyFolderTitle: '目前資料夾在這個標籤下沒有內容',

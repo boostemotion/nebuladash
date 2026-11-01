@@ -327,6 +327,15 @@ export const twoColumnProxyGroup = useStorage('config/two-columns', true)
  * NebulaDash: `/providers/proxies` 的独立超时（秒）。
  * OpenClash 多 Provider 下该接口可能十几秒才返回，默认 15s；网络更慢时可调高。
  */
+/**
+ * NebulaDash: Provider“重操作”超时（秒）——单个 Provider 测速与更新订阅。
+ * 这两类操作会遍历/下载整个 Provider，默认给到 120 秒。
+ */
+export const providerHeavyTimeoutSeconds = useStorage(
+  'config/provider-heavy-timeout-seconds',
+  120,
+)
+
 export const providerRequestTimeoutSeconds = useStorage(
   'config/provider-request-timeout-seconds',
   15,

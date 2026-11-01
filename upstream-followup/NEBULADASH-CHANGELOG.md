@@ -22,6 +22,48 @@
 
 ## 2026-11-01
 
+### fix(provider): 单个 Provider 测速必超时（healthcheck 固定 15s）
+
+- 提交：本提交
+- 类型：路由器实测问题修复
+- 现象：点某个 Provider（名为「慈善」）的测速按钮，报
+  `/providers/proxies/慈善/healthcheck` `timeout of 15000ms exceeded`；
+  而右上角“整体测速”正常。
+- 原因：两件事叠加
+  1. `proxyProviderHealthCheckAPI` 里硬编码 `timeout: 15000`；
+  2. `/healthcheck` 是**逐节点测速整个 Provider**，节点多时必然超过 15 秒。
+     右上角整体测速走的是另一套接口（组测速 / 单节点测速），所以不受影响。
+
+修复：
+
+- `updateProxyProviderAPI(name, timeoutMs)` 与
+  `proxyProviderHealthCheckAPI(name, timeoutMs)` 改为接受超时参数。
+- 新增设置项 `config/provider-heavy-timeout-seconds`（默认 **120 秒**），
+  在代理页设置里以「Provider 测速/更新超时（秒）」暴露。
+  Provider 列表拉取仍由原来的「Provider 请求超时」（默认 15 秒）控制，两者分开。
+- 更新订阅同样使用该超时：它会下载整个 Provider，原先“无限等待”会导致卡死无提示。
+- clash 驱动从设置读取，最小 5 秒。
+
+验证：
+
+- `pnpm test` → 73 项通过
+- `pnpm type-check` / `pnpm lint` / `pnpm build` → 通过
+- `pnpm test:nebula` → 29/29 通过
+- `pnpm test:verify` → 14/14 通过
+- 待路由器实机验证：节点较多的 Provider 单个测速与更新订阅
+
+后续注意：
+
+- 两个超时的语义不同，不要合并：
+  `providerRequestTimeoutSeconds` = 拉 Provider 列表；`providerHeavyTimeoutSeconds` = 单个 Provider 测速/更新。
+- 若某个 Provider 节点极多（数百），120 秒仍可能不够，界面里可直接调大，无需改代码。
+- 超时后 `refreshProxyProvider` / `healthCheckProxyProvider` 的 `finally` 会收尾转圈状态，
+  但仍会弹一次超时通知（预期行为，便于用户知道该调大超时）。
+
+---
+
+## 2026-11-01
+
 ### refactor(provider): 收敛刷新入口，堵住“静默不更新”的复发路径
 
 - 提交：本提交

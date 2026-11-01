@@ -38,7 +38,7 @@ import {
   upgradeUIAPI,
 } from '@/api/clash'
 import { proxyMap } from '@/assembly/proxies/state'
-import { providerRequestTimeoutSeconds } from '@/store/settings'
+import { providerHeavyTimeoutSeconds, providerRequestTimeoutSeconds } from '@/store/settings'
 import { PROXY_TYPE } from '@/constant'
 import type { ClashConnectionRawMessage, Connection, Log, ProxyProvider } from '@/types'
 import { head } from 'lodash'
@@ -213,8 +213,12 @@ export const clashDriver: Driver = {
       (await fetchProxyProviderLatencyAPI(provider, name, url, timeout)).data.delay,
     testGroup: async (group, url, timeout) =>
       (await fetchProxyGroupLatencyAPI(group, url, timeout)).data,
-    updateProvider: (name) => done(updateProxyProviderAPI(name)),
-    healthCheckProvider: (name) => done(proxyProviderHealthCheckAPI(name)),
+    updateProvider: (name) =>
+      done(updateProxyProviderAPI(name, Math.max(5, providerHeavyTimeoutSeconds.value) * 1000)),
+    healthCheckProvider: (name) =>
+      done(
+        proxyProviderHealthCheckAPI(name, Math.max(5, providerHeavyTimeoutSeconds.value) * 1000),
+      ),
     fetchSmartWeights: async () => (await fetchSmartWeightsAPI()).data.weights,
     flushSmartWeights: () => done(flushSmartGroupWeightsAPI()),
   },

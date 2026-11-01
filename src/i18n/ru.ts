@@ -129,6 +129,7 @@ const ru: LANG_MESSAGE = {
   updated: 'Обновлено',
   upgradeDashboard: 'Обновить панель до новой версии',
   providerRequestTimeout: 'Таймаут запроса провайдеров (с)',
+  providerHeavyTimeout: 'Таймаут теста/обновления провайдера (с)',
   emptySearchTitle: 'Нет подходящих прокси',
   emptySearchDetail: 'Попробуйте меньше или другие ключевые слова.',
   emptyFolderTitle: 'В этой папке нет элементов для текущей вкладки',

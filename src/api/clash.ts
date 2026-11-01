@@ -75,15 +75,20 @@ export const fetchProxyProviderAPI = (timeoutMs = 15000) => {
   })
 }
 
-export const updateProxyProviderAPI = (name: string) => {
-  return axios.put(`/providers/proxies/${encodeURIComponent(name)}`)
+export const updateProxyProviderAPI = (name: string, timeoutMs = 120000) => {
+  // 更新订阅要下载整个 Provider，慢的时候几十秒，不能沿用默认的“无限等待”。
+  return axios.put(`/providers/proxies/${encodeURIComponent(name)}`, undefined, {
+    timeout: timeoutMs,
+  })
 }
 
-export const proxyProviderHealthCheckAPI = (name: string) => {
+export const proxyProviderHealthCheckAPI = (name: string, timeoutMs = 120000) => {
+  // NebulaDash: healthcheck 会逐节点测速整个 Provider，节点多时很容易超过 15s。
+  // 固定 15s 会导致“单个 Provider 测速必超时、整体测速却正常”。
   return axios.get<Record<string, number>>(
     `/providers/proxies/${encodeURIComponent(name)}/healthcheck`,
     {
-      timeout: 15000,
+      timeout: timeoutMs,
     },
   )
 }

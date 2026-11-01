@@ -127,6 +127,7 @@ const en = {
   updated: 'Updated',
   upgradeDashboard: 'Upgrade dashboard',
   providerRequestTimeout: 'Provider request timeout (s)',
+  providerHeavyTimeout: 'Provider test/update timeout (s)',
   emptySearchTitle: 'No matching proxies',
   emptySearchDetail: 'Try fewer or different keywords.',
   emptyFolderTitle: 'This folder has nothing in the current tab',
