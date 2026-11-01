@@ -7,7 +7,7 @@ import { fetchDaeRuntime } from './dae'
 import { driver } from './driver'
 import { initLogs, stopLogs } from './logs'
 import { initSatistic, stopSatistic } from './overview'
-import { fetchProxies } from './proxies'
+import { fetchProxies, hydrateProxiesFromCache, resetProxyState } from './proxies'
 import { fetchRules } from './rules'
 import { probeActiveBackend } from './version'
 
@@ -50,6 +50,10 @@ export const startBackendSession = async () => {
   stopSatistic()
   stopEvents()
   driver().reset?.()
+
+  // NebulaDash: 先重置内存状态，再用当前后端 UUID 的缓存起屏，最后后台刷新。
+  resetProxyState()
+  hydrateProxiesFromCache()
 
   if (!activeBackend.value) {
     probeActiveBackend()

@@ -1,0 +1,92 @@
+/**
+ * NebulaDash Provider 缓存工具。
+ *
+ * 背景：OpenClash / Mihomo 在大量 Provider 下，`/providers/proxies` 常需要十几秒甚至超时。
+ * 因此 Provider 数据必须：
+ * - 按后端 UUID 隔离，避免多后端互相污染；
+ * - 允许先用缓存起屏；
+ * - 失败或超时不得清空已有数据。
+ *
+ * 本文件只放纯函数，便于单元测试。
+ */
+export type ProxyCacheKind = 'data' | 'providers' | 'provider-meta'
+
+export type ProviderLoadStatus =
+  | 'idle'
+  | 'loading'
+  | 'cached'
+  | 'stale'
+  | 'fresh'
+  | 'timeout'
+  | 'error'
+
+export type ProviderCacheMeta = {
+  fetchedAt: number
+  durationMs: number
+  status: Exclude<ProviderLoadStatus, 'idle' | 'loading'>
+}
+
+const CACHE_PREFIX_MAP: Record<ProxyCacheKind, string> = {
+  data: 'cache/proxy-data',
+  providers: 'cache/proxy-providers',
+  'provider-meta': 'cache/proxy-provider-meta',
+}
+const PROXY_CACHE_KINDS: ProxyCacheKind[] = ['data', 'providers', 'provider-meta']
+
+export const getProxyCacheKey = (kind: ProxyCacheKind, backendUuid: string) => {
+  return `${CACHE_PREFIX_MAP[kind]}/${backendUuid || 'inactive'}`
+}
+
+export const getProxyCacheKeysForBackend = (backendUuid: string) => {
+  return PROXY_CACHE_KINDS.map((kind) => getProxyCacheKey(kind, backendUuid))
+}
+
+export const clearProxyCacheForBackend = (
+  storage: Pick<Storage, 'removeItem'>,
+  backendUuid: string,
+) => {
+  getProxyCacheKeysForBackend(backendUuid).forEach((key) => storage.removeItem(key))
+}
+
+export const getProviderFailureStatus = (error: unknown): 'timeout' | 'error' => {
+  const code =
+    typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : ''
+
+  return code === 'ECONNABORTED' || code === 'ETIMEDOUT' ? 'timeout' : 'error'
+}
+
+export const getCachedProviderLoadStatus = ({
+  hasCachedProviders,
+  fetchedAt,
+  now,
+  freshDurationMs,
+}: {
+  hasCachedProviders: boolean
+  fetchedAt: number
+  now: number
+  freshDurationMs: number
+}): 'cached' | 'stale' | null => {
+  if (!hasCachedProviders) {
+    return null
+  }
+
+  return now - fetchedAt < freshDurationMs ? 'cached' : 'stale'
+}
+
+export const shouldNotifyProviderFailure = ({
+  lastNotifiedAt,
+  now,
+  dedupeMs,
+}: {
+  lastNotifiedAt: number
+  now: number
+  dedupeMs: number
+}) => {
+  return lastNotifiedAt <= 0 || now - lastNotifiedAt >= dedupeMs
+}
+
+/** Provider 缓存新鲜期：30 分钟内视为“缓存数据”，超过视为“旧缓存”。 */
+export const PROVIDER_CACHE_FRESH_DURATION = 30 * 60 * 1000
+
+/** Provider 失败通知去重窗口：避免慢接口连续刷屏。 */
+export const PROVIDER_FAILURE_NOTIFICATION_DEDUPE = 60 * 1000

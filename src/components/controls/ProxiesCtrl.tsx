@@ -3,8 +3,12 @@ import { configs, updateConfigs } from '@/assembly/config'
 import {
   allProxiesLatencyTest,
   fetchProxies,
+  fetchProxyProviders,
   hasSmartGroup,
   proxyGroupList,
+  proxyProviderLastUpdatedAt,
+  proxyProviderLoadStatus,
+  proxyProviderRequestDurationMs,
   proxyProviederList,
   updateProxyProvider,
 } from '@/assembly/proxies'
@@ -40,7 +44,7 @@ import {
   WrenchScrewdriverIcon,
 } from '@heroicons/vue/24/outline'
 import { every } from 'lodash'
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import CtrlsBar from '../common/CtrlsBar.vue'
@@ -76,7 +80,9 @@ export default defineComponent({
     }
 
     const hasProviders = computed(() => {
-      return proxyProviederList.value.length > 0
+      // NebulaDash: Provider 是按需加载的，未加载时列表为空，
+      // 不能让“数量为 0”把分段控件藏起来。
+      return proxyProviederList.value.length > 0 || can('proxyProviderUpdate')
     })
 
     const foldersUiVisible = computed(
@@ -120,6 +126,78 @@ export default defineComponent({
       minProxyCardWidth.value = getMinCardWidth(proxyCardSize.value)
     }
 
+    // “按提供商分组”依赖节点上的 provider-name，只有启用了才需要 Provider 数据。
+    watch(
+      groupProxiesByProvider,
+      (enabled) => {
+        if (enabled) void fetchProxyProviders()
+      },
+      { immediate: true },
+    )
+
+    /**
+     * NebulaDash: 只有切到“代理商”标签时才请求 `/providers/proxies`。
+     * 策略组/节点组首屏不得等待该接口。
+     */
+    const handlerTabChange = (value: string) => {
+      proxiesTabShow.value = value as PROXY_TAB_TYPE
+
+      if (value === PROXY_TAB_TYPE.PROVIDER) {
+        void fetchProxyProviders()
+      }
+    }
+
+    const providerStatusLabel = computed(() => {
+      switch (proxyProviderLoadStatus.value) {
+        case 'loading':
+          return t('loading')
+        case 'cached':
+          return t('providerStatusCached')
+        case 'stale':
+          return t('providerStatusStale')
+        case 'fresh':
+          return t('providerStatusFresh')
+        case 'timeout':
+          return t('providerStatusTimeout')
+        case 'error':
+          return t('providerStatusError')
+        default:
+          return ''
+      }
+    })
+
+    const providerStatusClass = computed(() => {
+      switch (proxyProviderLoadStatus.value) {
+        case 'fresh':
+          return 'badge-success'
+        case 'cached':
+          return 'badge-info'
+        case 'stale':
+          return 'badge-warning'
+        case 'timeout':
+        case 'error':
+          return 'badge-error'
+        case 'loading':
+          return 'badge-info'
+        default:
+          return 'badge-ghost'
+      }
+    })
+
+    const providerStatusTitle = computed(() => {
+      const details: string[] = []
+
+      if (proxyProviderRequestDurationMs.value > 0) {
+        details.push(`${proxyProviderRequestDurationMs.value} ms`)
+      }
+
+      if (proxyProviderLastUpdatedAt.value > 0) {
+        details.push(new Date(proxyProviderLastUpdatedAt.value).toLocaleString())
+      }
+
+      return details.join(' | ')
+    })
+
     const tabsWithNumbers = computed(() => {
       return Object.values(PROXY_TAB_TYPE).map((type) => {
         return {
@@ -135,7 +213,7 @@ export default defineComponent({
       const tabs = (
         <SegmentedControl
           modelValue={proxiesTabShow.value}
-          onUpdate:modelValue={(value) => (proxiesTabShow.value = value as PROXY_TAB_TYPE)}
+          onUpdate:modelValue={handlerTabChange}
           options={tabsWithNumbers.value.map(({ type, count }) => ({
             value: type,
             label: t(type),
@@ -155,6 +233,15 @@ export default defineComponent({
           <DaeEntryModal v-model={entryManagerModel.value} />
         </>
       )
+      const providerStatusBadge = proxiesTabShow.value === PROXY_TAB_TYPE.PROVIDER &&
+        providerStatusLabel.value && (
+          <span
+            class={['badge badge-sm whitespace-nowrap', providerStatusClass.value]}
+            title={providerStatusTitle.value}
+          >
+            {providerStatusLabel.value}
+          </span>
+        )
       const upgradeAllIcon = proxiesTabShow.value === PROXY_TAB_TYPE.PROVIDER &&
         can('proxyProviderUpdate') && (
           <button
@@ -361,6 +448,7 @@ export default defineComponent({
           {hasProviders.value && (
             <div class="flex gap-2">
               {tabs}
+              {providerStatusBadge}
               {upgradeAllIcon}
             </div>
           )}
@@ -376,6 +464,7 @@ export default defineComponent({
       ) : (
         <div class="flex gap-2 p-2">
           {hasProviders.value && tabs}
+          {providerStatusBadge}
           {modeSelect}
           <div class="flex flex-1">{searchInput}</div>
           {upgradeAllIcon}

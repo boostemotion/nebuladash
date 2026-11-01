@@ -1,6 +1,8 @@
 import { can } from '@/assembly/backend'
 import { useStorage } from '@/composables/use-storage'
 import { NOT_CONNECTED, PROXY_TYPE, TEST_URL } from '@/constant'
+import { getProxyCacheKey, type ProviderCacheMeta, type ProviderLoadStatus } from '@/helper/proxy-cache'
+import { activeUuid } from '@/store/setup'
 import { groupTestUrls, independentLatencyTest, speedtestUrl } from '@/store/settings'
 import type { Proxy, ProxyProvider } from '@/types'
 import { last } from 'lodash'
@@ -10,6 +12,37 @@ export const proxyGroupList = ref<string[]>([])
 export const proxyMap = ref<Record<string, Proxy>>({})
 export const IPv6Map = useStorage<Record<string, boolean>>('cache/ipv6-map', {})
 export const proxyProviederList = ref<ProxyProvider[]>([])
+
+/**
+ * NebulaDash: Provider 独立加载状态。
+ *
+ * OpenClash 下 `/providers/proxies` 可能十几秒才返回甚至超时，因此：
+ * - Provider 数据只在需要时请求（代理页“代理商”标签 / 手动刷新）；
+ * - 请求结果与元数据按后端 UUID 缓存，用于先缓存起屏；
+ * - 失败时保留旧数据，并把状态暴露给界面。
+ */
+export const proxyProviderLoadStatus = ref<ProviderLoadStatus>('idle')
+export const hasLoadedProxyProviders = ref(false)
+
+export const cachedProxyData = useStorage<{ proxies: Record<string, Proxy> } | null>(
+  () => getProxyCacheKey('data', activeUuid.value),
+  null,
+)
+export const cachedProxyProviders = useStorage<ProxyProvider[]>(
+  () => getProxyCacheKey('providers', activeUuid.value),
+  [],
+)
+export const cachedProxyProviderMeta = useStorage<ProviderCacheMeta | null>(
+  () => getProxyCacheKey('provider-meta', activeUuid.value),
+  null,
+)
+
+export const proxyProviderLastUpdatedAt = computed(
+  () => cachedProxyProviderMeta.value?.fetchedAt ?? 0,
+)
+export const proxyProviderRequestDurationMs = computed(
+  () => cachedProxyProviderMeta.value?.durationMs ?? 0,
+)
 
 export type LatencyMap = Map<string, number>
 

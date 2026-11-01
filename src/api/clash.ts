@@ -68,7 +68,11 @@ export const fetchProxyGroupLatencyAPI = (proxyName: string, url: string, timeou
 }
 
 export const fetchProxyProviderAPI = () => {
-  return axios.get<{ providers: Record<string, ProxyProvider> }>('/providers/proxies')
+  // NebulaDash: OpenClash 在大量 Provider 下该接口可能十几秒才返回，必须独立超时，
+  // 否则会拖死整个代理页并触发浏览器默认长超时。
+  return axios.get<{ providers: Record<string, ProxyProvider> }>('/providers/proxies', {
+    timeout: 15000,
+  })
 }
 
 export const updateProxyProviderAPI = (name: string) => {

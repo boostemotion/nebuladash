@@ -123,6 +123,13 @@ const zhTW: LANG_MESSAGE = {
   noExpire: '不限時',
   updated: '更新於',
   upgradeDashboard: '升級面板',
+  providerStatusCached: '快取資料',
+  providerStatusStale: '舊快取',
+  providerStatusFresh: '剛更新',
+  providerStatusTimeout: '代理提供商請求逾時',
+  providerStatusError: '代理提供商載入失敗',
+  providerLoadTimeoutTip: '代理提供商請求逾時，已保留快取資料。',
+  providerLoadErrorTip: '代理提供商載入失敗，已保留快取資料。',
   dashboardUpgradeBlocked:
     '後端 UI 下載位址未指向 NebulaDash Release ZIP，已停用面板更新。要求位址：',
   reloadConfigs: '重載配置',

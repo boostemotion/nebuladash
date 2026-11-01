@@ -39,7 +39,7 @@ import {
 } from '@/api/clash'
 import { proxyMap } from '@/assembly/proxies/state'
 import { PROXY_TYPE } from '@/constant'
-import type { ClashConnectionRawMessage, Connection, Log } from '@/types'
+import type { ClashConnectionRawMessage, Connection, Log, ProxyProvider } from '@/types'
 import { head } from 'lodash'
 import { shallowRef, watch } from 'vue'
 import type {
@@ -152,6 +152,11 @@ const subscribeConnections = (): Stream<ConnectionsPayload> => {
   }
 }
 
+const filterProxyProviders = (providers: Record<string, ProxyProvider>) =>
+  Object.values(providers).filter(
+    (provider) => provider.name !== 'default' && provider.vehicleType !== 'Compatible',
+  )
+
 export const clashDriver: Driver = {
   type: 'clash',
 
@@ -173,18 +178,29 @@ export const clashDriver: Driver = {
   },
 
   proxies: {
-    fetch: async () => {
-      const [proxyRes, providerRes] = await Promise.all([
-        fetchProxiesAPI(),
-        fetchProxyProviderAPI(),
-      ])
+    // NebulaDash: 默认只取 `/proxies`，Provider 由 fetchProxyProviders() 按需拉取。
+    // 显式传 includeProviders 时才并行请求（保留上游原始行为作为兼容路径）。
+    fetch: async (options) => {
+      if (options?.includeProviders) {
+        const [proxyRes, providerRes] = await Promise.all([
+          fetchProxiesAPI(),
+          fetchProxyProviderAPI(),
+        ])
 
-      return {
-        proxies: proxyRes.data.proxies,
-        providers: Object.values(providerRes.data.providers).filter(
-          (provider) => provider.name !== 'default' && provider.vehicleType !== 'Compatible',
-        ),
+        return {
+          proxies: proxyRes.data.proxies,
+          providers: filterProxyProviders(providerRes.data.providers),
+        }
       }
+
+      const proxyRes = await fetchProxiesAPI()
+
+      return { proxies: proxyRes.data.proxies, providers: [] }
+    },
+    fetchProviders: async () => {
+      const providerRes = await fetchProxyProviderAPI()
+
+      return filterProxyProviders(providerRes.data.providers)
     },
     select: (group, name) => done(selectProxyAPI(group, name)),
     clearFixed: (group) => done(deleteFixedProxyAPI(group)),

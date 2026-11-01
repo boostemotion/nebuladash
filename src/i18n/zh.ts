@@ -123,6 +123,13 @@ const zh: LANG_MESSAGE = {
   noExpire: '不限时',
   updated: '更新于',
   upgradeDashboard: '升级面板',
+  providerStatusCached: '缓存数据',
+  providerStatusStale: '旧缓存',
+  providerStatusFresh: '刚更新',
+  providerStatusTimeout: '代理提供商请求超时',
+  providerStatusError: '代理提供商加载失败',
+  providerLoadTimeoutTip: '代理提供商请求超时，已保留缓存数据。',
+  providerLoadErrorTip: '代理提供商加载失败，已保留缓存数据。',
   dashboardUpgradeBlocked:
     '后端 UI 下载地址未指向 NebulaDash Release ZIP，已禁用面板更新。要求地址：',
   reloadConfigs: '重载配置',

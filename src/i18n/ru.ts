@@ -123,6 +123,13 @@ const ru: LANG_MESSAGE = {
   noExpire: 'Нет',
   updated: 'Обновлено',
   upgradeDashboard: 'Обновить панель до новой версии',
+  providerStatusCached: 'Из кэша',
+  providerStatusStale: 'Устаревший кэш',
+  providerStatusFresh: 'Обновлено',
+  providerStatusTimeout: 'Таймаут провайдеров',
+  providerStatusError: 'Ошибка загрузки провайдеров',
+  providerLoadTimeoutTip: 'Запрос провайдеров прокси превысил время ожидания. Данные из кэша сохранены.',
+  providerLoadErrorTip: 'Не удалось загрузить провайдеров прокси. Данные из кэша сохранены.',
   dashboardUpgradeBlocked:
     'Обновление панели отключено: адрес загрузки UI в бэкенде не указывает на ZIP-релиз NebulaDash. Требуется:',
   reloadConfigs: 'Перезагрузить конфигурации',

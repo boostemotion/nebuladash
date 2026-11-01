@@ -1,4 +1,5 @@
 import { useStorage } from '@/composables/use-storage'
+import { clearProxyCacheForBackend } from '@/helper/proxy-cache'
 import type { Backend } from '@/types'
 import { isEqual, omit } from 'lodash'
 import { v4 as uuid } from 'uuid'
@@ -100,6 +101,7 @@ export const removeBackend = (uuid: string) => {
   const wasActive = activeUuid.value === uuid
 
   backendList.value = backendList.value.filter((end) => end.uuid !== uuid)
+  clearProxyCacheForBackend(localStorage, uuid)
 
   if (wasActive) {
     setActiveBackend(backendList.value[0]?.uuid ?? '')

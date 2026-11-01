@@ -119,8 +119,21 @@ export interface EventsDriver {
   subscribe(onEvent: (kind: string, payload: unknown) => void): Subscription
 }
 
+/**
+ * NebulaDash: Provider 数据可能非常慢，调用方可以要求只取 `/proxies`，
+ * 由 `fetchProxyProviders()` 单独按需拉取 Provider。
+ */
+export interface ProxiesFetchOptions {
+  includeProviders?: boolean
+}
+
 export interface ProxiesDriver {
-  fetch(): Promise<ProxiesPayload>
+  fetch(options?: ProxiesFetchOptions): Promise<ProxiesPayload>
+  /**
+   * NebulaDash: 单独请求 Provider。缺省时由 `fetch({ includeProviders: true })` 兜底
+   * （例如 dae 驱动无法单独请求 Provider）。
+   */
+  fetchProviders?(): Promise<ProxyProvider[]>
   select(group: string, name: string): Promise<void>
   clearFixed(group: string): Promise<void>
   testNode(name: string, url: string, timeout: number): Promise<number>
