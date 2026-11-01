@@ -21,16 +21,44 @@ const getGitCommitId = (): string => {
   }
 }
 
+const getBuildTime = (): string => {
+  const date = new Date()
+  const pad = (value: number) => String(value).padStart(2, '0')
+
+  return (
+    [date.getFullYear(), pad(date.getMonth() + 1), pad(date.getDate())].join('-') +
+    ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+  )
+}
+
 // Selects which fonts get bundled. One of:
 //   all (default) | cdn | firasans | misans | pingfang | sarasa | none
 // See src/assets/load-fonts.ts for what each value loads.
 const font = process.env.FONT || 'all'
+
+// NebulaDash: OpenClash routers are low-resource devices, so large third-party
+// dependencies are split out of the entry chunk and the PWA precache is capped.
+// Keep these groups in sync with `NEBULADASH-FEATURE-INVENTORY.md` §16.
+const getManualChunk = (id: string): string | undefined => {
+  if (!id.includes('node_modules')) return undefined
+
+  if (id.includes('three')) return 'three'
+  if (id.includes('echarts')) return 'echarts'
+  if (id.includes('zrender')) return 'zrender'
+  if (id.includes('@tanstack')) return 'table'
+  if (id.includes('vuedraggable') || id.includes('sortablejs')) return 'drag'
+  if (id.includes('@heroicons')) return 'icons'
+  if (id.includes('vue') || id.includes('@vue') || id.includes('vue-router')) return 'vue-vendor'
+
+  return 'vendor'
+}
 
 // https://vite.dev/config/
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(version),
     __COMMIT_ID__: JSON.stringify(getGitCommitId()),
+    __BUILD_TIME__: JSON.stringify(getBuildTime()),
     __FONT__: JSON.stringify(font),
   },
   base: './',
@@ -50,9 +78,9 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       manifest: {
-        name: 'zashboard',
-        short_name: 'zashboard',
-        description: 'a dashboard using clash api',
+        name: 'NebulaDash',
+        short_name: 'NebulaDash',
+        description: 'NebulaDash - a dashboard using clash api',
         theme_color: '#000000',
         icons: [
           {
@@ -86,6 +114,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id: string) => getManualChunk(id),
+      },
     },
   },
 })

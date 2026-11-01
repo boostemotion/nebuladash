@@ -121,6 +121,8 @@ const en = {
   noExpire: 'No expiry',
   updated: 'Updated',
   upgradeDashboard: 'Upgrade dashboard',
+  dashboardUpgradeBlocked:
+    'Dashboard upgrade is disabled because the backend UI download URL does not point to a NebulaDash release ZIP. Expected:',
   reloadConfigs: 'Reload configs',
   updateConfigs: 'Update configs',
   updateConfigsSuccess: 'Configs updated successfully',

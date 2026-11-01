@@ -34,6 +34,9 @@ export type Config = {
     enable: boolean
     stack?: string
   }
+  // OpenClash / Mihomo UI management keys used by NebulaDash update-source guard.
+  'external-ui-download-url'?: string
+  'external-ui-url'?: string
 }
 
 export type History = {

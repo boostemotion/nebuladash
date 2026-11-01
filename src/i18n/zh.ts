@@ -123,6 +123,8 @@ const zh: LANG_MESSAGE = {
   noExpire: '不限时',
   updated: '更新于',
   upgradeDashboard: '升级面板',
+  dashboardUpgradeBlocked:
+    '后端 UI 下载地址未指向 NebulaDash Release ZIP，已禁用面板更新。要求地址：',
   reloadConfigs: '重载配置',
   updateConfigs: '更新配置',
   updateConfigsSuccess: '配置更新成功',

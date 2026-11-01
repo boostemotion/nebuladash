@@ -123,6 +123,8 @@ const ru: LANG_MESSAGE = {
   noExpire: 'Нет',
   updated: 'Обновлено',
   upgradeDashboard: 'Обновить панель до новой версии',
+  dashboardUpgradeBlocked:
+    'Обновление панели отключено: адрес загрузки UI в бэкенде не указывает на ZIP-релиз NebulaDash. Требуется:',
   reloadConfigs: 'Перезагрузить конфигурации',
   updateConfigs: 'Обновить конфигурации',
   updateConfigsSuccess: 'Конфигурации успешно обновлены',

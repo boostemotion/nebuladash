@@ -3,11 +3,14 @@ import HonkLogo from '@/assets/images/honk.svg'
 import MetacubexLogo from '@/assets/images/metacubex.jpg'
 import { MIHOMO, MIHOMO_CHANNEL } from '@/constant'
 import { fetchWithLocalCache } from '@/helper/cache'
+import { fetchLatestReleaseTag, getReleaseUpdateState } from '@/helper/release-version'
+import { canUpgradeNebulaDashFromConfig } from '@/helper/ui-update-source'
 import { getRequestErrorMessage } from '@/helper/request-error'
 import { autoUpgradeCore, autoUpgradeDashboard, checkUpgradeCore } from '@/store/settings'
 import { activeBackend } from '@/store/setup'
 import type { Backend } from '@/types'
 import { computed, nextTick, ref } from 'vue'
+import { configs } from './config'
 import { can, core, Core, resetCore } from './backend'
 import { fetchCapabilities, resetCapabilities } from './capabilities'
 import { driver } from './driver'
@@ -15,7 +18,7 @@ import { driver } from './driver'
 export const version = ref()
 export const isCoreUpdateAvailable = ref(false)
 export const isUIUpdateAvailable = ref(false)
-export const zashboardVersion = ref(__APP_VERSION__)
+export const dashboardVersion = ref(__APP_VERSION__)
 
 export type BackendProbe = {
   uuid: string
@@ -145,13 +148,29 @@ const fetchIsCoreUpdateAvailable = async () => {
   return !assets.some(({ name }) => name.includes(versionNumber))
 }
 
+/**
+ * NebulaDash 更新检查。
+ *
+ * 与上游不同：
+ * - 检查源固定为 `boostemotion/nebuladash` Release，而不是官方 Zashboard。
+ * - 使用版本比较而不是“tag 不相等”，避免远端更旧时误报可更新。
+ * - 后端 `external-ui-download-url` 不指向 NebulaDash Release ZIP 时，禁用面板更新，
+ *   防止把 NebulaDash 覆盖成官方 Zashboard。
+ */
 export const checkUIUpdate = async () => {
-  const { tag_name } = await fetchWithLocalCache<{ tag_name: string }>(
-    'https://api.github.com/repos/Zephyruso/zashboard/releases/latest',
-    zashboardVersion.value,
-  )
+  const state = await fetchLatestReleaseTag()
+    .then((tag) => getReleaseUpdateState(tag, dashboardVersion.value))
+    .catch(() => getReleaseUpdateState(null, dashboardVersion.value))
 
-  isUIUpdateAvailable.value = Boolean(tag_name && tag_name !== `v${zashboardVersion.value}`)
+  isUIUpdateAvailable.value = state.isUpdateAvailable
+
+  if (
+    isUIUpdateAvailable.value &&
+    autoUpgradeDashboard.value &&
+    !canUpgradeNebulaDashFromConfig(configs.value)
+  ) {
+    return
+  }
 
   if (isUIUpdateAvailable.value && autoUpgradeDashboard.value) {
     upgradeUI().catch(() => {})

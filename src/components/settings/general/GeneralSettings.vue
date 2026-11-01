@@ -19,6 +19,16 @@
         <div class="setting-item-label">{{ $t('dashboardSettings') }}</div>
         <DashboardSettings icon-only />
       </SettingItem>
+      <SettingItem
+        v-if="isDashboardUpgradeBlocked"
+        :setting-key="k.actions"
+        class="max-sm:flex-col max-sm:items-start! max-sm:py-3"
+      >
+        <div class="setting-item-label">{{ $t('dashboardUpgradeBlocked') }}</div>
+        <span class="font-mono text-xs break-all opacity-60">
+          {{ requiredUiDownloadUrl }}
+        </span>
+      </SettingItem>
       <LanguageSelect />
       <SettingItem
         v-if="showDashboardUpgrade"
@@ -197,6 +207,11 @@
 
 <script setup lang="ts">
 import { can, showDisplayAllFeatures } from '@/assembly/backend'
+import { configs } from '@/assembly/config'
+import {
+  canUpgradeNebulaDashFromConfig,
+  NEBULADASH_RELEASE_DOWNLOAD_URL,
+} from '@/helper/ui-update-source'
 import { upgradeUI } from '@/assembly/version'
 import DashboardSettings from '@/components/common/DashboardSettings.vue'
 import SelectInput from '@/components/common/SelectInput.vue'
@@ -272,8 +287,18 @@ const hasVisibleInteractionItems = computed(
     (showDisplayAllFeatures.value && isVisibleDisplayAllFeatures.value),
 )
 
-const showDashboardUpgrade = computed(() => can('dashboardUpgrade'))
+// NebulaDash: 只有后端 UI 下载地址指向 NebulaDash Release ZIP 时才允许面板更新，
+// 否则会把 NebulaDash 覆盖成官方 Zashboard。
+const isDashboardUpgradeSupported = computed(() => can('dashboardUpgrade'))
+const canUpgradeFromReleaseSource = computed(() => canUpgradeNebulaDashFromConfig(configs.value))
+const showDashboardUpgrade = computed(
+  () => isDashboardUpgradeSupported.value && canUpgradeFromReleaseSource.value,
+)
+const isDashboardUpgradeBlocked = computed(
+  () => isDashboardUpgradeSupported.value && !canUpgradeFromReleaseSource.value,
+)
 
+const requiredUiDownloadUrl = NEBULADASH_RELEASE_DOWNLOAD_URL
 const isUIUpgrading = ref(false)
 const handlerClickUpgradeUI = async () => {
   if (isUIUpgrading.value) return
