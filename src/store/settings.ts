@@ -309,6 +309,18 @@ export const proxyGroupFilterMap = useStorage<Record<string, string>>(
 )
 export const displayFinalOutbound = useStorage('config/show-selected-for-now-node', false)
 export const twoColumnProxyGroup = useStorage('config/two-columns', true)
+
+/**
+ * NebulaDash: 节点组聚类词表。
+ * 每项是正则片段，用于识别节点组名尾部的“模式”后缀（例如 手动 / 自动 / 故转）。
+ * 列表顺序同时决定簇内排序优先级。
+ */
+export const nodeClusterVariants = useStorage<string[]>('config/node-cluster-variants', [
+  '故转|故障转移|fallback',
+  '手动|manual',
+  '自动|auto',
+  '负载均衡|负载|均衡|loadbalance|balance|lb',
+])
 export const proxyFolderMode = useStorage<FOLDER_MODE>(
   'config/proxy-folder-mode-setting',
   FOLDER_MODE.AUTO,

@@ -22,6 +22,66 @@
 
 ## 2026-06-29
 
+### feat(proxies): 重基线第③组 — 代理页三段视图与节点组聚类排序
+
+- 分支：`rebase/upstream-v3.30.0`
+- 类型：重基线重放（第③组 / 共 8 组）
+- 目的：恢复“策略组 / 节点组 / 代理商”三段视图与同前缀聚类排序。上游 v3.30.0 只有
+  `PROXIES` / `PROVIDER` 两段，且全库没有聚类相关代码。
+
+涉及文件：
+
+- `src/constant/index.ts`（`PROXY_TAB_TYPE` 拆成 `STRATEGY` / `NODE` / `PROVIDER`）
+- `src/helper/proxies.ts`（`proxyGroupRoleSplit` / `renderProxyStrategyGroups` /
+  `renderProxyNodeGroups` / 三段化 `renderProxiesPageItems`）
+- `src/helper/node-group-cluster.ts` + `.spec.ts`（新增）
+- `src/store/proxies.ts`（默认标签 + 旧值 `proxies` 迁移 + 持久化）
+- `src/store/settings.ts`（新增 `config/node-cluster-variants`）
+- `src/components/controls/ProxiesCtrl.tsx`（三段数量、聚类词表编辑器）
+- `src/views/ProxiesPage.vue`（滚动位置按三段存储、文件夹 UI 判定）
+- `src/i18n/{en,zh,zh-tw,ru}.ts`
+- `test/nebula-verify.mjs` + `package.json`（新增 `pnpm test:nebula`）
+
+行为变化：
+
+- 代理页三段：策略组 / 节点组 / 代理商；每段独立记忆滚动位置。
+- 拆分规则：`/rules` 已加载时按规则目标判定策略组，否则回退到代理类型
+  （`selector/urltest/fallback/loadbalance/smart`）。
+- 节点组聚类：同前缀簇相邻，簇内 `故转 > 手动 > 自动 > 负载均衡 > 其他`，
+  簇间优先“被策略组引用次数多”，其次按基础名自然排序（`zh-Hans-CN`, numeric）。
+- 聚类词表可在代理页设置对话框内编辑（每行一个正则片段，顺序即优先级），
+  存储键 `config/node-cluster-variants`。
+- 旧版本持久化的 `proxies` 标签值自动迁移为策略组。
+- 代理文件夹 UI 只在策略组 / 节点组显示，不再限定为旧的 `PROXIES` 单标签。
+
+验证：
+
+- `pnpm test` → 44 项通过（新增 13 项聚类 / 拆分用例）
+- `pnpm type-check` → 通过
+- `pnpm lint` → No issues found
+- `pnpm build` → 通过，入口 chunk 88.47 kB
+- `pnpm test:nebula`（新增 headless Chrome 回归）→ **9/9 通过**：
+  - 三段标签存在且文案正确
+  - 首屏 **0 次** `/providers/proxies` 请求
+  - 切到“代理商”后 **恰好 1 次**请求（去重生效）
+  - Provider 列表与状态徽标正常渲染
+- `pnpm test:verify`（上游自带）→ 虚拟滚动 7 项全部通过，与上游 `bf4f00b` 基线结果一致。
+  该脚本在 `路由往返恢复滚动` 之后有一个 `Illegal invocation` 报错，**上游 pristine 基线同样报错**，
+  属于测试脚本与本机 Chrome 版本的兼容问题，与本次改动无关。
+
+后续注意：
+
+- `PROXY_TAB_TYPE.PROXIES` 已不存在，同步上游时凡是引用它的地方都要改判为
+  `!== PROVIDER`（文件夹 UI、折叠全部分组）或显式三段判断。
+- 拆分发生在搜索过滤之后，聚类只改变顺序，不改变结果集合（有单测保证）。
+- 代理文件夹的 `groupsInActiveFolder` 目前只作用于代理组，Provider 标签不走文件夹。
+- `test/nebula-verify.mjs` 是 NebulaDash 专属回归脚本，上游同步后必须仍能跑通；
+  它依赖 `[role="tab"]`、`[data-proxy-page-item]` 与 `.badge` 这些选择器。
+
+---
+
+## 2026-06-29
+
 ### feat(provider): 重基线第②组 — Provider 按需加载 / 独立超时 / 缓存降级 / 状态机
 
 - 分支：`rebase/upstream-v3.30.0`

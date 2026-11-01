@@ -137,8 +137,15 @@ export enum RULE_TAB_TYPE {
   TRACE = 'daeRoutingTrace',
 }
 
+/**
+ * NebulaDash: 代理页拆成三段视图。
+ *
+ * 上游只有 `PROXIES` / `PROVIDER` 两段，策略组与节点组混排；OpenClash 多 Provider
+ * 配置下混排会导致首屏既慢又难浏览。这里把 `PROXIES` 拆成 `STRATEGY` 与 `NODE`。
+ */
 export enum PROXY_TAB_TYPE {
-  PROXIES = 'proxies',
+  STRATEGY = 'strategyGroup',
+  NODE = 'nodeGroup',
   PROVIDER = 'proxyProvider',
 }
 

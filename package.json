@@ -22,6 +22,7 @@
     "test": "node --test --experimental-strip-types \"src/**/*.spec.ts\"",
     "test:bench": "node test/bench.mjs",
     "test:mock": "node test/mock-server.mjs",
+    "test:nebula": "node test/nebula-verify.mjs",
     "test:setup": "node test/setup.mjs",
     "test:verify": "node test/verify.mjs",
     "type-check": "vue-tsc --build --force"

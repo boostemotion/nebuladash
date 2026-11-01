@@ -116,6 +116,11 @@ const en = {
   defaultTheme: 'Default theme',
   darkTheme: 'Dark theme',
   proxyProvider: 'Proxy provider',
+  strategyGroup: 'Strategy groups',
+  nodeGroup: 'Node groups',
+  nodeClusterVariants: 'Node group clustering keywords',
+  nodeClusterVariantsTip:
+    'One pattern per line, used to detect the suffix variant of node group names. The order also decides the sort priority inside a cluster.',
   ruleProvider: 'Rule provider',
   expire: 'Expires',
   noExpire: 'No expiry',

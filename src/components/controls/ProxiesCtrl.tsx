@@ -5,7 +5,6 @@ import {
   fetchProxies,
   fetchProxyProviders,
   hasSmartGroup,
-  proxyGroupList,
   proxyProviderLastUpdatedAt,
   proxyProviderLoadStatus,
   proxyProviderRequestDurationMs,
@@ -14,7 +13,7 @@ import {
 } from '@/assembly/proxies'
 import { useCtrlsBar } from '@/composables/use-ctrls-bar'
 import { PROXY_SORT_TYPE, PROXY_TAB_TYPE, ROUTE_NAME, SETTINGS_MENU_KEY } from '@/constant'
-import { renderProxiesPageItems } from '@/helper/proxies'
+import { proxyGroupRoleSplit, renderProxiesPageItems } from '@/helper/proxies'
 import { isProxyNodeSearchMode, toggleProxySearchMode } from '@/helper/proxy-search'
 import { getMinCardWidth } from '@/helper/utils'
 import { proxiesFilter, proxiesTabShow } from '@/store/proxies'
@@ -28,6 +27,7 @@ import {
   hideUnavailableProxies,
   manageHiddenGroup,
   minProxyCardWidth,
+  nodeClusterVariants,
   proxyCardSize,
   proxySortType,
   twoColumnProxyGroup,
@@ -86,7 +86,7 @@ export default defineComponent({
     })
 
     const foldersUiVisible = computed(
-      () => isProxyFolderModeActive.value && proxiesTabShow.value === PROXY_TAB_TYPE.PROXIES,
+      () => isProxyFolderModeActive.value && proxiesTabShow.value !== PROXY_TAB_TYPE.PROVIDER,
     )
 
     const defaultModes = ['direct', 'rule', 'global']
@@ -147,6 +147,17 @@ export default defineComponent({
       }
     }
 
+    // NebulaDash: 节点组聚类词表（每行一个正则片段，顺序即簇内优先级）。
+    const nodeClusterVariantsText = computed({
+      get: () => nodeClusterVariants.value.join('\n'),
+      set: (value: string) => {
+        nodeClusterVariants.value = value
+          .split('\n')
+          .map((line) => line.trim())
+          .filter(Boolean)
+      },
+    })
+
     const providerStatusLabel = computed(() => {
       switch (proxyProviderLoadStatus.value) {
         case 'loading':
@@ -199,15 +210,15 @@ export default defineComponent({
     })
 
     const tabsWithNumbers = computed(() => {
-      return Object.values(PROXY_TAB_TYPE).map((type) => {
-        return {
-          type,
-          count:
-            type === PROXY_TAB_TYPE.PROXIES
-              ? proxyGroupList.value.length
-              : proxyProviederList.value.length,
-        }
-      })
+      const { strategyGroups, nodeGroups } = proxyGroupRoleSplit.value
+
+      const countMap: Record<PROXY_TAB_TYPE, number> = {
+        [PROXY_TAB_TYPE.STRATEGY]: strategyGroups.length,
+        [PROXY_TAB_TYPE.NODE]: nodeGroups.length,
+        [PROXY_TAB_TYPE.PROVIDER]: proxyProviederList.value.length,
+      }
+
+      return Object.values(PROXY_TAB_TYPE).map((type) => ({ type, count: countMap[type] }))
     })
     return () => {
       const tabs = (
@@ -293,7 +304,7 @@ export default defineComponent({
           class={[
             'btn btn-circle btn-sm',
             twoColumnProxyGroup.value &&
-              proxiesTabShow.value === PROXY_TAB_TYPE.PROXIES &&
+              proxiesTabShow.value !== PROXY_TAB_TYPE.PROVIDER &&
               'max-sm:hidden',
           ]}
           onClick={handlerClickToggleCollapse}
@@ -424,6 +435,15 @@ export default defineComponent({
                       {t('reset')}
                     </button>
                   </div>
+                </div>
+                <div class="setting-item col-span-full">
+                  <div class="setting-item-label">{t('nodeClusterVariants')}</div>
+                  <textarea
+                    class="textarea textarea-sm w-full font-mono text-xs"
+                    rows={4}
+                    v-model={nodeClusterVariantsText.value}
+                  />
+                  <div class="text-base-content/60 text-xs">{t('nodeClusterVariantsTip')}</div>
                 </div>
               </div>
               <button

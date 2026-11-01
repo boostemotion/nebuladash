@@ -83,7 +83,8 @@ const scrollStatus = useSessionStorage<Record<PROXY_TAB_TYPE, SavedScrollPositio
   'cache/proxies-scroll-status',
   {
     [PROXY_TAB_TYPE.PROVIDER]: 0,
-    [PROXY_TAB_TYPE.PROXIES]: 0,
+    [PROXY_TAB_TYPE.STRATEGY]: 0,
+    [PROXY_TAB_TYPE.NODE]: 0,
   },
 )
 const columnRefs = ref<VirtualColumnRef[]>([])
@@ -274,7 +275,7 @@ const cardVariant = computed(() => `${cardType.value}:${displayTwoColumns.value 
 const estimatedCardHeight = computed(() => (cardType.value === 'mobile' ? 88 : 112))
 
 const foldersUiVisible = computed(
-  () => isProxyFolderModeActive.value && proxiesTabShow.value === PROXY_TAB_TYPE.PROXIES,
+  () => isProxyFolderModeActive.value && proxiesTabShow.value !== PROXY_TAB_TYPE.PROVIDER,
 )
 
 const displayTwoColumns = computed(() => {
